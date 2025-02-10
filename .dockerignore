@@ -1,0 +1,10 @@
+.DS_Store
+.idea/*
+.venv/*
+.gititnore
+
+README.md
+*/README.md
+
+*/node_mouldes
+*/.next
