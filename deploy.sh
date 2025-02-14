@@ -4,7 +4,7 @@
 set -e
 
 echo "🚀 Docker 이미지 빌드 중..."
-docker buildx build --platform linux/amd64 -t ggwakggwak2/winection-web:latest --push . || { echo "❌ Docker 이미지 빌드 실패!"; exit 1; }
+docker buildx build --platform linux/amd64 -t ggwakggwak2/winection-react-web:latest --push . || { echo "❌ Docker 이미지 빌드 실패!"; exit 1; }
 
 echo "📪 Docker Hub에 이미지 푸시 완료!"
 
@@ -15,7 +15,7 @@ REMOTE_PORT="20831"
 REMOTE_COMMANDS="
 
 echo '📦 최신 이미지 다운로드 중...'
-docker pull ggwakggwak2/winection-web:latest || { echo '❌ Docker 이미지 다운로드 실패!'; exit 1; }
+docker pull ggwakggwak2/winection-react-web:latest || { echo '❌ Docker 이미지 다운로드 실패!'; exit 1; }
 
 echo '🛠️ 기존 컨테이너 정리 중...'
 docker stop web || true > /dev/null
@@ -28,7 +28,7 @@ if ! systemctl is-active --quiet docker; then
 fi
 
 echo '🐳 컨테이너 실행 중...'
-docker run -d --name web -p 3000:3000 ggwakggwak2/winection-web:latest || { echo '❌ 컨테이너 실행 실패!'; exit 1; }
+docker run -d --name web -p 3000:3000 ggwakggwak2/winection-react-web:latest || { echo '❌ 컨테이너 실행 실패!'; exit 1; }
 
 echo '🎉 배포 완료!'
 "

@@ -1,5 +1,3 @@
-"use client";
-
 // 이 페이지는 어차피 통합될 예정 아니면 병렬 렌더링? 해서 그대로 사용할 수도
 
 import { useState } from 'react';

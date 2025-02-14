@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from 'react';
 
 const STTWebSocket = () => {
@@ -31,7 +29,7 @@ const STTWebSocket = () => {
       console.log("음성 인식 시작됨");
     };
 
-    recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
+    recognitionInstance.onresult = (event: any) => {
       let newFinalTranscript = '';
       
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -47,7 +45,7 @@ const STTWebSocket = () => {
       }
     };
 
-    recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognitionInstance.onerror = (event: any) => {
       console.error("음성 인식 오류:", event.error);
     };
 

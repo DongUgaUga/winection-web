@@ -9,7 +9,7 @@ COPY /package.json .
 
 COPY . .
 
-RUN npm run build
+#RUN npm run build
 #RUN pnpm build
 
 EXPOSE 3000

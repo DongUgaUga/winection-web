@@ -1,7 +1,7 @@
-interface Window {
-  SpeechRecognition: typeof SpeechRecognition;
-  webkitSpeechRecognition: typeof SpeechRecognition;
-}
+// interface Window {
+//   SpeechRecognition: typeof SpeechRecognition;
+//   webkitSpeechRecognition: typeof SpeechRecognition;
+// }
 
 interface SpeechRecognitionEvent extends Event {
   readonly resultIndex: number;
