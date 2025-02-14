@@ -4,13 +4,14 @@ WORKDIR /src
 
 COPY /package.json .
 
-# RUN npm install -g pnpm && \
+#     RUN npm install -g pnpm && \
 #     pnpm install
+RUN npm install
 
 COPY . .
 
-#RUN npm run build
+RUN npm run build
 #RUN pnpm build
 
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "preview"]
