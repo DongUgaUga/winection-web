@@ -10,8 +10,7 @@ const STTWebSocket = () => {
   const [isListening, setIsListening] = useState(false);
   
   const roomId = "test";
-  const serverIP = "218.150.182.161";
-  const ws = new WebSocket(`ws://${serverIP}:8000/stsl/${roomId}`);
+  const ws = new WebSocket(`ws://${import.meta.env.VITE_SERVER_URL}/stsl/${roomId}`);
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window)) {
