@@ -1,0 +1,22 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  &__menu {
+    display: flex;
+    gap: 75px;
+
+    &--button {
+      border: none;
+      background-color: #fff;
+      color: #7A7A7A;
+      font-family: Pretendard;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      padding: 0;
+    }
+  }
+}

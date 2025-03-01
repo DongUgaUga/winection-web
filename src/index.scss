@@ -1,0 +1,32 @@
+// @use "src/utils/scss/media" as media;
+/* stylelint-disable scss/at-import-no-partial-leading-underscore */
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-width: 1448px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+
+  /* https://css-tricks.com/snippets/css/system-font-stack/ */
+  font-family:
+    NanumBarunGothic,
+    system-ui,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
+
+  // @include media.media-breakpoint(mobile) {
+  //   min-width: 360px;
+  // }
+}
+
+a,
+button {
+  color: #000;
+}
