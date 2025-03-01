@@ -1,4 +1,3 @@
-import './App.css'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import VideoChatHandTracking from './pages/slts'
 import STTWebSocket from './pages/stsl'
