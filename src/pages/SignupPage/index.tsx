@@ -4,6 +4,8 @@ import ManIcon from 'src/assets/man.svg';
 import LockIcon from 'src/assets/lock.svg'
 import UserIcon from 'src/assets/user-classification.svg';
 import ShevronDownIcon from 'src/assets/shevron-down.svg';
+import HomeIcon from 'src/assets/home.svg';
+import AgencyIcon from 'src/assets/agency.svg';
 import { cn } from '@bcsdlab/utils';
 import styles from './SignupPage.module.scss';
 
@@ -26,6 +28,29 @@ export default function SignupPage() {
   passwordCheckRef.current = watch("password-check");
 
   const [userClassification, setUserClassification] = useState('');
+  const [emergencyAgency, setEmergencyAgency] = useState('');
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const triggerDropdown = () => {
+    if (isOpen) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  const onSelectUserClassification = (classification: string) => {
+    setUserClassification(classification);
+    setEmergencyAgency('');
+    setIsOpen(false);
+  }
+
+  const onSelectEmergencyAgency = (agency: string) => {
+    setUserClassification('');
+    setEmergencyAgency(agency);
+    setIsOpen(false);
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.container}>
@@ -64,32 +89,42 @@ export default function SignupPage() {
           />
         </div>
       </div>
-      <div className={styles.container__auth}>
-        <div className={styles.container__input} style={{ borderRadius: '16px' }}>
+      <div className={styles['input-container']}>
+        <div className={styles['input-container__input']}>
           <ManIcon />
           <input
-            className={styles['container__input--field']}
+            className={styles['input-container__input--field']}
             placeholder="닉네임 (필수)"
             {...register("nickname", {
               required: { value: true, message: '닉네임을 입력해주세요.' },
             })}
           />
         </div>
-        <button>중복확인</button>
+        <button className={styles['input-container--check']}>중복확인</button>
       </div>
       
-      <div className={styles.container__classification}>
+      <div
+        className={cn({
+          [styles.container__classification]: true,
+          [styles['container__classification--open']]: isOpen,
+        })}
+      >
         <div className={styles['container__classification--title']}>
           <UserIcon />  
           사용자 구분
         </div>
-        <div className={styles['button-container']}>
+        <div
+          className={cn({
+            [styles['button-container']]: true,
+            [styles['button-container--open']]: isOpen,
+          })}
+        >
           <button
             className={cn({
               [styles['button-container__button']]: true,
               [styles['button-container__button--selected']]: userClassification === '농인',
             })}
-            onClick={() => setUserClassification('농인')}
+            onClick={() => onSelectUserClassification('농인')}
           >
             <div>농인</div>
           </button>
@@ -98,21 +133,60 @@ export default function SignupPage() {
               [styles['button-container__button']]: true,
               [styles['button-container__button--selected']]: userClassification === '일반인',
             })}
-            onClick={() => setUserClassification('일반인')}
+            onClick={() => onSelectUserClassification('일반인')}
           >
             <div>일반인</div>
           </button>
           <button
             className={cn({
               [styles['button-container__button']]: true,
-              [styles['button-container__button--selected']]: userClassification === '응급기관',
+              [styles['button-container__emergency']]: true,
+              [styles['button-container__emergency--selected']]: !!emergencyAgency,
+              [styles['button-container__emergency--open']]: isOpen,
             })}
-            onClick={() => setUserClassification('응급기관')}
+            onClick={() => {
+              triggerDropdown();
+            }}
           >
-            <div>응급기관</div>
+            <div>{emergencyAgency || '응급기관'}</div>
             <ShevronDownIcon />
           </button>
+          {isOpen && (
+            <ul className={styles['emergency-agency']}>
+              <div className={styles['emergency-agency__item']} onClick={() => onSelectEmergencyAgency('병원')}>병원</div>
+              <div className={styles['emergency-agency__item']} onClick={() => onSelectEmergencyAgency('경찰서')}>경찰서</div>
+              <div className={styles['emergency-agency__item']} onClick={() => onSelectEmergencyAgency('소방서')}>소방서</div>
+            </ul>
+          )}
         </div>
+        {emergencyAgency && (
+          <div className={styles['emergency-agency-info']}>
+            <div className={styles['input-container']}>
+              <div className={styles['input-container__input']}>
+                <HomeIcon />
+                <input
+                  className={styles['input-container__input--field']}
+                  placeholder="주소"
+                  {...register("address", {
+                    required: { value: true, message: '주소를 입력해주세요.' },
+                  })}
+                />
+              </div>
+            </div>
+            <div className={styles['input-container']}>
+              <div className={styles['input-container__input']}>
+                <AgencyIcon />
+                <input
+                  className={styles['input-container__input--field']}
+                  placeholder="기관명"
+                  {...register("agency", {
+                    required: { value: true, message: '기관명을 입력해주세요.' },
+                  })}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <button type="submit" className={styles['container--submit']}>가입</button>
     </form>
