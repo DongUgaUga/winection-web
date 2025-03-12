@@ -5,6 +5,9 @@ import styles from './IndexPage.module.scss';
 
 export default function IndexPage() {
   const navigate = useNavigate();
+  const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
+  console.log(userInfo);
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
