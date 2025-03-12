@@ -3,8 +3,14 @@
   flex-direction: column;
   gap: 60px;
 
+  &__input {
+    display: block;
+    unicode-bidi: isolate;
+  }
+
   &__input--field-id {
     display: flex;
+    position: relative;
     padding: 21px 20px;
     justify-content: center;
     align-items: flex-start;
@@ -14,16 +20,24 @@
     border-radius: 16px 16px 0 0;
   }
 
+  &__input--field-id:focus-within {
+    border: 2px solid #237BFF;
+    z-index: 5;
+  }
+
+  &__input--field-pw:focus-within {
+    border: 2px solid #237BFF;
+  }
+
   &__input--field-pw {
     display: flex;
+    position: relative;
+    margin-top: -2px;
     padding: 21px 20px;
     justify-content: center;
     align-items: flex-start;
     gap: 10px;
-    border-width: 0 2px 2px 2px;
-    color: #a2a2a2;
-    border-style: solid;
-    border-color: #d1d1d1;
+    border: 2px solid #d1d1d1;
     border-radius: 0 0 16px 16px;
   }
 
@@ -37,6 +51,12 @@
     line-height: normal;
     border: 0;
     outline: none;
+  }
+
+  &__input--icon {
+    border: 0;
+    background-color: #fff;
+    cursor: pointer;
   }
 
   &__input--icons {
@@ -69,7 +89,7 @@
   text-align: center;
   justify-content: center;
   list-style-type: none;
-  gap: 12px;
+  gap: 38px;
   padding: 0;
 
   &__text-pw,
@@ -79,11 +99,17 @@
     line-height: 17px;
     text-decoration: none;
     color: #888;
+    color: #919191;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
   }
 
   &__text-join::before {
     content : '|';
     color: #919191;
-    margin-right: 12px;
+    margin-right: 38px;
   }
 }
