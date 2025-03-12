@@ -26,8 +26,8 @@ export default function IndexPage() {
         </div>
       </div>
       <div className={styles['button-container']}>
-        <button className={styles['button-container__button']}>로그인</button>
-        <button className={styles['button-container__button']}>회원가입</button>
+        <button className={styles['button-container__button']} onClick={() => navigate('/auth')}>로그인</button>
+        <button className={styles['button-container__button']} onClick={() => navigate('/auth/signup')}>회원가입</button>
       </div>
       {/*추후 삭제 예정*/}
       <div className={styles.buttonsss}>

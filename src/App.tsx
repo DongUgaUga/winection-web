@@ -4,6 +4,9 @@ import STTWebSocket from './pages/stsl'
 import TranslatePage from './pages/ts'
 import IndexPage from './pages/IndexPage'
 import BoardPage from './pages/BoardPage'
+import AuthPage from './pages/AuthPage'
+import SignupPage from './pages/SignupPage'
+import LoginPage from './pages/LoginPage'
 
 function App() {
 
@@ -16,6 +19,10 @@ function App() {
             <Route path="/ts" element={<TranslatePage />} />
             <Route path="/stsl" element={<STTWebSocket />} />
             <Route path="/slts" element={<VideoChatHandTracking />} />
+          </Route>
+          <Route path="/auth" element={<AuthPage />}>
+            <Route index element={<LoginPage />} />
+            <Route path="/auth/signup" element={<SignupPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
