@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import VideoChatHandTracking from './pages/slts'
-import STTWebSocket from './pages/stsl'
+import VideoChatHandTracking from './pages/ToSpeech'
+import STTWebSocket from './pages/ToSign'
 import TranslatePage from './pages/ts'
 import IndexPage from './pages/IndexPage'
 import BoardPage from './pages/BoardPage'
