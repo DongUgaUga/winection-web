@@ -1,6 +1,7 @@
 import WinectionLogo from '/src/assets/winection.svg';
 import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
@@ -17,7 +18,9 @@ export default function Header() {
 
   return (
     <div className={styles.header}>
-      <WinectionLogo />
+      <div className={styles.header__logo} onClick={() => navigate('/')}>
+        <WinectionLogo />
+      </div>
       {userInfo
       ? (
         <div className={styles.header__user}>
