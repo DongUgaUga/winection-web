@@ -1,7 +1,6 @@
 import WinectionLogo from '/src/assets/winection.svg';
 import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
-import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
