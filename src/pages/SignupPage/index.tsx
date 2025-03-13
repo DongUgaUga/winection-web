@@ -31,6 +31,7 @@ export default function SignupPage() {
     }
     
     if(nickname !== watch('nickname') || !userClassification || isDuplicatedNickname) {
+      if(!userClassification) setUserClassification('');
       return;
     }
 
@@ -38,6 +39,7 @@ export default function SignupPage() {
     navigate('/');
     return;
   };
+  
   const passwordRef = useRef(null);
   passwordRef.current = watch("password");
 
@@ -47,7 +49,7 @@ export default function SignupPage() {
   const [nickname, setNickname] = useState('');
   const [isDuplicatedNickname, setIsDuplicateedNickname] = useState(false);
   
-  const [userClassification, setUserClassification] = useState('');
+  const [userClassification, setUserClassification] = useState<string | null>(null);
   const [emergencyAgency, setEmergencyAgency] = useState('');
 
   const [isOpen, setIsOpen] = useState(false);
@@ -229,7 +231,7 @@ export default function SignupPage() {
         <div
           className={cn({
             [styles['button-container']]: true,
-            [styles['button-container--error']]: !userClassification,
+            [styles['button-container--error']]: userClassification === '',
             [styles['button-container--open']]: isOpen,
           })}
         >
@@ -276,7 +278,7 @@ export default function SignupPage() {
             </ul>
           )}
         </div>
-        {!userClassification &&
+        {userClassification === '' &&
           <div className={styles['error-message']}>사용자 구분을 선택해주세요.</div>
         }
         {emergencyAgency && (
