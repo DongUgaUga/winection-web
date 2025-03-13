@@ -4,6 +4,10 @@
   width: 100%;
   margin-top: 64px;
 
+  &__logo {
+    cursor: pointer;
+  }
+
   &__menu {
     display: flex;
     gap: 75px;
