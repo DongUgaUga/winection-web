@@ -39,7 +39,7 @@ const STTWebSocket = () => {
 
       if (newFinalTranscript) {
         setTranscript(newFinalTranscript);
-        ws.send(JSON.stringify({ text: newFinalTranscript }));
+        ws.send(JSON.stringify({ type: "text", data: { text: newFinalTranscript } }));
         console.log("STT 변환 결과:", newFinalTranscript);
       }
     };
