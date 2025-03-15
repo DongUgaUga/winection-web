@@ -154,7 +154,7 @@ export default function SignupPage() {
           <LockIcon />
           <input
             className={styles['container__input--field']}
-            placeholder="비밀번호 확인"
+            placeholder="비밀번호 확인 (필수)"
             type={isPasswordCheckBlind ? 'password' : 'text'}
             {...register("password-check", {
               required: { value: true, message: '비밀번호 확인을 입력해주세요.' },
@@ -226,7 +226,7 @@ export default function SignupPage() {
       >
         <div className={styles['container__classification--title']}>
           <UserIcon />  
-          사용자 구분
+          사용자 구분 (필수)
         </div>
         <div
           className={cn({
