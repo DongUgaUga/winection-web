@@ -1,0 +1,25 @@
+.motto {
+  font-family: Pretendard;
+  font-weight: 600;
+  font-size: 48px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.emphasize {
+  color: #237BFF;
+}
+
+.gradient {
+  background: linear-gradient(90deg, #D2D2D2 0%, #000000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.container {
+  margin: 124px auto 0;
+}
