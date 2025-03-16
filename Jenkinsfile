@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', credentialsId: 'github_token' url: 'https://github.com/DongUgaUga/winection-web.git'
+                git branch: 'main', credentialsId: 'github_token', url: 'https://github.com/DongUgaUga/winection-web.git'
             }
         }
 
