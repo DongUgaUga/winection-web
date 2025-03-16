@@ -3,9 +3,21 @@ pipeline {
 
     environment {
         VITE_SERVER_URL = credentials('vite_server_url')
+        DISCORD = credentials('discord_webhook')
     }
 
     stages {
+        stage('Start Notification') {
+            steps {
+                script {
+                    discordSend description: "젠킨스 배포를 시작합니다!", 
+                        link: env.BUILD_URL, 
+                        title: "${env.JOB_NAME} : ${currentBuild.displayName} 시작", 
+                        webhookURL: env.DISCORD
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'main', credentialsId: 'github_token', url: 'https://github.com/DongUgaUga/winection-web.git'
@@ -29,6 +41,34 @@ pipeline {
                     sh "docker-compose down"
                     sh "docker-compose up -d --build web"
                 }
+            }
+        }
+    }
+
+    post {
+        success {
+            discordSend description: """
+                        제목 : ${currentBuild.displayName}
+                        결과 : ${currentBuild.result}
+                        실행 시간 : ${currentBuild.duration / 1000}s
+                        """, 
+                    footer: "빌드 성공!", 
+                    link: env.BUILD_URL, result: currentBuild.currentResult, 
+                    title: "${env.JOB_NAME} : ${currentBuild.displayName} 성공", 
+                    webhookURL: env.DISCORD
+        }
+        failure {
+            script {
+                def logs = currentBuild.rawBuild.join("\n")
+                discordSend description: """
+                        제목 : ${currentBuild.displayName}
+                        결과 : ${currentBuild.result}
+                        실행 시간 : ${currentBuild.duration / 1000}s
+                        """, 
+                    footer: "⚠️ 빌드 실패 로그 ⚠️\n```\n${logs}\n```", 
+                    link: env.BUILD_URL, result: currentBuild.currentResult, 
+                    title: "${env.JOB_NAME} : ${currentBuild.displayName} 실패", 
+                    webhookURL: env.DISCORD
             }
         }
     }
