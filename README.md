@@ -1,5 +1,6 @@
 # Winection Web
-농인을 위한 양방향 수어 변환 화상채팅 시스템 Web
+농인을 위한 양방향 수어 변환 화상채팅 시스템
+web
 
 # React + TypeScript + Vite
 
