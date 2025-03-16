@@ -10,16 +10,6 @@ pipeline {
             }
         }
 
-stage('Set up Environment Variables') {
-            steps {
-                script {
-                    sh """
-                    echo "VITE_SERVER_URL=${VITE_SERVER_URL}" > .env
-                    """
-                }
-            }
-        }
-
         stage('Deploy') {
             steps {
                 script {
