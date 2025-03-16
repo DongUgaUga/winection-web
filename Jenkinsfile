@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    environment {
+        VITE_SERVER_URL = credentials('vite_server_url')
+    }
     stages {
         stage('Checkout') {
             steps {
