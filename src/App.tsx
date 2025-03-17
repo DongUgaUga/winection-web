@@ -8,6 +8,7 @@ import AuthPage from './pages/AuthPage'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import FindPasswordPage from './pages/FindPasswordPage'
+import CallWaitPage from './pages/CallWaitPage'
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<BoardPage />}>
             <Route path="/" element={<IndexPage />} />
+            <Route path="/:calltype" element={<CallWaitPage />} />
             <Route path="/ts" element={<TranslatePage />} />
             <Route path="/stsl" element={<STTWebSocket />} />
             <Route path="/slts" element={<VideoChatHandTracking />} />
