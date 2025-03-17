@@ -7,6 +7,7 @@ import BoardPage from './pages/BoardPage'
 import AuthPage from './pages/AuthPage'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
+import FindPasswordPage from './pages/FindPasswordPage'
 import CallWaitPage from './pages/CallWaitPage'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/auth" element={<AuthPage />}>
             <Route index element={<LoginPage />} />
             <Route path="/auth/signup" element={<SignupPage />} />
+            <Route path="/auth/find-pw" element={<FindPasswordPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
