@@ -18,6 +18,6 @@ export default defineConfig({
     }
   },
   preview: {
-    allowedHosts: ["winection.kro.kr"],
+    allowedHosts: ["winection.kro.kr", "www.winection.kro.kr"],
   }
 })

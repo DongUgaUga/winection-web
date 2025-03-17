@@ -10,7 +10,7 @@ const STTWebSocket = () => {
   const [isListening, setIsListening] = useState(false);
   
   const roomId = "test";
-  const ws = new WebSocket(`ws://${import.meta.env.VITE_SERVER_URL}/stsl/${roomId}`);
+  const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/stsl/${roomId}`);
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window)) {
@@ -39,7 +39,7 @@ const STTWebSocket = () => {
 
       if (newFinalTranscript) {
         setTranscript(newFinalTranscript);
-        ws.send(JSON.stringify({ text: newFinalTranscript }));
+        ws.send(JSON.stringify({ type: "text", data: { text: newFinalTranscript } }));
         console.log("STT 변환 결과:", newFinalTranscript);
       }
     };

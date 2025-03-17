@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom"
 import GirlImage from 'src/assets/index-girl.svg';
 import ManImage from 'src/assets/index-man.svg';
-import styles from './IndexPage.module.scss';
+import styles from './NonLoginView.module.scss';
 
-export default function IndexPage() {
+export default function NonLoginView() {
   const navigate = useNavigate();
   return (
     <div className={styles.container}>
@@ -28,12 +28,6 @@ export default function IndexPage() {
       <div className={styles['button-container']}>
         <button className={styles['button-container__button']} onClick={() => navigate('/auth')}>로그인</button>
         <button className={styles['button-container__button']} onClick={() => navigate('/auth/signup')}>회원가입</button>
-      </div>
-      {/*추후 삭제 예정*/}
-      <div className={styles.buttonsss}>
-        <button onClick={() => navigate('/ts')}>ts</button>
-        <button onClick={() => navigate('/stsl')}>stsl</button>
-        <button onClick={() => navigate('/slts')}>slts</button>
       </div>
     </div>
   )
