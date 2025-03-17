@@ -3,7 +3,7 @@ import GeneralCallWait from './GeneralCallWait';
 import EmergencyCallWait from './EmergencyCallWait';
 import styles from './CallWaitPage.module.scss';
 
-export default function CallWatiPage() {
+export default function CallWaitPage() {
   // const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
   // const userClassification = userInfo.userClassification;
   const param = useParams();
