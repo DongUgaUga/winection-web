@@ -108,7 +108,7 @@ export default function LoginPage() {
       </div>
 
       <div className={styles['find-wrap']}>
-        <button className={styles['find-wrap__button']} onClick={() => navigate('/find-pw')}>비밀번호 찾기</button>
+        <button className={styles['find-wrap__button']} onClick={() => navigate('/auth/find-pw')}>비밀번호 찾기</button>
         <div>|</div>
         <button className={styles['find-wrap__button']} onClick={() => navigate('/auth/signup')}>회원가입</button>
       </div>
