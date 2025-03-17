@@ -1,3 +1,7 @@
+# Winection Web
+농인을 위한 양방향 수어 변환 화상채팅 시스템 
+web
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
