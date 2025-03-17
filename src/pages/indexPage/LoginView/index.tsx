@@ -8,6 +8,14 @@ export default function LoginView() {
   const userClassification = userInfo.userClassification;
   const navigate = useNavigate();
 
+  const startCall = () => {
+    if (userClassification === '일반인') {
+      navigate('/general-call');
+    } else {
+      // 신고 접수 대기 페이지로 이동
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.motto}>
@@ -27,10 +35,13 @@ export default function LoginView() {
           </div>
         ) : (
           <div className={styles['general-call']}>
-            <button className={cn({
-              [styles.call__button]: true,
-              [styles['call__button--start']]: true,
-            })}>
+            <button
+              className={cn({
+                [styles.call__button]: true,
+                [styles['call__button--start']]: true,
+              })}
+              onClick={startCall}
+            >
               {userClassification === '일반인' ? '영상통화 시작하기' : '신고 접수 대기'}
             </button>
           </div>

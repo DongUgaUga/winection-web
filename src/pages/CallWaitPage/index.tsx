@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
-import styles from './CallWaitPage.module.scss';
 import GeneralCallWait from './GeneralCallWait';
+import EmergencyCallWait from './EmergencyCallWait';
+import styles from './CallWaitPage.module.scss';
 
 export default function CallWatiPage() {
   // const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
@@ -16,10 +17,8 @@ export default function CallWatiPage() {
       </div>
       <div className={styles['before-call']}>
         {param.calltype === 'general-call'
-          ?
-            <GeneralCallWait />
-          :
-          <div></div>
+          ? <GeneralCallWait />
+          : <EmergencyCallWait />
         }
       </div>
     </div>
