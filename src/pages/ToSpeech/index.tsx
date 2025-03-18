@@ -20,7 +20,7 @@ const VideoChatHandTracking: React.FC = () => {
     useEffect(() => {
         if (!roomId) return;
 
-        const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/ws/${roomId}`);
+        const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${roomId}`);
         wsRef.current = ws;
 
         ws.onmessage = async (event) => {

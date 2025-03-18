@@ -16,7 +16,7 @@ const TranslatePage = () => {
     }
 
     try {
-      const response = await fetch('http://218.150.182.161:8000/translate', {
+      const response = await fetch(`https://${import.meta.env.VITE_SERVER_URL}/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ words })
