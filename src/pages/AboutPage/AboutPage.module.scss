@@ -1,0 +1,74 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
+  gap: 20px;
+
+  .title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #237BFF;
+    font-family: Pretendard, sans-serif;
+  }
+
+  .description {
+    max-width: 600px;
+    font-size: 18px;
+    color: #333;
+    line-height: 1.6;
+    font-family: Pretendard, sans-serif;
+  }
+
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    font-family: Pretendard, sans-serif;
+
+    .featureItem {
+      background: #F8F8F8;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+
+      h2 {
+        font-size: 20px;
+        color: #237BFF;
+        margin-bottom: 8px;
+      }
+
+      p {
+        font-size: 16px;
+        color: #555;
+      }
+    }
+  }
+
+  .callToAction {
+    margin-top: 30px;
+    font-family: Pretendard, sans-serif;
+
+    p {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .button {
+      background-color: #237BFF;
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+
+      &:hover {
+        background-color: #1a5fcb;
+      }
+    }
+  }
+}
