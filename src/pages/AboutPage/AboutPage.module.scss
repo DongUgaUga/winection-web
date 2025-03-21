@@ -17,7 +17,6 @@
     transition: opacity 0.8s ease, transform 0.8s ease;
     opacity: 0.2;
     transform: scale(0.95);
-    padding: 2rem;
     text-align: center;
     overflow-x: hidden;
 
@@ -43,5 +42,24 @@
     font-size: 1.25rem;
     max-width: 600px;
     color: #5A5A5A;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 250px;
+    animation:circlemove 1.5s infinite linear;
+    color: #44444449;
+    cursor: pointer;
+  }
+}
+
+@keyframes circlemove {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15%);
   }
 }

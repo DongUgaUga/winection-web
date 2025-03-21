@@ -1,5 +1,6 @@
 import { useInView } from 'react-intersection-observer';
 import { useEffect, useState } from 'react';
+import DownArrowIcon from 'src/assets/down-arrow.svg';
 import styles from './AboutPage.module.scss';
 
 const sections = [
@@ -42,15 +43,21 @@ export default function AboutPage() {
       {sections.map((section, index) => {
         const observer = observers[index];
         return (
-          <section
-            key={section.id}
-            ref={observer.ref}
-            className={`${styles['about-page__section']} ${currentSection === section.id ? styles['about-page__section--active'] : ''}`}
-          >
-            <h1 className={styles['about-page__title']}>{section.title}</h1>
-            <h2 className={styles['about-page__subtitle']}>{section.subtitle}</h2>
-            <p className={styles['about-page__description']}>{section.description}</p>
-          </section>
+            <section
+              key={section.id}
+              ref={observer.ref}
+              className={`${styles['about-page__section']} ${currentSection === section.id ? styles['about-page__section--active'] : ''}`}
+            >
+              <h1 className={styles['about-page__title']}>{section.title}</h1>
+              <h2 className={styles['about-page__subtitle']}>{section.subtitle}</h2>
+              <p className={styles['about-page__description']}>{section.description}</p>
+              
+              {index < 2 && (
+              <div className={styles['about-page__icon']}>
+                <DownArrowIcon />
+              </div>
+              )}
+            </section>
         );
       })}
     </div>
