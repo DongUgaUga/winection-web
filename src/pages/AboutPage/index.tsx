@@ -1,33 +1,58 @@
+import { useInView } from 'react-intersection-observer';
+import { useEffect, useState } from 'react';
 import styles from './AboutPage.module.scss';
 
+const sections = [
+  {
+    id: 'intro',
+    title: 'We-connent:',
+    subtitle: '변화를 두려워하지 않는 사람들이',
+    description: '서로 연결되어 세상을 바꾸는 힘을 만듭니다.'
+  },
+  {
+    id: 'problem',
+    title: '소통의 벽을 마주한 농인들',
+    subtitle: '우리는 질문했습니다.',
+    description: '어떻게 하면 그 벽을 허물 수 있을까? 그리고 마침내, 해답을 찾았습니다.'
+  },
+  {
+    id: 'solution',
+    title: 'Wenection으로',
+    subtitle: '당신의 세상과 이어지는 새로운 연결',
+    description: '기술로 경계를 허물고, 모두가 함께하는 세상을 만들어갑니다.'
+  }
+];
+
 export default function AboutPage() {
+  const [currentSection, setCurrentSection] = useState('intro');
+
+  const observers = sections.map((section) => {
+    const [ref, inView] = useInView({ threshold: 0.2 });
+    return { id: section.id, ref, inView };
+  });
+
+  useEffect(() => {
+    observers.forEach(({ id, inView }) => {
+      if (inView) setCurrentSection(id);
+    });
+  }, [observers.map((obs) => obs.inView).join(',')]);
+
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>We-connection</h1>
-      <p className={styles.description}>
-        <strong>Winection</strong>은 응급 상황에서 신속한 대응을 위해 긴급 통화 중 사용자의 위치 정보를 GPS를 통해 공유합니다.
-        이를 통해 보다 정확하고 빠른 지원이 이루어질 수 있도록 돕습니다.
-      </p>
-
-      <div className={styles.features}>
-        <div className={styles.featureItem}>
-          <h2>📍 실시간 위치 공유</h2>
-          <p>긴급 통화 중 사용자의 현재 위치를 자동으로 공유하여 구조 요청을 보다 신속하게 처리할 수 있도록 합니다.</p>
-        </div>
-        <div className={styles.featureItem}>
-          <h2>📞 직관적인 인터페이스</h2>
-          <p>위급 상황에서도 쉽게 사용할 수 있도록 간결한 UI/UX를 제공합니다.</p>
-        </div>
-        <div className={styles.featureItem}>
-          <h2>🛠 강력한 보안</h2>
-          <p>사용자의 위치 정보는 철저하게 보호되며, 긴급 상황에서만 안전하게 공유됩니다.</p>
-        </div>
-      </div>
-
-      <div className={styles.callToAction}>
-        <p>더 많은 정보를 확인하고 싶다면 아래 버튼을 눌러주세요.</p>
-        <button className={styles.button} onClick={() => alert('자세한 정보 페이지로 이동합니다.')}>자세히 보기</button>
-      </div>
+    <div className={styles['about-page']}>
+      {sections.map((section, index) => {
+        const observer = observers[index];
+        return (
+          <section
+            key={section.id}
+            ref={observer.ref}
+            className={`${styles['about-page__section']} ${currentSection === section.id ? styles['about-page__section--active'] : ''}`}
+          >
+            <h1 className={styles['about-page__title']}>{section.title}</h1>
+            <h2 className={styles['about-page__subtitle']}>{section.subtitle}</h2>
+            <p className={styles['about-page__description']}>{section.description}</p>
+          </section>
+        );
+      })}
     </div>
   );
-};
+}
