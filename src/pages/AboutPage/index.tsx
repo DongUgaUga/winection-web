@@ -1,7 +1,9 @@
 import { useInView } from 'react-intersection-observer';
 import { useEffect, useState } from 'react';
 import DownArrowIcon from 'src/assets/down-arrow.svg';
+import Winecion from 'src/assets/winection.svg';
 import styles from './AboutPage.module.scss';
+import { useNavigate } from 'react-router-dom';
 
 const sections = [
   {
@@ -25,6 +27,7 @@ const sections = [
 ];
 
 export default function AboutPage() {
+  const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState('intro');
 
   const observers = sections.map((section) => {
@@ -39,27 +42,32 @@ export default function AboutPage() {
   }, [observers.map((obs) => obs.inView).join(',')]);
 
   return (
-    <div className={styles['about-page']}>
-      {sections.map((section, index) => {
-        const observer = observers[index];
-        return (
-            <section
-              key={section.id}
-              ref={observer.ref}
-              className={`${styles['about-page__section']} ${currentSection === section.id ? styles['about-page__section--active'] : ''}`}
-            >
-              <h1 className={styles['about-page__title']}>{section.title}</h1>
-              <h2 className={styles['about-page__subtitle']}>{section.subtitle}</h2>
-              <p className={styles['about-page__description']}>{section.description}</p>
-              
-              {index < 2 && (
-              <div className={styles['about-page__icon']}>
-                <DownArrowIcon />
-              </div>
-              )}
-            </section>
-        );
-      })}
-    </div>
+    <>
+      <div className={styles['about-logo']} onClick={() => navigate('/')}>
+        <Winecion />
+      </div>
+      <div className={styles['about-page']}>
+        {sections.map((section, index) => {
+          const observer = observers[index];
+          return (
+              <section
+                key={section.id}
+                ref={observer.ref}
+                className={`${styles['about-page__section']} ${currentSection === section.id ? styles['about-page__section--active'] : ''}`}
+              >
+                <h1 className={styles['about-page__title']}>{section.title}</h1>
+                <h2 className={styles['about-page__subtitle']}>{section.subtitle}</h2>
+                <p className={styles['about-page__description']}>{section.description}</p>
+                
+                {index < 2 && (
+                <div className={styles['about-page__icon']}>
+                  <DownArrowIcon />
+                </div>
+                )}
+              </section>
+          );
+        })}
+      </div>
+    </>
   );
 }
