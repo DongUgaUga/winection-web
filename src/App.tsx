@@ -9,6 +9,7 @@ import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import FindPasswordPage from './pages/FindPasswordPage'
 import CallWaitPage from './pages/CallWaitPage'
+import AboutPage from './pages/AboutPage'
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
             <Route path="/auth/signup" element={<SignupPage />} />
             <Route path="/auth/find-pw" element={<FindPasswordPage />} />
           </Route>
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </BrowserRouter>
     </>
