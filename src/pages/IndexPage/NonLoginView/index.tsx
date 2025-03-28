@@ -8,20 +8,21 @@ export default function NonLoginView() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <div className={styles.content__left}>
+        <div className={styles.content__introduce}>
           <div className={styles['content__main-text']}>
             <span className={styles['content__main-text--name']}>Winection</span> 으로 소통의 한계를 뛰어넘어 보세요.
           </div>
           <p className={styles.content__description}>
-            Winection은 <span>응급 상황에서 신속한 대응을 위해</span> 긴급 통화 중 사용자의
+            Winection은 <span>양방향 수어 번역 화상채팅 서비스</span>로 온라인 환경에서 농인들의 원활한 소통을 지원합니다.
             <br />
-            위치 정보를 GPS를 통해 공유합니다. 이를 통해 보다 정확하고 빠른 지원이
             <br />
-            이루어질 수 있도록 돕습니다.
+            농인들에게는 목소리를 선물하고, 실제 목소리를 수어로 바꾸어 보여주는 화상채팅 플랫폼,
+            <br />
+            지금 <span>Winection</span>에서 만나보세요.
           </p>
-          <GirlImage />
         </div>
-        <div className={styles.content__right}>
+        <div className={styles.content__image}>
+          <GirlImage />
           <ManImage />
         </div>
       </div>
