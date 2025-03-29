@@ -1,5 +1,6 @@
 
 .enter-call-container {
+  position: relative;
   margin: 121px 0 50px;
   display: flex;
   flex-direction: column;
@@ -56,6 +57,10 @@
 
     &:focus-within {
       border: 1px #237BFF solid;
+    }
+
+    &--error {
+      border: 1px #F10000 solid;
     }
   }
 
@@ -130,4 +135,17 @@
     line-height: 100%;  
     letter-spacing: 0%;
   }
+}
+
+.error {
+  position: absolute;
+  right: 0;
+  bottom: 20px;
+  text-align: right;
+  font-family: Pretendard;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #F10000;
 }
