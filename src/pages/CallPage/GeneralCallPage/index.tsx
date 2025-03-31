@@ -9,6 +9,7 @@ import CallEndIcon from 'src/assets/end-call.svg';
 import Video from '../components/Video';
 import LoadingSpinner from 'src/assets/loading-spinner.gif';
 import styles from './GeneralCallPage.module.scss';
+import Toast from '../../../components/Toast';
 
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
@@ -112,6 +113,9 @@ function StyleSelect() {
 export default function GeneralCallPage() {
   const params = useParams();
   const navigate = useNavigate();
+
+  const [copyToast, setCopyToast] = useState(false);
+
   const [isMicActive, setIsMicActive] = useState(true);
   const [isCameraActive, setIsCameraActive] = useState(true);
 
@@ -119,6 +123,16 @@ export default function GeneralCallPage() {
   const [callStartTime, setCallStartTime] = useState<string | null>(null);
   const [callTime, setCallTime] = useState(0);
   const intervalRef = useRef<number | null>(null); // setInterval ID 저장
+
+  const copyRoomCode = () => {
+    navigator.clipboard.writeText(params.code!)
+    .then(() => {
+      setCopyToast(true);
+    })
+    .catch(() => {
+      alert('코드 복사에 실패했습니다.')
+    })
+  }
 
   const handleMic = () => {
     setIsMicActive((state) => !state);
@@ -173,10 +187,16 @@ export default function GeneralCallPage() {
           className={styles.code__input}
         />
         <button
-          className={styles.code__button}  
+          className={styles.code__button}
+          onClick={copyRoomCode}
         >
           Copy
         </button>
+        {copyToast && (
+          <div className={styles.toast}>
+            <Toast setToast={setCopyToast} text='copied!' />
+          </div>
+        )}
       </div>
       <div
         className={cn({
