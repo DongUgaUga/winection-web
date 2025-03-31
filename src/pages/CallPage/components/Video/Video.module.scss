@@ -1,0 +1,54 @@
+.video-container {
+  display: flex;
+
+  &__main-video {
+    border: 2px solid #237BFF;
+    width: 950px;
+    height: 600px;
+    transform: scaleX(-1);
+    object-fit: cover; 
+  }
+
+  &__sub-video {
+    border: 2px solid #237BFF;
+    width: 322px;
+    height: 194px;
+    transform: scaleX(-1);
+    object-fit: cover;
+    margin-left: -2px;
+  }
+}
+
+.opponent {
+  margin: 20px 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &--title {
+      font-family: Pretendard;
+      font-weight: 700;
+      font-size: 22px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      color: #237BFF;
+    }
+
+    &--text {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      letter-spacing: 0%;
+
+      & > span {
+        color: #777777;
+      }
+    }
+  }
+}

@@ -1,11 +1,13 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import CameraIcon from 'src/assets/camera.svg';
 import CameraBlcokIcon from 'src/assets/block-camera.svg';
 import MicIcon from 'src/assets/mic.svg';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import CallEndIcon from 'src/assets/end-call.svg';
+import Video from '../components/Video';
+import LoadingSpinner from 'src/assets/loading-spinner.gif';
 import styles from './GeneralCallPage.module.scss';
 
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
@@ -27,6 +29,14 @@ const AVATARS = [
     name: '라라'
   }
 ];
+
+// 시간 포맷 (예: 00:02:15)
+const formatTime = (seconds: number) => {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+};
 
 function StyleSelect() {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
@@ -75,8 +85,12 @@ function StyleSelect() {
 
 export default function GeneralCallPage() {
   const params = useParams();
-  const [isMicActive, setIsMicActive] = useState(false);
-  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(true);
+  const [isCameraActive, setIsCameraActive] = useState(true);
+
+  const [peerStatus, setPeerStatus] = useState(false);
+  const [callTime, setCallTime] = useState(0);
+  const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
   const handleMic = () => {
     setIsMicActive((state) => !state);
@@ -86,9 +100,28 @@ export default function GeneralCallPage() {
     setIsCameraActive((state) => !state);
   }
 
+  useEffect(() => {
+    if (peerStatus) {
+      intervalRef.current = window.setInterval(() => {
+        setCallTime((prev) => prev + 1);
+      }, 1000);
+    }
+
+    // cleanup: 나갈 때나 peerStatus가 false일 때 인터벌 제거
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [peerStatus]);
+
   return (
     <div className={styles.container}>
-      <div className={styles.code}>
+      <div className={cn({
+        [styles.code]: true,
+        [styles['code__success-connect']]: peerStatus,
+      })}>
         <input
           disabled
           value={params.code}
@@ -100,7 +133,11 @@ export default function GeneralCallPage() {
           Copy
         </button>
       </div>
-      <div className={styles.content}>
+      <div
+        className={cn({
+          [styles.content]: true,
+          [styles['content__success-connect']]: peerStatus,
+        })}>
         <StyleSelect />
         <div>
           <div className={styles['video-chat__box']}>
@@ -119,22 +156,39 @@ export default function GeneralCallPage() {
                   {isMicActive ? <MicIcon /> : <MicBlockIcon />}
                 </button>
               </div>
-              <div>녹화 주우우우우우웅</div>
+              {peerStatus
+              ? (
+                <div className={styles['call-time']}>
+                  <div className={styles['call-time__recording']}></div>
+                  <div className={styles['call-time__time']}>{formatTime(callTime)}</div>
+                </div>
+              )
+              : (
+                <div className={styles['connect-wait']}>
+                  <img style={{width: '17px', height: '17px' }} src={LoadingSpinner} />
+                  <div className={styles['connect-wait__text']}>상대방의 접속을 기다리고 있습니다.</div>
+                </div>
+              )}
+              
               <button className={styles['video-chat__controls--button']}>
                 <CallEndIcon />
               </button>
             </div>
-            <div className={styles['video-chat__video']}>
-              대충 비디오나오는 곳
-            </div>
+            {params.code
+            ?
+              <Video
+                peerStatus={peerStatus}
+                setPeerStatus={setPeerStatus}
+                code={params.code}
+                isCameraActive={isCameraActive}
+                isMicActive={isMicActive}
+              />
+            : <div>
+                올바르지 않은 경로입니다.
+              </div>
+            }
+            
           </div>
-          <p className={styles['video-chat__chat']}>
-            대추웅우우우우ㅇ우우ㅜ우웅웅웅 텍스트
-            <br />
-            대추웅우우우우ㅇ우우ㅜ우웅웅웅 텍스트
-            <br />
-            대추웅우우우우ㅇ우우ㅜ우웅웅웅 텍스트
-          </p>
         </div>
       </div>
     </div>

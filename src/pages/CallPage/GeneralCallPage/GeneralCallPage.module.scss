@@ -3,6 +3,16 @@
   padding: 20px 0;
 }
 
+.content {
+  width: 1155px;
+  display: flex;
+  justify-content: space-between;
+
+  &__success-connect {
+    width: 1500px;
+  }
+}
+
 .code {
   position: relative;
   top: -40px;
@@ -43,6 +53,10 @@
     text-align: center;
     cursor: pointer;
   }
+
+  &__success-connect {
+    left: 395px;
+  }
 }
 
 .style {
@@ -50,7 +64,8 @@
   flex-direction: column;
   height: 597px;
   justify-content: space-between;
-  margin: auto 0;
+  position: relative;
+  top: 65px;
 
   &__select {
     font-family: Pretendard;
@@ -122,15 +137,48 @@
   }
 }
 
-.content {
-  width: 1155px;
+.call-time {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  &__recording {
+    width: 18px;
+    height: 18px;
+    background-color: #F10000;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 1px 1px 4px 0px #00000080;
+  }
+
+  &__time {
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+  }
+}
+
+.connect-wait {
+  display: flex;
+  gap: 8px;
+
+  &__text {
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+  }
 }
 
 .video-chat {
 
   &__controls {
+    width: 954px;
     display: flex;
     justify-content: space-between;
     align-items: center;
