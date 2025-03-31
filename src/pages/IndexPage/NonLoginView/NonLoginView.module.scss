@@ -1,6 +1,8 @@
 .container {
   position: relative;
-  margin: 146px auto;
+  // 한 페이지에 담기 위함.. 스크롤 없이..
+  margin: auto;
+  padding: 40px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8,17 +10,18 @@
 }
 
 .content {
-  display: flex;
-  gap: 53px;
 
-  &__left {
+  &__introduce {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 10px;
   }
 
-  &__right {
-    margin-top: 43px;
+  &__image {
+    margin-top: 26px;
+    display: flex;
+    justify-content: space-between;
+    gap: 368px;
   }
 
   &__main-text {
@@ -27,7 +30,7 @@
     font-size: 32px;
     line-height: 38.19px;
     letter-spacing: 0%;
-    text-align: center;
+    text-align: left;
 
     &--name {
       font-family: Pretendard;

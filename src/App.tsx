@@ -9,6 +9,7 @@ import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import FindPasswordPage from './pages/FindPasswordPage'
 import CallWaitPage from './pages/CallWaitPage'
+import CallPage from './pages/CallPage'
 import AboutPage from './pages/AboutPage'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<BoardPage />}>
             <Route path="/" element={<IndexPage />} />
             <Route path="/:calltype" element={<CallWaitPage />} />
+            <Route path="/:calltype/:code" element={<CallPage />} />
             <Route path="/ts" element={<TranslatePage />} />
             <Route path="/stsl" element={<STTWebSocket />} />
             <Route path="/slts" element={<VideoChatHandTracking />} />

@@ -1,5 +1,6 @@
 .container {
-  margin: 198px 0 307px 0;
+  margin: auto 0;
+  padding: 40px 0;
 }
 
 .motto {
@@ -25,8 +26,9 @@
 }
 
 .call {
-  margin: 70px auto;
+  margin-top: 70px;
   display: flex;
+  justify-content: center;
   gap: 85px;
 
   &__type {
@@ -56,5 +58,5 @@
 }
 
 .general-call {
-  margin: 91px 0 160px 0;
+  margin-top: 91px;
 }
