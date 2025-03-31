@@ -28,7 +28,8 @@ export default function LoginPage() {
     setPw('');
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (!id || !pw) {
       setIsError(true);
       return;
@@ -52,65 +53,70 @@ export default function LoginPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.container__input}>
-        <div className={styles['container__input--field-id']}>
-          <input
-            placeholder='아이디를 입력하세요.'
-            className={styles['container__input--text']}
-            onChange={currentId}
-            value={id}
-          />
-          <button
-            onClick={deleteIdHandler}
-            className={styles['container__input--icon']}
-            tabIndex={-1}
-          >
-            <DeleteIcon />
-          </button>
-        </div>
-
-        <div className={styles['container__input--field-pw']}>
-          <input
-            type={showPw ? "text" : "password"}
-            placeholder='비밀번호를 입력하세요.'
-            className={styles['container__input--text']}
-            onChange={currentPw} 
-            value={pw}
-          />
-          <div className={styles['container__input--icons']}>
+      <form className={styles.container} onSubmit={onSubmit}>
+        <div className={styles.container__input}>
+          <div className={styles['container__input--field-id']}>
+            <input
+              placeholder='아이디를 입력하세요.'
+              className={styles['container__input--text']}
+              onChange={currentId}
+              value={id}
+            />
             <button
-              onClick={toggleShowPw}
-              className={styles['container__input--icon']}
-              tabIndex={-1}
-            >
-              {showPw ? <EyeIcon /> : <BlindIcon />}
-            </button>
-            <button
-              onClick={deletePwHandler}
+              type="button"
+              onClick={deleteIdHandler}
               className={styles['container__input--icon']}
               tabIndex={-1}
             >
               <DeleteIcon />
             </button>
           </div>
+
+          <div className={styles['container__input--field-pw']}>
+            <input
+              type={showPw ? "text" : "password"}
+              placeholder='비밀번호를 입력하세요.'
+              className={styles['container__input--text']}
+              onChange={currentPw} 
+              value={pw}
+            />
+            <div className={styles['container__input--icons']}>
+              <button
+                type="button"
+                onClick={toggleShowPw}
+                className={styles['container__input--icon']}
+                tabIndex={-1}
+              >
+                {showPw ? <EyeIcon /> : <BlindIcon />}
+              </button>
+              <button
+                type="button"
+                onClick={deletePwHandler}
+                className={styles['container__input--icon']}
+                tabIndex={-1}
+              >
+                <DeleteIcon />
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div>
-        {isError && (
-          <div className={styles.error}>아이디 또는 비밀번호를 다시 확인해 주세요.</div>
-        )}
-        <button
-          className={styles.container__submit}
-          onClick={onSubmit}
-        >
-          로그인
-        </button>
-      </div>
+        <div>
+          {isError && (
+            <div className={styles.error}>아이디 또는 비밀번호를 다시 확인해 주세요.</div>
+          )}
+          <button
+            className={styles.container__submit}
+            type="submit"
+          >
+            로그인
+          </button>
+        </div>
+      </form>
 
       <div className={styles['find-wrap']}>
-        <button className={styles['find-wrap__button']} onClick={() => navigate('/auth/find-pw')}>비밀번호 찾기</button>
+        <button type="button" className={styles['find-wrap__button']} onClick={() => navigate('/auth/find-pw')}>비밀번호 찾기</button>
         <div>|</div>
-        <button className={styles['find-wrap__button']} onClick={() => navigate('/auth/signup')}>회원가입</button>
+        <button type="button" className={styles['find-wrap__button']} onClick={() => navigate('/auth/signup')}>회원가입</button>
       </div>
     </div>
   )
