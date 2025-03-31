@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import CameraIcon from 'src/assets/camera.svg';
@@ -31,12 +31,38 @@ const AVATARS = [
 ];
 
 // 시간 포맷 (예: 00:02:15)
-const formatTime = (seconds: number) => {
+const formatTime = (seconds: number, type: 'digit' | 'korean') => {
   const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
   const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
   const s = String(seconds % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
+  if (type === 'digit') {
+    return `${h}:${m}:${s}`;  
+  }
+
+  if (type === 'korean') {
+    if (h === '00' && m === '00') {
+      return `${s}초`;
+    }
+    if (h === '00') {
+      return `${m}분 ${s}초`;
+    }
+    return `${h} ${m}분 ${s}초`;
+  }
+
+  return '0';
 };
+
+const formatKoreanDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 0-based month
+  const day = String(date.getDate()).padStart(2, '0');
+
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}년 ${month}월 ${day}일  ${hour}시 ${minute}분`;
+};
+
 
 function StyleSelect() {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
@@ -85,10 +111,12 @@ function StyleSelect() {
 
 export default function GeneralCallPage() {
   const params = useParams();
+  const navigate = useNavigate();
   const [isMicActive, setIsMicActive] = useState(true);
   const [isCameraActive, setIsCameraActive] = useState(true);
 
   const [peerStatus, setPeerStatus] = useState(false);
+  const [callStartTime, setCallStartTime] = useState<string | null>(null);
   const [callTime, setCallTime] = useState(0);
   const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
@@ -99,6 +127,23 @@ export default function GeneralCallPage() {
   const handleVideo = () => {
     setIsCameraActive((state) => !state);
   }
+
+  const endCall = () => {
+    navigate('/call-end', {
+      state: {
+        callTime: formatTime(callTime, 'korean'),
+        callStartTime: callStartTime, 
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (peerStatus && !callStartTime) {
+      const now = new Date();
+      setCallStartTime(formatKoreanDate(now));
+    }
+  }, [peerStatus]);
+  console.log(callStartTime);
 
   useEffect(() => {
     if (peerStatus) {
@@ -160,7 +205,7 @@ export default function GeneralCallPage() {
               ? (
                 <div className={styles['call-time']}>
                   <div className={styles['call-time__recording']}></div>
-                  <div className={styles['call-time__time']}>{formatTime(callTime)}</div>
+                  <div className={styles['call-time__time']}>{formatTime(callTime, 'digit')}</div>
                 </div>
               )
               : (
@@ -170,7 +215,10 @@ export default function GeneralCallPage() {
                 </div>
               )}
               
-              <button className={styles['video-chat__controls--button']}>
+              <button
+                className={styles['video-chat__controls--button']}
+                onClick={endCall}
+              >
                 <CallEndIcon />
               </button>
             </div>
@@ -187,7 +235,6 @@ export default function GeneralCallPage() {
                 올바르지 않은 경로입니다.
               </div>
             }
-            
           </div>
         </div>
       </div>
