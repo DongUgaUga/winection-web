@@ -5,12 +5,26 @@ import { useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import styles from './GeneralCallWait.module.scss';
 
+const generateRandomString = (length = 6): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 export default function GeneralCallWait() {
   const navigate = useNavigate();
 
   const [code, setCode] = useState('');
   const [isChecked, setIsChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const makeNewCall = () => {
+    const newCode = generateRandomString();
+    navigate(`/general-call/${newCode}`);
+  }
 
   const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
@@ -32,7 +46,10 @@ export default function GeneralCallWait() {
   return (
     <div className={styles['enter-call-container']}>
       <div className={styles['enter-call-container__call']}>
-        <button className={styles['new-call']}>
+        <button
+          className={styles['new-call']}
+          onClick={makeNewCall}
+        >
           <RecordIcon />
           <div>새 회의</div>
         </button>
