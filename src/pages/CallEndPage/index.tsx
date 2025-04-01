@@ -17,12 +17,12 @@ export default function CallEndPage() {
       </div>
       <div className={styles.call}>
         <div className={styles.call__time}>
-          <span>통화 시작 시간 </span>
-          <span>{callTimeState.callStartTime}</span>
+          <span>통화 시작 시간</span>
+          <div>{callTimeState.callStartTime}</div>
         </div>
         <div className={styles.call__time}>
           <span>통화 지속 시간</span>
-          <span>{callTimeState.callTime}</span>
+          <div>{callTimeState.callTime}</div>
         </div>
       </div>
       <button

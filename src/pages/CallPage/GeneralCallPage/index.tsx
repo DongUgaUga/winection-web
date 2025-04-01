@@ -53,7 +53,8 @@ const formatTime = (seconds: number, type: 'digit' | 'korean') => {
   return '0';
 };
 
-const formatKoreanDate = (date: Date): string => {
+const formatKoreanDate = (date: Date | null, type: 'digit' | 'korean'): string => {
+  if (!date) return '';
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); // 0-based month
   const day = String(date.getDate()).padStart(2, '0');
@@ -61,7 +62,11 @@ const formatKoreanDate = (date: Date): string => {
   const hour = String(date.getHours()).padStart(2, '0');
   const minute = String(date.getMinutes()).padStart(2, '0');
 
-  return `${year}년 ${month}월 ${day}일  ${hour}시 ${minute}분`;
+  if (type === 'digit') {
+    return `${year}.${month}.${day}  ${hour}:${minute}`;
+  }
+
+  return `${year}년 ${month}월 ${day}일   ${hour}시 ${minute}분`;
 };
 
 
@@ -110,6 +115,7 @@ function StyleSelect() {
   )
 }
 
+// 농인과 일반인만 사용하는 페이지
 export default function GeneralCallPage() {
   const params = useParams();
   const navigate = useNavigate();
@@ -120,7 +126,7 @@ export default function GeneralCallPage() {
   const [isCameraActive, setIsCameraActive] = useState(true);
 
   const [peerStatus, setPeerStatus] = useState(false);
-  const [callStartTime, setCallStartTime] = useState<string | null>(null);
+  const [callStartTime, setCallStartTime] = useState<Date | null>(null);
   const [callTime, setCallTime] = useState(0);
   const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
@@ -146,7 +152,7 @@ export default function GeneralCallPage() {
     navigate('/call-end', {
       state: {
         callTime: formatTime(callTime, 'korean'),
-        callStartTime: callStartTime, 
+        callStartTime: formatKoreanDate(callStartTime, 'korean'), 
       }
     })
   }
@@ -154,7 +160,7 @@ export default function GeneralCallPage() {
   useEffect(() => {
     if (peerStatus && !callStartTime) {
       const now = new Date();
-      setCallStartTime(formatKoreanDate(now));
+      setCallStartTime(now);
     }
   }, [peerStatus]);
   console.log(callStartTime);
@@ -250,6 +256,8 @@ export default function GeneralCallPage() {
                 code={params.code}
                 isCameraActive={isCameraActive}
                 isMicActive={isMicActive}
+                callType='general'
+                callStartTime={formatKoreanDate(callStartTime, 'digit')}
               />
             : <div>
                 올바르지 않은 경로입니다.

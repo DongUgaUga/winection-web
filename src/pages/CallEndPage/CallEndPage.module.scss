@@ -37,6 +37,10 @@
   &__time {
     display: flex;
     gap: 28px;
+
+    & > div {
+      white-space: pre;
+    }
   }
 }
 

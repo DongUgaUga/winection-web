@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 import styles from './Video.module.scss';
+import { cn } from "@bcsdlab/utils";
 
 export default function Video({
   peerStatus,
@@ -9,12 +10,16 @@ export default function Video({
   code,
   isCameraActive,
   isMicActive,
+  callType,
+  callStartTime,
 }: {
   peerStatus: boolean,
   setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>,
   code: string,
   isCameraActive: boolean,
   isMicActive: boolean,
+  callType: 'general' | 'emergency',
+  callStartTime: string | null,
 }) {
     const [myHandInfo, setMyHandInfo] = useState<string>("[]");
     const [peerHandInfo, setPeerHandInfo] = useState<string>("");
@@ -175,16 +180,48 @@ export default function Video({
                 <video className={styles['video-container__main-video']} ref={remoteVideoRef} autoPlay playsInline></video>
                 <div>
                   <video className={styles['video-container__sub-video']} ref={localVideoRef} autoPlay playsInline muted></video>
-                  <div className={styles.opponent}>
-                    <div className={styles.opponent__content}>
-                      <div className={styles['opponent__content--title']}>상대방 닉네임</div>
-                      <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
+                  {callType === 'general' && (
+                    <div className={cn({
+                      [styles.opponent]: true,
+                      [styles['opponent--flex']]: true,
+                    })}>
+                        <div className={styles.opponent__content}>
+                          <div className={styles['opponent__content--title']}>상대방 닉네임</div>
+                          <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
+                        </div>
+                        <div className={styles.opponent__content}>
+                          <div className={styles['opponent__content--title']}>회의 시작 시간</div>
+                          <div className={styles['opponent__content--text']}>{callStartTime}</div>
+                        </div>
                     </div>
-                    <div className={styles.opponent__content}>
-                      <div className={styles['opponent__content--title']}>회의 시작 시간</div>
-                      <div className={styles['opponent__content--text']}>2025.03.30 15:35</div>
+                  )}
+                  {callType === 'emergency' && (
+                    <div className={cn({
+                      [styles.opponent]: true,
+                      [styles['opponent--grid']]: true,
+                    })}>
+                        <div className={styles.opponent__content}>
+                          <div className={styles['opponent__content--title']}>상대방 닉네임</div>
+                          <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
+                        </div>
+                        <div className={styles.opponent__content}>
+                          <div className={styles['opponent__content--title']}>상대방 연락처</div>
+                          <div className={styles['opponent__content--text']}>010-1234-5678</div>
+                        </div>
+                        <div className={styles.opponent__content}>
+                          <div className={styles['opponent__content--title']}>회의 시작 시간</div>
+                          <div className={styles['opponent__content--text']}>{callStartTime}</div>
+                        </div>
+                        <div className={styles.opponent__content}>
+                          <div className={styles['opponent__content--title']}>특이사항</div>
+                          <div className={styles['opponent__content--text']}>새롭게 시작해 볼래 너 그리고 나 사랑을 동경해 앞으로도 잘 부탁 해야 해야 해야 너를 봐야 봐야</div>
+                        </div>
+                        <div className={styles.opponent__content}>
+                          <div className={styles['opponent__content--title']}>상대방 현재 위치</div>
+                          <div className={styles['opponent__content--text']}>충청남도 아산시 모종로 21</div>
+                        </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             ) : (
