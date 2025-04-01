@@ -28,11 +28,12 @@ export default function Video({
     const wsRef = useRef<WebSocket | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     // const localStreamRef = useRef<MediaStream | null>(null);
-    const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}`);
-    wsRef.current = ws;
 
     useEffect(() => {
         if (!code) return;
+
+        const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}`);
+        wsRef.current = ws;
 
         ws.onmessage = async (event) => {
             try {
