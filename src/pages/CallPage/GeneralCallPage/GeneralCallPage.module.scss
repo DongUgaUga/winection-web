@@ -1,3 +1,14 @@
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .container {
   margin: auto;
   padding: 20px 0;
@@ -56,6 +67,20 @@
 
   &__success-connect {
     left: 395px;
+  }
+}
+
+.toast {
+  display: relative;
+
+  & > p {
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    animation: fadeSlideIn 0.3s ease-out forwards;
   }
 }
 
