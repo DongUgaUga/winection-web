@@ -27,7 +27,7 @@ export default function Video({
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
     const wsRef = useRef<WebSocket | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-    const localStreamRef = useRef<MediaStream | null>(null);
+    // const localStreamRef = useRef<MediaStream | null>(null);
     const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}`);
     wsRef.current = ws;
 
@@ -83,15 +83,15 @@ export default function Video({
     const startStreaming = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localStreamRef.current = stream;
+            // localStreamRef.current = stream;
 
-            // 카메라, 마이크 상태 반영
-            stream.getVideoTracks().forEach((track) => {
-                track.enabled = !isCameraActive;
-            });
-            stream.getAudioTracks().forEach((track) => {
-                track.enabled = !isMicActive;
-            });
+            // // 카메라, 마이크 상태 반영
+            // stream.getVideoTracks().forEach((track) => {
+            //     track.enabled = !isCameraActive;
+            // });
+            // stream.getAudioTracks().forEach((track) => {
+            //     track.enabled = !isMicActive;
+            // });
 
             if (localVideoRef.current) {
                 localVideoRef.current.srcObject = stream;
@@ -157,19 +157,19 @@ export default function Video({
         }
     };
 
-    useEffect(() => {
-        if (!localStreamRef.current) return;
-        localStreamRef.current.getVideoTracks().forEach(track => {
-          track.enabled = !isCameraActive;
-        });
-      }, [isCameraActive]);
-    
-      useEffect(() => {
-        if (!localStreamRef.current) return;
-        localStreamRef.current.getAudioTracks().forEach(track => {
-          track.enabled = !isMicActive;
-        });
-      }, [isMicActive]);
+    // useEffect(() => {
+    //     if (!localStreamRef.current) return;
+    //     localStreamRef.current.getVideoTracks().forEach(track => {
+    //       track.enabled = !isCameraActive;
+    //     });
+    //   }, [isCameraActive]);
+    // 
+    //   useEffect(() => {
+    //     if (!localStreamRef.current) return;
+    //     localStreamRef.current.getAudioTracks().forEach(track => {
+    //       track.enabled = !isMicActive;
+    //     });
+    //   }, [isMicActive]);
     console.log('camera', isCameraActive, 'mic', isMicActive);
 
     return (
@@ -179,7 +179,7 @@ export default function Video({
               <div className={styles['video-container']}>
                 <video className={styles['video-container__main-video']} ref={remoteVideoRef} autoPlay playsInline></video>
                 <div>
-                  <video className={styles['video-container__sub-video']} ref={localVideoRef} autoPlay playsInline muted></video>
+                  <video className={styles['video-container__sub-video']} ref={localVideoRef} autoPlay playsInline></video>
                   {callType === 'general' && (
                     <div className={cn({
                       [styles.opponent]: true,
@@ -226,7 +226,7 @@ export default function Video({
               </div>
             ) : (
               <div>
-                <video className={styles['video-container__main-video']} ref={localVideoRef} autoPlay playsInline muted></video>
+                <video className={styles['video-container__main-video']} ref={localVideoRef} autoPlay playsInline></video>
               </div>
             )
           }
