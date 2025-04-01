@@ -2,6 +2,7 @@
   display: flex;
 
   &__main-video {
+    visibility: hidden;
     border: 2px solid #237BFF;
     width: 950px;
     height: 600px;
@@ -10,6 +11,7 @@
   }
 
   &__sub-video {
+    visibility: hidden;
     border: 2px solid #237BFF;
     width: 322px;
     height: 194px;
@@ -21,9 +23,11 @@
 
 .opponent {
   margin: 20px 0 0 20px;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(100px, auto));
   flex-direction: column;
-  gap: 50px;
+  column-gap: 20px;
+  row-gap: 6px;
 
   &__content {
     display: flex;
@@ -45,6 +49,7 @@
       font-size: 18px;
       line-height: 100%;
       letter-spacing: 0%;
+      word-break: break-all;
 
       & > span {
         color: #777777;
