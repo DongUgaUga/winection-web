@@ -87,6 +87,7 @@ function StyleSelect() {
             <div className={styles.voices}>
               {VOICES.map((v) => (
                 <button
+                  key={v}
                   className={cn({
                     [styles['voices__voice']]: true,
                     [styles['voices__voice--selected']]: voice === v,
@@ -103,7 +104,7 @@ function StyleSelect() {
             <div className={styles.style__select}>아바타 선택</div>
             <div className={styles.avatars}>
               {AVATARS.map((avatar) => (
-                <div className={styles.avatars__avatar} onClick={() => setAvatar(avatar.name)}>
+                <div key={avatar.name} className={styles.avatars__avatar} onClick={() => setAvatar(avatar.name)}>
                   <img className={styles['avatars__avatar--image']} src={avatar.src} alt='아바타' />
                   <div className={styles['avatars__avatar--name']}>{avatar.name}</div>
                 </div>
@@ -163,7 +164,6 @@ export default function GeneralCallPage() {
       setCallStartTime(now);
     }
   }, [peerStatus]);
-  console.log(callStartTime);
 
   useEffect(() => {
     if (peerStatus) {
@@ -175,6 +175,7 @@ export default function GeneralCallPage() {
     // cleanup: 나갈 때나 peerStatus가 false일 때 인터벌 제거
     return () => {
       if (intervalRef.current) {
+        setCallTime(0);
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }

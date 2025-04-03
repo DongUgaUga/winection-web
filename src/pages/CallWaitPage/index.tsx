@@ -4,10 +4,7 @@ import EmergencyCallWait from './EmergencyCallWait';
 import styles from './CallWaitPage.module.scss';
 
 export default function CallWaitPage() {
-  // const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
-  // const userClassification = userInfo.userClassification;
   const param = useParams();
-  console.log(param);
   
   return (
     <div className={styles.container}>
