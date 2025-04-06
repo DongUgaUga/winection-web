@@ -1,8 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Hands } from "@mediapipe/hands";
+import { Holistic } from "@mediapipe/holistic";
 import { Camera } from "@mediapipe/camera_utils";
 import styles from './Video.module.scss';
 import { cn } from "@bcsdlab/utils";
+
+interface Landmark {
+  x: string;
+  y: string;
+  z: string;
+}
+
+interface FullBodyData {
+  pose: Landmark[];
+  left_hand: Landmark[];
+  right_hand: Landmark[];
+}
 
 export default function Video({
   peerStatus,
@@ -21,8 +33,8 @@ export default function Video({
   callType: 'general' | 'emergency',
   callStartTime: string | null,
 }) {
-    const [myHandInfo, setMyHandInfo] = useState<string>("[]");
-    const [peerHandInfo, setPeerHandInfo] = useState<string>("");
+    const [myBodyInfo, setMyBodyInfo] = useState<string>("[]");
+    const [peerBodyInfo, setPeerBodyInfo] = useState<string>("");
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
     const wsRef = useRef<WebSocket | null>(null);
@@ -55,7 +67,7 @@ export default function Video({
                 }
                 if (data.hand_data) {
                     if (data.client_id === "peer") {
-                        setPeerHandInfo(`상대방 손 정보: ${JSON.stringify(data.hand_data)}`);
+                        setPeerBodyInfo(`상대방 좌표 정보: ${JSON.stringify(data.hand_data)}`);
                     }
                 }
                 if (data.client_id === "peer") {
@@ -121,12 +133,12 @@ export default function Video({
                 }
             };
 
-            const hands = new Hands({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+            const holistic = new Holistic({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
             });
 
-            hands.setOptions({
-                maxNumHands: 2,
+            holistic.setOptions({
+                smoothLandmarks: true,
                 modelComplexity: 1,
                 minDetectionConfidence: 0.5,
                 minTrackingConfidence: 0.5,
@@ -134,25 +146,23 @@ export default function Video({
 
             const camera = new Camera(localVideoRef.current!, {
                 onFrame: async () => {
-                    await hands.send({ image: localVideoRef.current! });
+                    await holistic.send({ image: localVideoRef.current! });
                 },
                 width: 950,
                 height: 600,
             });
             camera.start();
 
-            hands.onResults((results) => {
-                if (results.multiHandLandmarks && results.multiHandedness) {
-                    const handData = results.multiHandLandmarks.map((landmark, index) => ({
-                        hand_type: results.multiHandedness[index].label === "Right" ? "왼손" : "오른손",
-                        x: landmark[0].x.toFixed(2),
-                        y: landmark[0].y.toFixed(2),
-                        z: landmark[0].z.toFixed(2),
-                    }));
-                    setMyHandInfo(JSON.stringify(handData));
-                    wsRef.current?.send(JSON.stringify({ type: "hand_data", data: { hand_data: handData } }));
-                }
-            });
+            holistic.onResults((results) => {
+              const handData: FullBodyData = {
+                  pose: results.poseLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
+                  left_hand: results.leftHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
+                  right_hand: results.rightHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || []
+              };
+
+              setMyBodyInfo(JSON.stringify(handData));
+              wsRef.current?.send(JSON.stringify({ type: "hand_data", data: { hand_data: handData } }));
+          });
         } catch (err) {
             console.error("웹캠 접근 에러:", err);
         }
@@ -191,7 +201,7 @@ export default function Video({
                           <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
                         </div>
                         <div className={styles.opponent__content}>
-                          <div className={styles['opponent__content--title']}>회의 시작 시간</div>
+                          <div className={styles['opponent__content--title']}>통화 시작 시간</div>
                           <div className={styles['opponent__content--text']}>{callStartTime}</div>
                         </div>
                     </div>
@@ -210,7 +220,7 @@ export default function Video({
                           <div className={styles['opponent__content--text']}>010-1234-5678</div>
                         </div>
                         <div className={styles.opponent__content}>
-                          <div className={styles['opponent__content--title']}>회의 시작 시간</div>
+                          <div className={styles['opponent__content--title']}>통화 시작 시간</div>
                           <div className={styles['opponent__content--text']}>{callStartTime}</div>
                         </div>
                         <div className={styles.opponent__content}>
@@ -231,8 +241,8 @@ export default function Video({
               </div>
             )
           }
-            <p>내 손 정보: {myHandInfo}</p>
-            <p>{peerHandInfo}</p>
+            <p>내 좌표 정보: {myBodyInfo}</p>
+            <p>{peerBodyInfo}</p>
         </div>
     );
 };

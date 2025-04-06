@@ -51,7 +51,7 @@ export default function GeneralCallWait() {
           onClick={makeNewCall}
         >
           <RecordIcon />
-          <div>새 회의</div>
+          <div>새 통화</div>
         </button>
         <div className={styles.participate}>
           <div className={cn({
