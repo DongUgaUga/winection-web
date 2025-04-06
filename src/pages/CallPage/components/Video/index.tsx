@@ -111,6 +111,19 @@ const Video = forwardRef<VideoHandle, {
     }, [code]);
 
     useEffect(() => {
+      if (peerStatus && peerConnectionRef.current) {
+        const remoteStream = new MediaStream();
+        peerConnectionRef.current.getReceivers().forEach((receiver) => {
+          if (receiver.track.kind === 'video' || receiver.track.kind === 'audio') {
+            remoteStream.addTrack(receiver.track);
+          }
+        });
+    
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+        }
+      }
+
       if (localVideoRef.current && localVideoRef.current.srcObject == null) {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
           localVideoRef.current!.srcObject = stream;
