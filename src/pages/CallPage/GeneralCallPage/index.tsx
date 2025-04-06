@@ -6,7 +6,7 @@ import CameraBlcokIcon from 'src/assets/block-camera.svg';
 import MicIcon from 'src/assets/mic.svg';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import CallEndIcon from 'src/assets/end-call.svg';
-import Video from '../components/Video';
+import Video, { VideoHandle } from '../components/Video';
 import LoadingSpinner from 'src/assets/loading-spinner.gif';
 import styles from './GeneralCallPage.module.scss';
 import Toast from '../../../components/Toast';
@@ -76,7 +76,9 @@ function StyleSelect() {
   const [voice, setVoice] = useState(VOICES[0]);
   const [avatar, setAvatar] = useState(AVATARS[0].name);
 
-  console.log(voice, avatar);
+  useEffect(() => {
+    console.log(voice, avatar);
+  }, []);
   
   return (
     <>
@@ -131,6 +133,8 @@ export default function GeneralCallPage() {
   const [callTime, setCallTime] = useState(0);
   const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
+  const videoRef = useRef<VideoHandle | null>(null);
+
   const copyRoomCode = () => {
     navigator.clipboard.writeText(params.code!)
     .then(() => {
@@ -150,12 +154,16 @@ export default function GeneralCallPage() {
   }
 
   const endCall = () => {
-    navigate('/call-end', {
-      state: {
-        callTime: formatTime(callTime, 'korean'),
-        callStartTime: formatKoreanDate(callStartTime, 'korean'), 
-      }
-    })
+    videoRef.current?.endCallCleanup();
+  
+    setTimeout(() => {
+      navigate('/call-end', {
+        state: {
+          callTime: formatTime(callTime, 'korean'),
+          callStartTime: formatKoreanDate(callStartTime, 'korean'), 
+        }
+      })
+    }, 200);
   }
 
   useEffect(() => {
@@ -252,6 +260,7 @@ export default function GeneralCallPage() {
             {params.code
             ?
               <Video
+                ref={videoRef}
                 peerStatus={peerStatus}
                 setPeerStatus={setPeerStatus}
                 code={params.code}
