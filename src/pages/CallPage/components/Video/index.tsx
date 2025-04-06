@@ -35,11 +35,14 @@ export default function Video({
 }) {
     const [myBodyInfo, setMyBodyInfo] = useState<string>("[]");
     const [peerBodyInfo, setPeerBodyInfo] = useState<string>("");
+    useEffect(() => {
+      console.log(myBodyInfo, peerBodyInfo);
+    } ,[]);
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
     const wsRef = useRef<WebSocket | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-    // const localStreamRef = useRef<MediaStream | null>(null);
+    const localStreamRef = useRef<MediaStream | null>(null);
 
     useEffect(() => {
         if (!code) return;
@@ -85,6 +88,7 @@ export default function Video({
 
         ws.onclose = () => {
             console.log("WebSocket 연결 종료");
+            // peerConnectionRef.current?.close();
             setPeerStatus(false);
         };
 
@@ -93,18 +97,35 @@ export default function Video({
         };
     }, [code]);
 
+    useEffect(() => {
+      if (localVideoRef.current && localVideoRef.current.srcObject == null) {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+          localVideoRef.current!.srcObject = stream;
+        }).catch(err => {
+          console.error("다시 스트림 할당 실패:", err);
+        });
+      }
+    }, [peerStatus]);
+
+    useEffect(() => {
+      if (peerStatus && peerConnectionRef.current) {
+        const remoteStream = new MediaStream();
+        peerConnectionRef.current.getReceivers().forEach((receiver) => {
+          if (receiver.track.kind === 'video' || receiver.track.kind === 'audio') {
+            remoteStream.addTrack(receiver.track);
+          }
+        });
+    
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+        }
+      }
+    }, [peerStatus]);
+
     const startStreaming = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            // localStreamRef.current = stream;
-
-            // // 카메라, 마이크 상태 반영
-            // stream.getVideoTracks().forEach((track) => {
-            //     track.enabled = !isCameraActive;
-            // });
-            // stream.getAudioTracks().forEach((track) => {
-            //     track.enabled = !isMicActive;
-            // });
+            localStreamRef.current = stream;
 
             if (localVideoRef.current) {
                 localVideoRef.current.srcObject = stream;
@@ -168,19 +189,6 @@ export default function Video({
         }
     };
 
-    // useEffect(() => {
-    //     if (!localStreamRef.current) return;
-    //     localStreamRef.current.getVideoTracks().forEach(track => {
-    //       track.enabled = !isCameraActive;
-    //     });
-    //   }, [isCameraActive]);
-    // 
-    //   useEffect(() => {
-    //     if (!localStreamRef.current) return;
-    //     localStreamRef.current.getAudioTracks().forEach(track => {
-    //       track.enabled = !isMicActive;
-    //     });
-    //   }, [isMicActive]);
     console.log('camera', isCameraActive, 'mic', isMicActive);
 
     return (
@@ -241,8 +249,10 @@ export default function Video({
               </div>
             )
           }
+          {/*
             <p>내 좌표 정보: {myBodyInfo}</p>
             <p>{peerBodyInfo}</p>
+          */}
         </div>
     );
 };
