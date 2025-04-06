@@ -1,12 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Hands } from "@mediapipe/hands";
+import { Holistic } from "@mediapipe/holistic";
 import { Camera } from "@mediapipe/camera_utils";
 
-const VideoChatHandTracking: React.FC = () => {
+// 타입 정의 추가
+interface Landmark {
+    x: string;
+    y: string;
+    z: string;
+}
+
+interface FullBodyData {
+    pose: Landmark[];
+    left_hand: Landmark[];
+    right_hand: Landmark[];
+}
+
+const VideoChatFullTracking: React.FC = () => {
     const [roomId, setRoomId] = useState<string>("");
     const [peerStatus, setPeerStatus] = useState<string>("클라이언트를 찾고 있습니다...");
-    const [myHandInfo, setMyHandInfo] = useState<string>("[]");
-    const [peerHandInfo, setPeerHandInfo] = useState<string>("");
+    const [myBodyInfo, setMyBodyInfo] = useState<string>("[]");
+    const [peerBodyInfo, setPeerBodyInfo] = useState<string>("");
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
     const wsRef = useRef<WebSocket | null>(null);
@@ -43,7 +56,7 @@ const VideoChatHandTracking: React.FC = () => {
                 }
                 if (data.hand_data) {
                     if (data.client_id === "peer") {
-                        setPeerHandInfo(`상대방 손 정보: ${JSON.stringify(data.hand_data)}`);
+                        setPeerBodyInfo(`상대방 좌표 정보: ${JSON.stringify(data.hand_data)}`);
                     }
                 }
                 if (data.client_id === "peer") {
@@ -99,37 +112,35 @@ const VideoChatHandTracking: React.FC = () => {
                 }
             };
 
-            const hands = new Hands({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+            const holistic = new Holistic({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
             });
 
-            hands.setOptions({
-                maxNumHands: 2,
+            holistic.setOptions({
                 modelComplexity: 1,
+                smoothLandmarks: true,
                 minDetectionConfidence: 0.5,
                 minTrackingConfidence: 0.5,
             });
 
             const camera = new Camera(localVideoRef.current!, {
                 onFrame: async () => {
-                    await hands.send({ image: localVideoRef.current! });
+                    await holistic.send({ image: localVideoRef.current! });
                 },
                 width: 640,
                 height: 480,
             });
             camera.start();
 
-            hands.onResults((results) => {
-                if (results.multiHandLandmarks && results.multiHandedness) {
-                    const handData = results.multiHandLandmarks.map((landmark, index) => ({
-                        hand_type: results.multiHandedness[index].label === "Right" ? "왼손" : "오른손",
-                        x: landmark[0].x.toFixed(2),
-                        y: landmark[0].y.toFixed(2),
-                        z: landmark[0].z.toFixed(2),
-                    }));
-                    setMyHandInfo(JSON.stringify(handData));
-                    wsRef.current?.send(JSON.stringify({ type: "hand_data", data: { hand_data: handData } }));
-                }
+            holistic.onResults((results) => {
+                const handData: FullBodyData = {
+                    pose: results.poseLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
+                    left_hand: results.leftHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
+                    right_hand: results.rightHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || []
+                };
+
+                setMyBodyInfo(JSON.stringify(handData));
+                wsRef.current?.send(JSON.stringify({ type: "hand_data", data: { hand_data: handData } }));
             });
         } catch (err) {
             console.error("웹캠 접근 에러:", err);
@@ -138,14 +149,14 @@ const VideoChatHandTracking: React.FC = () => {
 
     return (
         <div>
-            <h1>1:1 화상채팅 및 손 인식</h1>
+            <h1>1:1 화상채팅 및 전신 추적</h1>
             <video ref={localVideoRef} autoPlay playsInline style={{ border: "2px solid green", width: 640, height: 480, transform: "scaleX(-1)" }}></video>
             <video ref={remoteVideoRef} autoPlay playsInline style={{ border: "2px solid red", width: 640, height: 480, transform: "scaleX(-1)" }}></video>
             <p>{peerStatus}</p>
-            <p>내 손 정보: {myHandInfo}</p>
-            <p>{peerHandInfo}</p>
+            <p>내 좌표 정보: {myBodyInfo}</p>
+            <p>{peerBodyInfo}</p>
         </div>
     );
 };
 
-export default VideoChatHandTracking;
+export default VideoChatFullTracking;
