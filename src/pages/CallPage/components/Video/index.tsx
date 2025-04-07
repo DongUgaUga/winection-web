@@ -26,6 +26,8 @@ interface VideoProps {
   callStartTime: string | null;
 }
 
+const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
+
 export default function Video(props: VideoProps) {
   const {
     peerStatus,
@@ -42,6 +44,7 @@ export default function Video(props: VideoProps) {
     console.log(myBodyInfo, peerBodyInfo);
     console.log('camera', isCameraActive, 'mic', isMicActive);
   } ,[]);
+  const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -49,6 +52,7 @@ export default function Video(props: VideoProps) {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const cameraRef = useRef<Camera | null>(null);
+  const holisticRef = useRef<Holistic | null>(null);
 
   useEffect(() => {
     if (!code) return;
@@ -60,6 +64,24 @@ export default function Video(props: VideoProps) {
       try {
         const data = JSON.parse(event.data);
         console.log(data);
+
+        // 📌 카메라 상태 메시지 처리
+        if (data.type === 'camera_state' && data.client_id === 'peer') {
+          console.log("상대방 카메라 상태 변경:", data.data.isCameraActive);
+          setIsPeerCameraActive(data.data.isCameraActive);
+        
+          // 강제 재할당으로 멈춘 영상 리렌더링
+          if (remoteVideoRef.current && peerConnectionRef.current) {
+            const receiverStreams = peerConnectionRef.current.getReceivers()
+              .map((r) => r.track)
+              .filter(Boolean);
+          
+            const newStream = new MediaStream();
+            receiverStreams.forEach(track => newStream.addTrack(track));
+            remoteVideoRef.current.srcObject = newStream;
+            remoteVideoRef.current.play();
+          }
+        }
   
         if (data.type === "offer") {
           await peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data));
@@ -210,30 +232,135 @@ export default function Video(props: VideoProps) {
         console.error("웹캠 접근 에러:", err);
     }
   };
-  console.log(peerStatus);
+
+  useEffect(() => {
+    const sendCameraState = () => {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          type: 'camera_state',
+          data: { isCameraActive }
+        }));
+      }
+    };
+
+    const setupCamera = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+  
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+
+      // ✅ 새 비디오 트랙으로 기존 sender 교체
+      const videoTrack = stream.getVideoTracks()[0];
+      const sender = peerConnectionRef.current
+        ?.getSenders()
+        .find((s) => s.track?.kind === "video");
+      if (sender && videoTrack) {
+        sender.replaceTrack(videoTrack);
+      }
+  
+      // MediaPipe Camera 연결
+      const holistic = new Holistic({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+      });
+  
+      holistic.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
+      holisticRef.current = holistic;
+  
+      const camera = new Camera(localVideoRef.current!, {
+        onFrame: async () => {
+          await holistic.send({ image: localVideoRef.current! });
+        },
+        width: 640,
+        height: 480,
+      });
+  
+      cameraRef.current = camera;
+      camera.start();
+    };
+  
+    const stopCamera = () => {
+      console.log("🛑 카메라 stop() 호출");
+  
+      cameraRef.current?.stop();
+      cameraRef.current = null;
+  
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => {
+          track.stop();
+        });
+        streamRef.current = null;
+      }
+  
+      if (localVideoRef.current) {
+        localVideoRef.current.pause();
+        localVideoRef.current.srcObject = null;
+        localVideoRef.current.load();
+      }
+    };
+  
+    if (isCameraActive) {
+      setupCamera();
+    } else {
+      stopCamera();
+    }
+
+    sendCameraState();
+  
+    return () => {
+      stopCamera(); // unmount 시에도 정리
+    };
+  }, [isCameraActive]);
+  console.log(isPeerCameraActive);
 
   return (
     <div>
       <div className={styles['video-container']}>
-        <video
-          className={cn({
-            [styles['video-container__main-video']]: true,
-            [styles['video-container--hidden']]: !peerStatus,
-          })}
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-        />
-        <div>
+        <div className={cn({
+          [styles['video-wrapper']]: true,
+          [styles['video-wrapper__main']]: true,
+          [styles['video-wrapper__hidden']]: !peerStatus,
+        })}>
           <video
             className={cn({
-              [styles['video-container__sub-video']]: true,
+              [styles['video-container__main-video']]: true,
+              [styles['video-container--hidden']]: !peerStatus,
+            })}
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+          />
+          {peerStatus && !isPeerCameraActive && (
+            <div className={styles['video-wrapper__overlay']}>
+              <span>동동우동이</span>
+            </div>
+          )}
+        </div>
+        <div className={cn({
+          [styles['video-wrapper']]: true,
+          [styles['video-wrapper__sub']]: peerStatus,
+          [styles['video-wrapper__main']]: !peerStatus,
+        })}>
+          <video
+            className={cn({
+              [styles['video-container__sub-video']]: peerStatus,
               [styles['video-container__main-video']]: !peerStatus,
             })}
             ref={localVideoRef}
             autoPlay
             playsInline
           />
+          {!isCameraActive && (
+            <div className={styles['video-wrapper__overlay']}>
+              <span>{userInfo.nickname}</span>
+            </div>
+          )}
           {callType === 'general' && (
             <div className={cn({
               [styles.opponent]: true,

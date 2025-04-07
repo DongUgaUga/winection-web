@@ -22,6 +22,50 @@
   }
 }
 
+.video-wrapper {
+  position: relative;
+  
+  &__main {
+    width: 954px;
+    height: 604px;
+  }
+
+  &__sub {
+    width: 326px;
+    height: 198px;
+  }
+
+  &__hidden {
+    display: none;
+  }
+
+  &__overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    background-color: #777777;
+    color: #ffffff;
+    z-index: 5;
+    text-align: center;
+  
+    span {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 1.1em;
+      line-height: 100%;
+      letter-spacing: 0%;
+    }
+  }
+}
+
 .opponent {
   margin: 20px 0 0 20px;
 
