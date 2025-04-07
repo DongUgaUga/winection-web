@@ -1,6 +1,14 @@
 .video-container {
   display: flex;
 
+  &__sub-video {
+    border: 2px solid #237BFF;
+    width: 322px;
+    height: 194px;
+    transform: scaleX(-1);
+    object-fit: cover;
+  }
+
   &__main-video {
     border: 2px solid #237BFF;
     width: 950px;
@@ -9,13 +17,8 @@
     object-fit: cover;
   }
 
-  &__sub-video {
-    border: 2px solid #237BFF;
-    width: 322px;
-    height: 194px;
-    transform: scaleX(-1);
-    object-fit: cover;
-    margin-left: -2px;
+  &--hidden {
+    display: none;
   }
 }
 
@@ -34,6 +37,10 @@
     grid-template-columns: repeat(2, minmax(188px, auto));
     column-gap: 20px;
     row-gap: 6px;
+  }
+
+  &--hidden {
+    display: none;
   }
 
   &__content {
