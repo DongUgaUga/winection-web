@@ -47,6 +47,8 @@ export default function Video(props: VideoProps) {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const cameraRef = useRef<Camera | null>(null);
 
   useEffect(() => {
     if (!code) return;
@@ -110,6 +112,16 @@ export default function Video(props: VideoProps) {
     return () => {
       console.log("Video 컴포넌트 언마운트 - 정리 로직 실행");
 
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+
+      if (cameraRef.current) {
+        cameraRef.current.stop();
+        cameraRef.current = null;
+      }
+
       if (remoteVideoRef.current) {
         remoteVideoRef.current.pause();
         remoteVideoRef.current.srcObject = null;
@@ -135,6 +147,7 @@ export default function Video(props: VideoProps) {
   const startStreaming = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
       if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
       }
@@ -180,6 +193,7 @@ export default function Video(props: VideoProps) {
           width: 640,
           height: 480,
       });
+      cameraRef.current = camera;
       camera.start();
 
       holistic.onResults((results) => {
