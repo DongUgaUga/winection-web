@@ -42,6 +42,7 @@ export default function Video(props: VideoProps) {
     console.log(myBodyInfo, peerBodyInfo);
     console.log('camera', isCameraActive, 'mic', isMicActive);
   } ,[]);
+
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -65,20 +66,28 @@ export default function Video(props: VideoProps) {
             await peerConnectionRef.current?.setLocalDescription(answer);
             ws.send(JSON.stringify({ type: "answer", data: answer }));
           }
+          setPeerStatus(true);
         }
         if (data.type === "answer") {
           await peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data));
+          setPeerStatus(true);
         }
         if (data.type === "candidate") {
           await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(data.data));
         }
-        if (data.hand_data) {
-          if (data.client_id === "peer") {
-              setPeerBodyInfo(`상대방 좌표 정보: ${JSON.stringify(data.hand_data)}`);
-          }
+        if (data.hand_data && data.client_id === "peer") {
+          setPeerBodyInfo(`상대방 좌표 정보: ${JSON.stringify(data.hand_data)}`);
         }
-        if (data.client_id === "peer") {
-          setPeerStatus(true);
+        if (data.type === "leave") {
+          console.log("상대방이 나갔습니다.");
+
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = null;
+          }
+          peerConnectionRef.current?.close();
+          peerConnectionRef.current = null;
+
+          setPeerStatus(false);
         }
       } catch (error) {
           console.error("WebSocket 메시지 처리 중 오류 발생:", error);
@@ -92,12 +101,35 @@ export default function Video(props: VideoProps) {
   
     ws.onclose = () => {
       console.log("WebSocket 연결 종료");
-      setPeerStatus(false);
     };
-  
+
     ws.onerror = (error) => {
       console.error("WebSocket 오류 발생:", error);
     };
+
+    return () => {
+      console.log("Video 컴포넌트 언마운트 - 정리 로직 실행");
+
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.pause();
+        remoteVideoRef.current.srcObject = null;
+        remoteVideoRef.current.load();
+      }
+
+      if (localVideoRef.current) {
+        localVideoRef.current.pause();
+        localVideoRef.current.srcObject = null;
+        localVideoRef.current.load();
+      }
+
+      wsRef.current?.close();
+      wsRef.current = null;
+
+      peerConnectionRef.current?.close();
+      peerConnectionRef.current = null;
+
+      setPeerStatus(false);
+    }
   }, [code]);
   
   const startStreaming = async () => {
@@ -164,6 +196,7 @@ export default function Video(props: VideoProps) {
         console.error("웹캠 접근 에러:", err);
     }
   };
+  console.log(peerStatus);
 
   return (
     <div>
