@@ -21,14 +21,14 @@ interface FullBodyData {
 }
 
 const Video = forwardRef<VideoHandle, {
-  peerStatus: boolean,
-  setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>,
-  code: string,
-  isCameraActive: boolean,
-  isMicActive: boolean,
-  callType: 'general' | 'emergency',
-  callStartTime: string | null,
-}>(function Video({
+  peerStatus: boolean;
+  setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  code: string;
+  isCameraActive: boolean;
+  isMicActive: boolean;
+  callType: 'general' | 'emergency';
+  callStartTime: string | null;
+}>(({
   peerStatus,
   setPeerStatus,
   code,
@@ -36,7 +36,7 @@ const Video = forwardRef<VideoHandle, {
   isMicActive,
   callType,
   callStartTime,
-}, ref) {
+}, ref) => {
     const [myBodyInfo, setMyBodyInfo] = useState<string>("[]");
     const [peerBodyInfo, setPeerBodyInfo] = useState<string>("");
     useEffect(() => {
@@ -48,194 +48,219 @@ const Video = forwardRef<VideoHandle, {
     const wsRef = useRef<WebSocket | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     const localStreamRef = useRef<MediaStream | null>(null);
+    const remoteStreamRef = useRef<MediaStream | null>(null);
+    const cameraRef = useRef<Camera | null>(null);
 
     useEffect(() => {
-        if (!code) return;
+      const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}`);
+      wsRef.current = ws;
 
-        const ws = new WebSocket(`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}`);
-        wsRef.current = ws;
+      ws.onopen = async () => {
+        console.log(`Connected to room ${code}`);
+        await setupLocalStream();
+        await createConnectionAndOffer();
+      };
 
-        ws.onmessage = async (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                console.log("수신한 메시지", data);
+      ws.onmessage = async (event) => {
+        const data = JSON.parse(event.data);
+        console.log("수신한 메시지", data);
 
-                if (data.type === "offer") {
-                    await peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data));
-                    const answer = await peerConnectionRef.current?.createAnswer();
-                    if (answer) {
-                        await peerConnectionRef.current?.setLocalDescription(answer);
-                        ws.send(JSON.stringify({ type: "answer", data: answer }));
-                    }
-                    startStreaming();
-                }
-                if (data.type === "answer") {
-                    await peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data));
-                }
-                if (data.type === "candidate") {
-                    await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(data.data));
-                }
-                if (data.type === "leave") {
-                  console.log("상대방이 나갔습니다.");
-                  cleanupRemoteStream();
-                  setPeerStatus(false);
-                }
+        if (data.type === "offer") {
+          console.log("[RTC] offer 수신 및 answer 준비 중");
+          await setupLocalStream();
+          await createConnectionAndAnswer(data.data);
+        }
 
-                if (data.hand_data && data.client_id === "peer") {
-                    setPeerBodyInfo(`상대방 좌표 정보: ${JSON.stringify(data.hand_data)}`);
-                    setPeerStatus(true);
-                }
-            } catch (error) {
-                console.error("WebSocket 메시지 처리 중 오류 발생:", error);
-            }
-        };
+        if (data.type === "answer") {
+          await peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data));
+        }
 
-        ws.onopen = () => {
-            console.log(`Connected to room ${code}`);
-            startStreaming();
-        };
+        if (data.type === "candidate") {
+          await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(data.data));
+        }
 
-        ws.onclose = (event) => {
-            console.log("WebSocket 연결 종료");
+        if (data.type === "leave") {
+          console.log("상대방이 나갔습니다.");
+          cleanupRemote();
+          setPeerStatus(false);
+        }
 
-            if (event.code === 1008) {
-              alert("방 인원이 가득 찼습니다.")
-            } else {
-              setPeerStatus(false);
-            }
-        };
+        if (data.hand_data && data.client_id === "peer") {
+          setPeerBodyInfo(`상대방 좌표 정보: ${JSON.stringify(data.hand_data)}`);
+          setPeerStatus(true);
+        }
+      };
 
-        ws.onerror = (error) => {
-            console.error("WebSocket 오류 발생:", error);
-        };
+      window.addEventListener('beforeunload', () => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "leave" }));
+        }
+      });
+
+      return () => {
+        ws.close();
+      };
     }, [code]);
 
-    useEffect(() => {
-      if (localVideoRef.current && localVideoRef.current.srcObject == null) {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-          localVideoRef.current!.srcObject = stream;
-        }).catch(err => {
-          console.error("다시 스트림 할당 실패:", err);
-        });
+      // ws.onclose = (event) => {
+      //   console.log("WebSocket 연결 종료");
+      // 
+      //   if (event.code === 1008) {
+      //     alert("방 인원이 가득 찼습니다.")
+      //   } else {
+      //     setPeerStatus(false);
+      //   }
+      // };
+      
+      
+
+    //useEffect(() => {
+    //  if (localVideoRef.current && localVideoRef.current.srcObject == null) {
+    //    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    //      localVideoRef.current!.srcObject = stream;
+    //    }).catch(err => {
+    //      console.error("다시 스트림 할당 실패:", err);
+    //    });
+    //  }
+    //}, [peerStatus]);
+
+    const setupLocalStream = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localStreamRef.current = stream;  
+      
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
       }
-    }, [peerStatus]);
 
-    const startStreaming = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localStreamRef.current = stream;
+      const holistic = new Holistic({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+      });
 
-            if (localVideoRef.current) {
-                localVideoRef.current.srcObject = stream;
-            }
+      holistic.setOptions({
+        smoothLandmarks: true,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
 
-            const peerConnection = new RTCPeerConnection({
-                iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-            });
-            peerConnectionRef.current = peerConnection;
+      holistic.onResults((results) => {
+        const handData: FullBodyData = {
+          pose: results.poseLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
+          left_hand: results.leftHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
+          right_hand: results.rightHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || []
+        };
 
-            peerConnection.ontrack = (event) => {
-              if (remoteVideoRef.current) {
-                  remoteVideoRef.current.srcObject = event.streams[0];
-              }
-            };
+        setMyBodyInfo(JSON.stringify(handData));
+        wsRef.current?.send(JSON.stringify({ type: "hand_data", data: { hand_data: handData } }));
+      });
 
-            stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
-
-            peerConnection.onicecandidate = (event) => {
-              if (event.candidate) {
-                  wsRef.current?.send(JSON.stringify({ type: "candidate", data: event.candidate }));
-              }
-            };
-
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-            wsRef.current?.send(JSON.stringify({ type: "offer", data: offer }));
-
-            const holistic = new Holistic({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
-            });
-
-            holistic.setOptions({
-                smoothLandmarks: true,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5,
-            });
-
-            const camera = new Camera(localVideoRef.current!, {
-                onFrame: async () => {
-                    await holistic.send({ image: localVideoRef.current! });
-                },
-                width: 950,
-                height: 600,
-            });
-            camera.start();
-
-            holistic.onResults((results) => {
-              const handData: FullBodyData = {
-                  pose: results.poseLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
-                  left_hand: results.leftHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
-                  right_hand: results.rightHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || []
-              };
-
-              setMyBodyInfo(JSON.stringify(handData));
-              wsRef.current?.send(JSON.stringify({ type: "hand_data", data: { hand_data: handData } }));
-            });
-        } catch (err) {
-            console.error("웹캠 접근 에러:", err);
-        }
+      cameraRef.current = new Camera(localVideoRef.current!, {
+        onFrame: async () => {
+            await holistic.send({ image: localVideoRef.current! });
+        },
+        width: 950,
+        height: 600,
+      });
+      cameraRef.current.start();
     };
 
-    const cleanupRemoteStream = () => {
-      if (localVideoRef.current?.srcObject) {
-        const tracks = (localVideoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
-        localVideoRef.current.srcObject = null;
+    const createConnectionAndOffer = async () => {
+      const peerConnection = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
+      peerConnectionRef.current = peerConnection;
+
+      addLocalTracks(peerConnection);
+      setupOnTrack(peerConnection);
+      setupOnIce(peerConnection);
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      wsRef.current?.send(JSON.stringify({ type: "offer", data: offer }));
+    };
+
+    const createConnectionAndAnswer = async (offer: RTCSessionDescriptionInit) => {
+      const peerConnection = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
+      peerConnectionRef.current = peerConnection;
+
+      addLocalTracks(peerConnection);
+      setupOnTrack(peerConnection);
+      setupOnIce(peerConnection);
+
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      wsRef.current?.send(JSON.stringify({ type: "answer", data: answer }));
+    };
+
+    const addLocalTracks = (pc: RTCPeerConnection) => {
+      const stream = localStreamRef.current;
+      if (!stream) return;
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    }
+
+    const setupOnTrack = (pc: RTCPeerConnection) => {
+      pc.ontrack = (event) => {
+        console.log("ontrack 수신됨");
+        const [remoteStream] = event.streams;
+        remoteStreamRef.current = remoteStream;
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+        }
+      }
+    };
+
+    const setupOnIce = (pc: RTCPeerConnection) => {
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          wsRef.current?.send(JSON.stringify({ type: "candidate", data: event.candidate }));
+        }
+      }
+    };
+
+    const cleanupRemote = () => {
+      if (remoteStreamRef.current) {
+        remoteStreamRef.current.getTracks().forEach((track) => track.stop());
+        remoteStreamRef.current = null;
       }
       
-      if (remoteVideoRef.current?.srcObject) {
-        const tracks = (remoteVideoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
+      if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = null;
       }
-
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach(track => track.stop());
-        localStreamRef.current = null;
+    
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
       }
-
-      peerConnectionRef.current?.close();
-      peerConnectionRef.current = null;
     };
-  
+
     // 부모가 호출할 수 있도록 노출
     useImperativeHandle(ref, () => ({
       endCallCleanup: () => {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current?.send(JSON.stringify({ type: "leave" }));
-        } else {
-          console.log("WebSocket 연결이 열려있지 않음");
+          setTimeout(() => wsRef.current?.close(), 200);
+        } 
+
+        if (localVideoRef.current?.srcObject) {
+          (localVideoRef.current.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
+          localVideoRef.current.srcObject = null;
         }
-        setTimeout(() => {
-          wsRef.current?.close();
-        }, 200);
-        cleanupRemoteStream();
+
+        if (localStreamRef.current) {
+          localStreamRef.current.getTracks().forEach((track) => track.stop());
+          localStreamRef.current = null;
+        }
+
+        cameraRef.current?.stop();
+        cameraRef.current = null;
+        
+        cleanupRemote();
+        setPeerStatus(false);
       }
     }));
-
-    useEffect(() => {
-      const handleUnload = () => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({ type: "leave" }));
-        }
-      };
-    
-      window.addEventListener('beforeunload', handleUnload);
-      return () => {
-        window.removeEventListener('beforeunload', handleUnload);
-      };
-    }, []);
 
     return (
         <div>
