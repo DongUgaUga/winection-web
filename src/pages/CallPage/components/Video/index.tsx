@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Holistic } from "@mediapipe/holistic";
 import { Camera } from "@mediapipe/camera_utils";
-import styles from './Video.module.scss';
+import MicBlockIcon from 'src/assets/block-mic.svg';
 import { cn } from "@bcsdlab/utils";
+import styles from './Video.module.scss';
 
 interface Landmark {
   x: string;
@@ -45,6 +46,7 @@ export default function Video(props: VideoProps) {
     console.log('camera', isCameraActive, 'mic', isMicActive);
   } ,[]);
   const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
+  const [isPeerMicActive, setIsPeerMicActive] = useState(true);
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -81,6 +83,11 @@ export default function Video(props: VideoProps) {
             remoteVideoRef.current.srcObject = newStream;
             remoteVideoRef.current.play();
           }
+        }
+
+        if (data.type === "mic_state" && data.client_id === 'peer') {
+          console.log("상대방 음소거 상태 변경", data.data.isMicActive);
+          setIsPeerMicActive(data.data.isMicActive);
         }
   
         if (data.type === "offer") {
@@ -317,7 +324,22 @@ export default function Video(props: VideoProps) {
       stopCamera(); // unmount 시에도 정리
     };
   }, [isCameraActive]);
-  console.log(isPeerCameraActive);
+
+  useEffect(() => {
+    if (streamRef.current) {
+      streamRef.current.getAudioTracks().forEach((track) => {
+        track.enabled = isMicActive;
+      });
+    }
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: "mic_state",
+        data: { isMicActive }
+      }));
+    }
+  }, [isMicActive])
+  
 
   return (
     <div>
@@ -341,6 +363,11 @@ export default function Video(props: VideoProps) {
               <span>동동우동이</span>
             </div>
           )}
+          {peerStatus && !isPeerMicActive && (
+            <div className={styles['video-wrapper__mic-off-overlay']}>
+              <MicBlockIcon />
+            </div>
+          )}
         </div>
         <div className={cn({
           [styles['video-wrapper']]: true,
@@ -359,6 +386,11 @@ export default function Video(props: VideoProps) {
           {!isCameraActive && (
             <div className={styles['video-wrapper__overlay']}>
               <span>{userInfo.nickname}</span>
+            </div>
+          )}
+          {!isMicActive && (
+            <div className={styles['video-wrapper__mic-off-overlay']}>
+              <MicBlockIcon />
             </div>
           )}
           {callType === 'general' && (

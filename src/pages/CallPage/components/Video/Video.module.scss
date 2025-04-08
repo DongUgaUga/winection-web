@@ -64,6 +64,13 @@
       letter-spacing: 0%;
     }
   }
+
+  &__mic-off-overlay {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    z-index: 6;
+  }
 }
 
 .opponent {
