@@ -175,7 +175,7 @@ export default function Video(props: VideoProps) {
   
   const startStreaming = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
       if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
@@ -251,7 +251,7 @@ export default function Video(props: VideoProps) {
     };
 
     const setupCamera = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
   
       if (localVideoRef.current) {
@@ -339,7 +339,6 @@ export default function Video(props: VideoProps) {
       }));
     }
   }, [isMicActive])
-  
 
   return (
     <div>
