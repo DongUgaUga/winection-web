@@ -4,13 +4,15 @@ import BlindIcon from 'src/assets/blind.svg';
 import EyeIcon from 'src/assets/eye.svg';
 import { useNavigate } from 'react-router-dom';
 import styles from './LoginPage.module.scss';
+import useLogin from '../SignupPage/hooks/useLogin';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   const [showPw, setShowPw] = useState<boolean>(false);
-  const [isError, setIsError] = useState(false);
+
+  const { mutate: login, isError } = useLogin();
 
   const currentId = (e: { target: { value: SetStateAction<string>; }; }) => {
     setId(e.target.value);
@@ -30,20 +32,11 @@ export default function LoginPage() {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!id || !pw) {
-      setIsError(true);
-      return;
-    }
-    
-    // 로그인 api 나오면 없앨 예정
-    if (id !== 'tmdwn1234' || pw !== '!tmdwn1234') {
-      setIsError(true);
-      return;
-    }
-    sessionStorage.setItem('userInfo', JSON.stringify({ nickname: '아마승주', userClassification: '농인' }));
+    login({
+      username: id,
+      password: pw
+    });
 
-    setIsError(false);
-    navigate('/');
     return;
   };
 

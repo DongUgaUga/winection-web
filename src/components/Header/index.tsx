@@ -8,6 +8,7 @@ export default function Header() {
 
   const logout = () => {
     sessionStorage.removeItem('userInfo');
+    localStorage.removeItem('accessToken');
     navigate('/');
   }
 
