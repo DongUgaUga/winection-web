@@ -6,7 +6,11 @@ import CameraBlcokIcon from 'src/assets/block-camera.svg';
 import MicIcon from 'src/assets/mic.svg';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import CallEndIcon from 'src/assets/end-call.svg';
-import Video, { VideoHandle } from '../components/Video';
+import avatar1 from 'src/assets/avatar1.png';
+import avatar2 from 'src/assets/avatar2.png';
+import avatar3 from 'src/assets/avatar3.png';
+import avatar4 from 'src/assets/avatar4.png';
+import Video from '../components/Video';
 import LoadingSpinner from 'src/assets/loading-spinner.gif';
 import styles from './GeneralCallPage.module.scss';
 import Toast from '../../../components/Toast';
@@ -14,20 +18,20 @@ import Toast from '../../../components/Toast';
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
   {
-    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/300px-Cat_November_2010-1a.jpg',
-    name: '가가'
+    src: avatar1,
+    name: '지민'
   },
   {
-    src: 'https://i.namu.wiki/i/d1A_wD4kuLHmOOFqJdVlOXVt1TWA9NfNt_HA0CS0Y_N0zayUAX8olMuv7odG2FiDLDQZIRBqbPQwBSArXfEJlQ.webp',
-    name: '나나'
+    src: avatar2,
+    name: '시안'
   },
   {
-    src: 'https://i.namu.wiki/i/yYbLn1JjcwHiJXSYSPRs46iaW2FytB5AQc1tBpoftJIN_ltHuHzLx09Glc27azN0Rk-SAqzQkB5QQxxDOVOu8w.webp',
-    name: '다다'
+    src: avatar3,
+    name: '영현'
   },
   {
-    src: 'https://cdn.royalcanin-weshare-online.io/Y0DP7YsBRYZmsWpc3hP6/v3/puppy-walking-on-the-lawn-16-9',
-    name: '라라'
+    src: avatar4,
+    name: '유나'
   }
 ];
 
@@ -107,7 +111,7 @@ function StyleSelect() {
             <div className={styles.avatars}>
               {AVATARS.map((avatar) => (
                 <div key={avatar.name} className={styles.avatars__avatar} onClick={() => setAvatar(avatar.name)}>
-                  <img className={styles['avatars__avatar--image']} src={avatar.src} alt='아바타' />
+                  <img src={avatar.src} alt="avatar" className={styles['avatars__avatar--image']} />
                   <div className={styles['avatars__avatar--name']}>{avatar.name}</div>
                 </div>
               ))}
@@ -133,8 +137,6 @@ export default function GeneralCallPage() {
   const [callTime, setCallTime] = useState(0);
   const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
-  const videoRef = useRef<VideoHandle | null>(null);
-
   const copyRoomCode = () => {
     navigator.clipboard.writeText(params.code!)
     .then(() => {
@@ -154,17 +156,13 @@ export default function GeneralCallPage() {
   }
 
   const endCall = () => {
-    videoRef.current?.endCallCleanup();
-  
-    setTimeout(() => {
-      navigate('/call-end', {
-        state: {
-          callTime: formatTime(callTime, 'korean'),
-          callStartTime: formatKoreanDate(callStartTime, 'korean'), 
-        }
-      })
-    }, 200);
-  }
+    navigate('/call-end', {
+      state: {
+        callTime: formatTime(callTime, 'korean'),
+        callStartTime: formatKoreanDate(callStartTime, 'korean'), 
+      }
+    })
+  };
 
   useEffect(() => {
     if (peerStatus && !callStartTime) {
@@ -260,7 +258,6 @@ export default function GeneralCallPage() {
             {params.code
             ?
               <Video
-                ref={videoRef}
                 peerStatus={peerStatus}
                 setPeerStatus={setPeerStatus}
                 code={params.code}
