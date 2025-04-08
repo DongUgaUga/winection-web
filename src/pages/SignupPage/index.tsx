@@ -9,7 +9,8 @@ import AgencyIcon from 'src/assets/agency.svg';
 import BlindIcon from 'src/assets/blind.svg';
 import EyeIcon from 'src/assets/eye.svg';
 import { cn } from '@bcsdlab/utils';
-import { useNavigate } from 'react-router-dom';
+import useSignup from './hooks/useSignup';
+import { EmergencyOrganization, SignupRequest, UserClassification } from '../../api/auth/entity';
 import styles from './SignupPage.module.scss';
 
 export default function SignupPage() {
@@ -20,14 +21,18 @@ export default function SignupPage() {
     formState: { errors }
   } = useForm({ mode: 'onChange' });
 
-  const navigate = useNavigate();
+  const { mutate: signup } = useSignup();
 
   const onSubmit = (data: any) => {
-    const submitData = {
-      ...data,
+    const submitData: SignupRequest = {
+      username: data.id!,
+      password: data.password!,
+      confirm_password: data['password-check']!,
       nickname: nickname,
-      userClassification: userClassification,
-      emergencyAgency: userClassification === '응급기관' ? emergencyAgency : undefined,
+      user_type: userClassification || '농인',
+      emergency_type: userClassification === '응급기관' ? emergencyAgency! : undefined,
+      address: data.address,
+      organization_name: data.agency,
     }
     
     if(nickname !== watch('nickname') || !userClassification || isDuplicatedNickname) {
@@ -35,8 +40,8 @@ export default function SignupPage() {
       return;
     }
 
-    sessionStorage.setItem('userInfo', JSON.stringify(submitData)); // 로그인 판단 여부
-    navigate('/');
+    signup(submitData);
+
     return;
   };
   
@@ -49,8 +54,8 @@ export default function SignupPage() {
   const [nickname, setNickname] = useState('');
   const [isDuplicatedNickname, setIsDuplicateedNickname] = useState(false);
   
-  const [userClassification, setUserClassification] = useState<string | null>(null);
-  const [emergencyAgency, setEmergencyAgency] = useState('');
+  const [userClassification, setUserClassification] = useState<UserClassification | ''>('');
+  const [emergencyAgency, setEmergencyAgency] = useState<EmergencyOrganization | null>(null);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -88,13 +93,13 @@ export default function SignupPage() {
     }
   };
 
-  const onSelectUserClassification = (classification: string) => {
+  const onSelectUserClassification = (classification: UserClassification) => {
     setUserClassification(classification);
-    setEmergencyAgency('');
+    setEmergencyAgency(null);
     setIsOpen(false);
   }
 
-  const onSelectEmergencyAgency = (agency: string) => {
+  const onSelectEmergencyAgency = (agency: EmergencyOrganization) => {
     setUserClassification('응급기관');
     setEmergencyAgency(agency);
     setIsOpen(false);
