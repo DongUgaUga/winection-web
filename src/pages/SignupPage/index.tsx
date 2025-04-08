@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ManIcon from 'src/assets/man.svg';
 import LockIcon from 'src/assets/lock.svg'
@@ -13,9 +13,16 @@ import useSignup from './hooks/useSignup';
 import { EmergencyOrganization, SignupRequest, UserClassification } from '../../api/auth/entity';
 import styles from './SignupPage.module.scss';
 
+declare global {
+  interface Window {
+    daum: any;
+  }
+}
+
 export default function SignupPage() {
   const {
     register,
+    setValue,
     handleSubmit,
     watch,
     formState: { errors }
@@ -104,6 +111,33 @@ export default function SignupPage() {
     setEmergencyAgency(agency);
     setIsOpen(false);
   }
+
+  const loadPostcodeScript = () => {
+    const script = document.createElement('script');
+    script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.async = true;
+    document.body.appendChild(script);
+  };
+
+  const handleSearch = () => {
+    new window.daum.Postcode({
+      oncomplete: function (data: any) {
+        let addr = '';
+
+        if (data.userSelectedType === 'R') {
+          addr = data.roadAddress;
+        } else {
+          addr = data.jibunAddress;
+        }
+
+        setValue('address', addr, { shouldValidate: true});
+      }
+    }).open();
+  };
+
+  useEffect(() => {
+    loadPostcodeScript();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.container}>
@@ -304,6 +338,13 @@ export default function SignupPage() {
                   })}
                 />
               </div>
+              <button
+                type="button"
+                className={styles['input-container--search']}
+                onClick={handleSearch}
+              >
+                주소검색
+              </button>
             </div>
             {errors.address && 
               <div className={styles['error-container']}>
