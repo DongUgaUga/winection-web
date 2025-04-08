@@ -12,3 +12,8 @@ export interface SignupRequest {
   address?: string;
   organization_name?: string;
 }
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}

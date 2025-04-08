@@ -1,5 +1,5 @@
 import api from '..';
-import { SignupRequest } from './entity';
+import { LoginRequest, SignupRequest } from './entity';
 
 export const signup = async (userData: SignupRequest) => {
   const { data } = await api.post(
@@ -9,3 +9,12 @@ export const signup = async (userData: SignupRequest) => {
 
   return data;
 };
+
+export const login = async (loginData: LoginRequest) => {
+  const { data } = await api.post(
+    '/login',
+    loginData
+  );
+
+  return data;
+}
