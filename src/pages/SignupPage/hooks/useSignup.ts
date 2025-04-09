@@ -10,7 +10,7 @@ export default function useSignup() {
   const { mutate } = useMutation({
     mutationFn: signup,
 
-    onSuccess: (variables) => {
+    onSuccess: (_data, variables) => {
       login({
         username: variables.username,
         password: variables.password,
