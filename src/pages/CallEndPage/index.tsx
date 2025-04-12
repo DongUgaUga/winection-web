@@ -14,7 +14,7 @@ export default function CallEndPage() {
     <div className={styles.container}>
       <div className={styles.guide}>
         <div>연결이 종료되었습니다.</div>
-        <div><span>{userInfo.nickname}</span>님, 통화는 어떠셨나요?</div>
+        <div><span>{userInfo!.nickname}</span>님, 통화는 어떠셨나요?</div>
       </div>
       <div className={styles.call}>
         <div className={styles.call__time}>

@@ -19,7 +19,6 @@ export default function useSignup() {
     },
 
     onError: (error: Error | any) => {
-      console.log(error);
       if (error.response.data.detail) {
         toast((error.response.data.detail), { type: "error" });
       } else {

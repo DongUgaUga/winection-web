@@ -384,7 +384,7 @@ export default function Video(props: VideoProps) {
           />
           {!isCameraActive && (
             <div className={styles['video-wrapper__overlay']}>
-              <span>{userInfo.nickname}</span>
+              <span>{userInfo!.nickname}</span>
             </div>
           )}
           {!isMicActive && (

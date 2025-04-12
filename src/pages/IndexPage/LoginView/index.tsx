@@ -6,8 +6,8 @@ import useUserInfo from '../../../hooks/useUserInfo';
 
 export default function LoginView() {
   const { data: userInfo } = useUserInfo();
-  const userClassification = userInfo.user_type;
   const navigate = useNavigate();
+  const userClassification = userInfo!.user_type;
 
   const startCall = () => {
     if (userClassification === '일반인') {

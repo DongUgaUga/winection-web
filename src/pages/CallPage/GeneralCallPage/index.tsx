@@ -87,7 +87,7 @@ function StyleSelect() {
   
   return (
     <>
-      {userInfo.user_type === '농인'
+      {userInfo!.user_type === '농인'
         ? (
           <div className={styles.style}>
             <div className={styles.style__select}>목소리 선택</div>
