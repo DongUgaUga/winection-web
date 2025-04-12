@@ -29,3 +29,7 @@ export interface MeResponse {
   address?: string;
   organization_name?: string;
 }
+
+export interface NicknameCheckRequest {
+  nickname: string;
+}

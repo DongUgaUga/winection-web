@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import ManIcon from 'src/assets/man.svg';
 import LockIcon from 'src/assets/lock.svg'
 import UserIcon from 'src/assets/user-classification.svg';
+import PhoneIcon from 'src/assets/phone.svg';
 import ShevronDownIcon from 'src/assets/shevron-down.svg';
 import HomeIcon from 'src/assets/home.svg';
 import AgencyIcon from 'src/assets/agency.svg';
@@ -11,6 +12,8 @@ import EyeIcon from 'src/assets/eye.svg';
 import { cn } from '@bcsdlab/utils';
 import useSignup from './hooks/useSignup';
 import { EmergencyOrganization, SignupRequest, UserClassification } from '../../api/auth/entity';
+import useCheckNickname from './hooks/useCheckNickname';
+import { toast } from 'react-toastify';
 import styles from './SignupPage.module.scss';
 
 declare global {
@@ -30,6 +33,8 @@ export default function SignupPage() {
 
   const { mutate: signup } = useSignup();
 
+  const { mutate: checkNickname, isError: isNicknameError } = useCheckNickname();
+
   const onSubmit = (data: any) => {
     const submitData: SignupRequest = {
       username: data.id!,
@@ -42,8 +47,8 @@ export default function SignupPage() {
       address: data.address,
       organization_name: data.agency,
     }
-    
-    if(nickname !== watch('nickname') || !userClassification || isDuplicatedNickname) {
+
+    if(nickname !== watch('nickname') || !userClassification || isNicknameError) {
       if(!userClassification) setUserClassification('');
       return;
     }
@@ -52,7 +57,7 @@ export default function SignupPage() {
 
     return;
   };
-  
+
   const passwordRef = useRef(null);
   passwordRef.current = watch("password");
 
@@ -60,7 +65,7 @@ export default function SignupPage() {
   const [isPasswordCheckBlind, setIsPasswordCheckBlind] = useState(true);
   
   const [nickname, setNickname] = useState('');
-  const [isDuplicatedNickname, setIsDuplicateedNickname] = useState(false);
+  // const [isDuplicatedNickname, setIsDuplicateedNickname] = useState(false);
   
   const [userClassification, setUserClassification] = useState<UserClassification | ''>('');
   const [emergencyAgency, setEmergencyAgency] = useState<EmergencyOrganization | null>(null);
@@ -83,15 +88,15 @@ export default function SignupPage() {
     }
   }
 
-  const checkDuplication = () => {
-    const enteredNickname = watch('nickname');
-    setNickname(enteredNickname);
-    if (enteredNickname === '승주') {
-      setIsDuplicateedNickname(true);
-    } else {
-      setIsDuplicateedNickname(false);
+  const handleCheckNickname =  (nickname: string) => {
+    if (!nickname) {
+      toast('닉네임을 입력해주세요.', { type: 'warning' });
+      return;
     }
-  }
+
+    setNickname(nickname);
+    checkNickname(nickname);
+  };
 
   const triggerDropdown = () => {
     if (isOpen) {
@@ -238,7 +243,7 @@ export default function SignupPage() {
         <button
           type="button"
           className={styles['input-container--check']}
-          onClick={checkDuplication}
+          onClick={() => handleCheckNickname(watch('nickname'))}
         >
           중복확인
         </button>
@@ -246,16 +251,10 @@ export default function SignupPage() {
       {(errors.nickname || watch('nickname') || watch('nickname') !== nickname ) &&
         <div className={styles['error-container']}>
           {errors.nickname && (<div className={styles['error-message']}>{errors.nickname.message as string}</div>)}
-          { watch('nickname') && (
-            watch('nickname') !== nickname 
-            ? <div className={styles['check-message']}>닉네임 중복확인을 해주세요.</div>
-            : <div className={cn({
-                [styles['error-message']]: isDuplicatedNickname,
-                [styles['ok-message']]: !isDuplicatedNickname,
-              })}>
-                { isDuplicatedNickname ? '이미 존재하는 닉네임입니다.' : '사용가능한 닉네임입니다.'}
-              </div>
-          )}
+          { 
+            watch('nickname') && watch('nickname') !== nickname &&
+            <div className={styles['check-message']}>닉네임 중복확인을 해주세요.</div>
+          }
         </div>
       }
       <div className={styles['input-container']}>
@@ -265,7 +264,7 @@ export default function SignupPage() {
             [styles['input-container__input--error']]: !!errors.nickname,
           })}
         >
-          <ManIcon />
+          <PhoneIcon />
           <input
             className={styles['input-container__input--field']}
             placeholder="전화번호 (ex. 010-0000-0000) (필수) "
