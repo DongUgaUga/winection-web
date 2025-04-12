@@ -12,6 +12,7 @@ import CallWaitPage from './pages/CallWaitPage'
 import CallPage from './pages/CallPage'
 import AboutPage from './pages/AboutPage'
 import CallEndPage from './pages/CallEndPage'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
           </Route>
           <Route path="/about" element={<AboutPage />} />
         </Routes>
+        <ToastContainer />
       </BrowserRouter>
     </>
   )

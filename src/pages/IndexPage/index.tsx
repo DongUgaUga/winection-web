@@ -2,15 +2,15 @@ import { useNavigate } from "react-router-dom"
 import LoginView from "./LoginView/index.tsx";
 import NonLoginView from "./NonLoginView/index.tsx";
 import styles from './IndexPage.module.scss';
+import useTokenState from "../../hooks/useTokenState.ts";
 
 export default function IndexPage() {
   const navigate = useNavigate();
-  const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!); // 로그인 여부 판단. 추후 다른 방식으로 변경할 수도
-  console.log(userInfo);
+  const token = useTokenState();
 
   return (
     <>
-      {userInfo
+      {token
       ? <LoginView />
       : <NonLoginView />
       }

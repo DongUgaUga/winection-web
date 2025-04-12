@@ -1,13 +1,13 @@
 import WinectionLogo from '/src/assets/winection.svg';
 import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
+import useUserInfo from '../../hooks/useUserInfo';
 
 export default function Header() {
-  const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
+  const { data: userInfo } = useUserInfo();
   const navigate = useNavigate();
 
   const logout = () => {
-    sessionStorage.removeItem('userInfo');
     localStorage.removeItem('accessToken');
     navigate('/');
   }

@@ -7,6 +7,7 @@ export interface SignupRequest {
   password: string;
   confirm_password: string;
   nickname: string;
+  phone_number: string;
   user_type: UserClassification;
   emergency_type?: EmergencyOrganization;
   address?: string;
@@ -16,4 +17,30 @@ export interface SignupRequest {
 export interface LoginRequest {
   username: string;
   password: string;
+}
+
+export interface MeResponse {
+  id: number;
+  username: string; 
+  nickname: string;
+  user_type: UserClassification;
+  phone_number: string;
+  emergency_type?: EmergencyOrganization;
+  address?: string;
+  organization_name?: string;
+}
+
+export interface NicknameCheckRequest {
+  nickname: string;
+}
+
+export interface PasswordFindRequest {
+  username: string;
+  phone_number: string;
+}
+
+export interface PasswordChangeRequest {
+  username: string;
+  new_password: string;
+  confirm_password: string;
 }

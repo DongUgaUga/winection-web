@@ -1,12 +1,13 @@
 import { cn } from '@bcsdlab/utils';
 import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
 import { useNavigate } from 'react-router-dom';
+import useUserInfo from '../../../hooks/useUserInfo';
 import styles from './LoginView.module.scss';
 
 export default function LoginView() {
-  const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
-  const userClassification = userInfo.userClassification;
   const navigate = useNavigate();
+  const { data: userInfo } = useUserInfo();
+  const userClassification = userInfo!.user_type;
 
   const startCall = () => {
     if (userClassification === '일반인') {
