@@ -4,6 +4,7 @@ import { Camera } from "@mediapipe/camera_utils";
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import { cn } from "@bcsdlab/utils";
 import styles from './Video.module.scss';
+import useUserInfo from "../../../../hooks/useUserInfo";
 
 interface Landmark {
   x: string;
@@ -27,8 +28,6 @@ interface VideoProps {
   callStartTime: string | null;
 }
 
-const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
-
 export default function Video(props: VideoProps) {
   const {
     peerStatus,
@@ -39,6 +38,7 @@ export default function Video(props: VideoProps) {
     callType,
     callStartTime,
   } = props;
+  const { data: userInfo } = useUserInfo();
   const [myBodyInfo, setMyBodyInfo] = useState<string>("[]");
   const [peerBodyInfo, setPeerBodyInfo] = useState<string>("");
   useEffect(() => {

@@ -17,3 +17,10 @@ export interface LoginRequest {
   username: string;
   password: string;
 }
+
+export interface MeResponse {
+ id: number;
+ username: string; 
+ nickname: string;
+ user_type: UserClassification;
+}

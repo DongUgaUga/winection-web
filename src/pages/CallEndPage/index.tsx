@@ -1,9 +1,10 @@
 import ReturnIcon from 'src/assets/return.svg';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CallEndPage.module.scss';
+import useUserInfo from '../../hooks/useUserInfo';
 
 export default function CallEndPage() {
-  const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
+  const { data: userInfo } = useUserInfo();
 
   const location = useLocation();
   const navigate = useNavigate();

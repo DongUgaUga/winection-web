@@ -2,10 +2,12 @@ import { cn } from '@bcsdlab/utils';
 import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
 import { useNavigate } from 'react-router-dom';
 import styles from './LoginView.module.scss';
+import useUserInfo from '../../../hooks/useUserInfo';
 
 export default function LoginView() {
-  const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
-  const userClassification = userInfo.userClassification;
+  const { data: userInfo } = useUserInfo();
+  console.log(userInfo);
+  const userClassification = userInfo.user_type;
   const navigate = useNavigate();
 
   const startCall = () => {

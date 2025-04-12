@@ -14,6 +14,7 @@ import Video from '../components/Video';
 import LoadingSpinner from 'src/assets/loading-spinner.gif';
 import styles from './GeneralCallPage.module.scss';
 import Toast from '../../../components/Toast';
+import useUserInfo from '../../../hooks/useUserInfo';
 
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
@@ -75,7 +76,7 @@ const formatKoreanDate = (date: Date | null, type: 'digit' | 'korean'): string =
 
 
 function StyleSelect() {
-  const userInfo = JSON.parse(sessionStorage.getItem('userInfo')!);
+  const { data: userInfo } = useUserInfo();
 
   const [voice, setVoice] = useState(VOICES[0]);
   const [avatar, setAvatar] = useState(AVATARS[0].name);
@@ -86,7 +87,7 @@ function StyleSelect() {
   
   return (
     <>
-      {userInfo.userClassification === '농인'
+      {userInfo.user_type === '농인'
         ? (
           <div className={styles.style}>
             <div className={styles.style__select}>목소리 선택</div>
