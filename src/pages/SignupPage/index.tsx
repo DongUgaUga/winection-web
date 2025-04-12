@@ -36,6 +36,7 @@ export default function SignupPage() {
       password: data.password!,
       confirm_password: data['password-check']!,
       nickname: nickname,
+      phone_number: data['phone-number'],
       user_type: userClassification || '농인',
       emergency_type: userClassification === '응급기관' ? emergencyAgency! : undefined,
       address: data.address,
@@ -255,6 +256,30 @@ export default function SignupPage() {
                 { isDuplicatedNickname ? '이미 존재하는 닉네임입니다.' : '사용가능한 닉네임입니다.'}
               </div>
           )}
+        </div>
+      }
+      <div className={styles['input-container']}>
+        <div 
+          className={cn({
+            [styles['input-container__input']]: true,
+            [styles['input-container__input--error']]: !!errors.nickname,
+          })}
+        >
+          <ManIcon />
+          <input
+            className={styles['input-container__input--field']}
+            placeholder="전화번호 (ex. 010-0000-0000) (필수) "
+            type="tel"
+            {...register("phone-number", {
+              required: { value: true, message: '전화번호를 입력해주세요.' },
+              pattern: { value: /^01[016789]-\d{4}-\d{4}$/, message: '전화번호 형식에 맞게 입력해주세요' }
+            })}
+          />
+        </div>
+      </div>
+      {errors['phone-number'] &&
+        <div className={styles['error-container']}>
+          <div className={styles['error-message']}>{errors['phone-number'].message as string}</div>
         </div>
       }
       <div

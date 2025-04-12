@@ -7,6 +7,7 @@ export interface SignupRequest {
   password: string;
   confirm_password: string;
   nickname: string;
+  phone_number: string;
   user_type: UserClassification;
   emergency_type?: EmergencyOrganization;
   address?: string;
