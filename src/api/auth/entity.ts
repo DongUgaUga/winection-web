@@ -1,4 +1,4 @@
-export type UserClassification = '농인' | '일반인' | '응급기관';
+  export type UserClassification = '농인' | '일반인' | '응급기관';
 
 export type EmergencyOrganization = '병원' | '경찰서' | '소방서';
 
@@ -20,8 +20,12 @@ export interface LoginRequest {
 }
 
 export interface MeResponse {
- id: number;
- username: string; 
- nickname: string;
- user_type: UserClassification;
+  id: number;
+  username: string; 
+  nickname: string;
+  user_type: UserClassification;
+  phone_number: string;
+  emergency_type?: EmergencyOrganization;
+  address?: string;
+  organization_name?: string;
 }
