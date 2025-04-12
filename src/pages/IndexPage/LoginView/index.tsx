@@ -6,7 +6,6 @@ import useUserInfo from '../../../hooks/useUserInfo';
 
 export default function LoginView() {
   const { data: userInfo } = useUserInfo();
-  console.log(userInfo);
   const userClassification = userInfo.user_type;
   const navigate = useNavigate();
 
