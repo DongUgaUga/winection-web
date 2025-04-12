@@ -38,3 +38,9 @@ export interface PasswordFindRequest {
   username: string;
   phone_number: string;
 }
+
+export interface PasswordChangeRequest {
+  username: string;
+  new_password: string;
+  confirm_password: string;
+}

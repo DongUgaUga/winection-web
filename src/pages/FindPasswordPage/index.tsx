@@ -2,15 +2,20 @@ import { useState } from 'react'
 import DeleteIcon from 'src/assets/delete.svg';
 import BlindIcon from 'src/assets/blind.svg';
 import EyeIcon from 'src/assets/eye.svg';
-import styles from './FindPasswordPage.module.scss'
 import { useNavigate } from 'react-router-dom';
 import useFindPassword from './hooks/useFindPassword';
+import useChangePassword from './hooks/useChangePassword';
+import useLogin from '../SignupPage/hooks/useLogin';
+import styles from './FindPasswordPage.module.scss'
 
 const PASSWORDREG = /^(?=.*[A-Za-z])(?=.*\d)(?=.*\W).{8,}.+$/;
 
 export default function FindPasswordPage() {
   const navigate = useNavigate();
-  const { mutateAsync : findPassword, isError } = useFindPassword();
+  const { mutateAsync: findPassword, isError } = useFindPassword();
+  const { mutateAsync: changePassword } = useChangePassword();
+
+  const { mutate: login } = useLogin();
 
   const [id, setId] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -44,15 +49,21 @@ export default function FindPasswordPage() {
       }
 
       setErrorMessage('');
-      // 비밀번호 수정 api 추가 예정
+      changePassword({
+        username: id,
+        new_password: password,
+        confirm_password: passwordCheck
+      })
       setStep((value) => value + 1);
       return;
     }
   }
 
   const goHome = () => {
-    // 자동으로 로그인 되게 설정(로그인 api 나오면)
-    sessionStorage.setItem('userInfo', JSON.stringify({ nickname: '아마승주', userClassification: '농인' }));
+    login({
+      username: id,
+      password: password
+    })
     navigate('/');
   }
 

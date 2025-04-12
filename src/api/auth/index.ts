@@ -1,6 +1,6 @@
 import privateAxios from '../privateAxios';
 import publicAxios from '../publicAxios';
-import { LoginRequest, SignupRequest, MeResponse, NicknameCheckRequest, PasswordFindRequest } from './entity';
+import { LoginRequest, SignupRequest, MeResponse, NicknameCheckRequest, PasswordFindRequest, PasswordChangeRequest } from './entity';
 
 export const signup = async (userData: SignupRequest) => {
   const { data } = await publicAxios.post(
@@ -45,5 +45,14 @@ export const findPassword = async (passwordFindData: PasswordFindRequest) => {
     passwordFindData
   )
   
+  return data;
+}
+
+export const changePassword = async (passwordChangeData: PasswordChangeRequest) => {
+  const { data } = await publicAxios.patch(
+    '/password/reset',
+    passwordChangeData
+  )
+
   return data;
 }
