@@ -1,6 +1,6 @@
 import privateAxios from '../privateAxios';
 import publicAxios from '../publicAxios';
-import { LoginRequest, SignupRequest, MeResponse, NicknameCheckRequest } from './entity';
+import { LoginRequest, SignupRequest, MeResponse, NicknameCheckRequest, PasswordFindRequest } from './entity';
 
 export const signup = async (userData: SignupRequest) => {
   const { data } = await publicAxios.post(
@@ -36,5 +36,14 @@ export const checkNicknameDuplicate = async (nickname: NicknameCheckRequest) => 
     }
   );
 
+  return data;
+}
+
+export const findPassword = async (passwordFindData: PasswordFindRequest) => {
+  const { data } = await publicAxios.post(
+    '/password/find',
+    passwordFindData
+  )
+  
   return data;
 }

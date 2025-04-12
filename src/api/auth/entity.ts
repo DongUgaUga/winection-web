@@ -33,3 +33,8 @@ export interface MeResponse {
 export interface NicknameCheckRequest {
   nickname: string;
 }
+
+export interface PasswordFindRequest {
+  username: string;
+  phone_number: string;
+}

@@ -4,34 +4,35 @@ import BlindIcon from 'src/assets/blind.svg';
 import EyeIcon from 'src/assets/eye.svg';
 import styles from './FindPasswordPage.module.scss'
 import { useNavigate } from 'react-router-dom';
+import useFindPassword from './hooks/useFindPassword';
 
 const PASSWORDREG = /^(?=.*[A-Za-z])(?=.*\d)(?=.*\W).{8,}.+$/;
 
 export default function FindPasswordPage() {
   const navigate = useNavigate();
+  const { mutateAsync : findPassword, isError } = useFindPassword();
 
   const [id, setId] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [step, setStep] = useState(1);
 
   const [password, setPassword] = useState('');
   const [passwordCheck, setPasswordCheck] = useState('');
   const [isBlind, setIsBlind] = useState(true);
-
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleStep = () => {
+  const handleStep = async () => {
     if (step === 1) {
-      // 비밀번호 찾기 api 추가 예정
-      if (!id || !nickname) return;
+      await findPassword({
+        username: id,
+        phone_number: phoneNumber
+      })
+      
+      if (!id || !phoneNumber || isError) return;
 
-      if (id === 'tmdwn1234' && nickname === '아마승주') {
-        setErrorMessage('');
-        setStep((value) => value + 1);
-        return;
-      }
-      setErrorMessage('일치하는 회원 정보가 없습니다.');
+      setStep((value) => value + 1);
     }
+
     if (step === 2) {
       if (!PASSWORDREG.test(password) || !PASSWORDREG.test(passwordCheck)) {
         setErrorMessage('비밀번호는 영문, 특수문자, 숫자를 포함한 8자리 이상이어야 합니다.')
@@ -60,7 +61,7 @@ export default function FindPasswordPage() {
       {step === 1 && (
         <div className={styles.container}>
           <div className={styles.container__step}>
-            비밀번호를 찾고자하는 아이디를 입력해주세요.
+            비밀번호를 찾고자하는 아이디와 전화번호를 입력해주세요.
           </div>
           <div className={styles.form}>
             <div className={styles.form__input}>
@@ -81,15 +82,15 @@ export default function FindPasswordPage() {
             </div>
             <div className={styles.form__input}>
               <input
-                type='text'
+                type='tel'
                 className={styles['form__input--text']}
-                placeholder='닉네임을 입력하세요.'
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                placeholder='전화번호를 입력하세요. (ex. 010-0000-0000)'
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
               />
               <button
                 className={styles['form__input--delete']}
-                onClick={() => setNickname('')}
+                onClick={() => setPhoneNumber('')}
                 tabIndex={-1}
               >
                 <DeleteIcon />
