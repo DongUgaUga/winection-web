@@ -14,4 +14,18 @@ privateAxios.interceptors.request.use((config) => {
   return config;
 });
 
+privateAxios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("accessToken");
+      window.location.href = "/auth";
+
+      return Promise.reject(error);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default privateAxios;
