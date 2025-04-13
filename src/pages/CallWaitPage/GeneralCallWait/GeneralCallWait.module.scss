@@ -78,12 +78,9 @@
     color: #919191;
     cursor: pointer;
 
-    &:hover {
-      background-color: #dcdcdc;
-    }
-
-    &:active {
-      background-color: #cfcfcf;
+    &--activated {
+      background-color: #237BFF;
+      color: #fff;
     }
   }
 }

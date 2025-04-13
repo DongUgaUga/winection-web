@@ -66,7 +66,15 @@ export default function GeneralCallWait() {
               className={styles['participate__code--input']}
             />
           </div>
-          <button onClick={enterCallPage} className={styles.participate__button}>참가</button>
+          <button
+            onClick={enterCallPage}
+            className={cn({
+              [styles.participate__button]: true,
+              [styles['participate__button--activated']]: code.length === 6 && isChecked,
+            })}
+          >
+            참가
+          </button>
         </div>
       </div>
       {errorMessage && (
