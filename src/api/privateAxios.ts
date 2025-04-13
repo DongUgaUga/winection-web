@@ -18,10 +18,7 @@ privateAxios.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      // 👉 토큰 삭제
       localStorage.removeItem("accessToken");
-
-      // 👉 로그인 페이지로 리다이렉션
       window.location.href = "/auth";
 
       return Promise.reject(error);
