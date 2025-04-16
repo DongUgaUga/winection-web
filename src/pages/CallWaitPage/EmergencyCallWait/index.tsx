@@ -9,9 +9,14 @@ const AGENCYS = ['병원', '경찰서', '소방서'];
 
 export default function EmergencyCallWait() {
   const [agency, setAgency] = useState('');
+  const [isChecked, setIsChecked] = useState(false);
 
   const selectAgency = (value: string) => {
     setAgency(value);
+  }
+
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked);
   }
 
   const connect = () => {
@@ -42,17 +47,27 @@ export default function EmergencyCallWait() {
           ))}
         </div>
       </div>
+      <label htmlFor='agree' className={styles.checkbox}>
+        <input
+          id='agree'
+          type='checkbox'
+          className={styles.checkbox__check}
+          checked={isChecked}
+          onChange={handleCheck}
+        />
+        <div className={styles.checkbox__agree}>참가하면 위치 정보 어쩌고에 동의</div>
+      </label>
       <div className={cn({
         [styles.connect]: true,
         [styles['connect--able']]: !!agency,
       })}>
-        {agency ? <ActiveCallIcon /> : <CallIcon /> }
+        {!!agency && isChecked ? <ActiveCallIcon /> : <CallIcon /> }
         <button
           className={cn({
             [styles.connect__button]: true,
-            [styles['connect__button--able']]: !!agency,
+            [styles['connect__button--able']]: !!agency && isChecked,
           })}
-          disabled={!agency}
+          disabled={!agency && !isChecked}
           onClick={connect}
         >
           연결하기

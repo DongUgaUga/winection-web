@@ -18,7 +18,6 @@ export default function GeneralCallWait() {
   const navigate = useNavigate();
 
   const [code, setCode] = useState('');
-  const [isChecked, setIsChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const makeNewCall = () => {
@@ -26,17 +25,9 @@ export default function GeneralCallWait() {
     navigate(`/general-call/${newCode}`);
   }
 
-  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(e.target.checked);
-  }
-
   const enterCallPage = () => {
     if (code.length !== 6) {
       setErrorMessage('6자리 코드를 입력해주세요.');
-      return;
-    }
-    if (!isChecked) {
-      setErrorMessage('위치 정보 동의에 체크해주세요.');
       return;
     }
     setErrorMessage('');
@@ -70,7 +61,7 @@ export default function GeneralCallWait() {
             onClick={enterCallPage}
             className={cn({
               [styles.participate__button]: true,
-              [styles['participate__button--activated']]: code.length === 6 && isChecked,
+              [styles['participate__button--activated']]: code.length === 6,
             })}
           >
             참가
@@ -80,16 +71,6 @@ export default function GeneralCallWait() {
       {errorMessage && (
         <div className={styles.error}>{errorMessage}</div>
       )}
-      <label htmlFor='agree' className={styles.checkbox}>
-        <input
-          id='agree'
-          type='checkbox'
-          className={styles.checkbox__check}
-          checked={isChecked}
-          onChange={handleCheck}
-        />
-        <div className={styles.checkbox__agree}>참가하면 위치 정보 어쩌고에 동의</div>
-      </label>
     </div> 
   )
 }
