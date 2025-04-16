@@ -3,26 +3,19 @@ import KeyboardIcon from 'src/assets/keyboard.svg';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn } from '@bcsdlab/utils';
+import useMakeRoomId from '../hooks/useMakeRoomId';
 import styles from './GeneralCallWait.module.scss';
-
-const generateRandomString = (length = 6): string => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
 
 export default function GeneralCallWait() {
   const navigate = useNavigate();
+  const { mutateAsync: makeRoomId } = useMakeRoomId();
 
   const [code, setCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const makeNewCall = () => {
-    const newCode = generateRandomString();
-    navigate(`/general-call/${newCode}`);
+  const makeNewCall = async () => {
+    const newCode = await makeRoomId();
+    navigate(`/general-call/${newCode.room_id}`);
   }
 
   const enterCallPage = () => {
