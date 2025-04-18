@@ -1,5 +1,5 @@
 import * as path from "path";
-//import fs from "fs";
+// import fs from "fs";
 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
