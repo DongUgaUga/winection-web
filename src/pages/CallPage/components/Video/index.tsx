@@ -5,6 +5,8 @@ import MicBlockIcon from 'src/assets/block-mic.svg';
 import { cn } from "@bcsdlab/utils";
 import styles from './Video.module.scss';
 import useUserInfo from "../../../../hooks/useUserInfo";
+import Lottie from "lottie-react";
+import videoLoading from 'src/assets/video-loading.json';
 
 interface Landmark {
   x: string;
@@ -342,21 +344,30 @@ export default function Video(props: VideoProps) {
 
   return (
     <div>
-      <div className={styles['video-container']}>
+      <div className={cn({
+        [styles['video-container']]: true,
+        [styles['video-container--not-connected']]: !peerStatus && callType === 'general',
+        [styles['video-container--emergency']]: callType === 'emergency'
+      })}>
         <div className={cn({
           [styles['video-wrapper']]: true,
-          [styles['video-wrapper__main']]: true,
-          [styles['video-wrapper__hidden']]: !peerStatus,
+          [styles['video-wrapper__main']]: peerStatus,
+          [styles['video-wrapper__hidden']]: callType === 'general' && !peerStatus,
+          [styles['video-wrapper__sub']]: callType === 'emergency' && !peerStatus,
         })}>
-          <video
-            className={cn({
-              [styles['video-container__main-video']]: true,
-              [styles['video-container--hidden']]: !peerStatus,
-            })}
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-          />
+          {
+            peerStatus
+            ? <video
+                className={cn({
+                  [styles['video-container__main-video']]: peerStatus,
+                  [styles['video-container--hidden']]: callType === 'general' && !peerStatus,
+                })}
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+              />
+            : <Lottie animationData={videoLoading} style={{ width: '40px', height: '40px' }}/>
+          }
           {peerStatus && !isPeerCameraActive && (
             <div className={styles['video-wrapper__overlay']}>
               <span>동동우동이</span>
@@ -392,51 +403,50 @@ export default function Video(props: VideoProps) {
               <MicBlockIcon />
             </div>
           )}
-          {callType === 'general' && (
-            <div className={cn({
-              [styles.opponent]: true,
-              [styles['opponent--flex']]: true,
-              [styles['opponent--hidden']]: !peerStatus,
-            })}>
-                <div className={styles.opponent__content}>
-                  <div className={styles['opponent__content--title']}>상대방 닉네임</div>
-                  <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
-                </div>
-                <div className={styles.opponent__content}>
-                  <div className={styles['opponent__content--title']}>통화 시작 시간</div>
-                  <div className={styles['opponent__content--text']}>{callStartTime}</div>
-                </div>
-            </div>
-          )}
-          {callType === 'emergency' && (
-            <div className={cn({
-              [styles.opponent]: true,
-              [styles['opponent--grid']]: true,
-              [styles['opponent--hidden']]: !peerStatus,
-            })}>
-                <div className={styles.opponent__content}>
-                  <div className={styles['opponent__content--title']}>상대방 닉네임</div>
-                  <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
-                </div>
-                <div className={styles.opponent__content}>
-                  <div className={styles['opponent__content--title']}>상대방 연락처</div>
-                  <div className={styles['opponent__content--text']}>010-1234-5678</div>
-                </div>
-                <div className={styles.opponent__content}>
-                  <div className={styles['opponent__content--title']}>통화 시작 시간</div>
-                  <div className={styles['opponent__content--text']}>{callStartTime}</div>
-                </div>
-                <div className={styles.opponent__content}>
-                  <div className={styles['opponent__content--title']}>특이사항</div>
-                  <div className={styles['opponent__content--text']}>새롭게 시작해 볼래 너 그리고 나 사랑을 동경해 앞으로도 잘 부탁 해야 해야 해야 너를 봐야 봐야</div>
-                </div>
-                <div className={styles.opponent__content}>
-                  <div className={styles['opponent__content--title']}>상대방 현재 위치</div>
-                  <div className={styles['opponent__content--text']}>충청남도 아산시 모종로 21</div>
-                </div>
-            </div>
-          )}
         </div>
+        {callType === 'general' && (
+          <div className={cn({
+            [styles.opponent]: true,
+            [styles['opponent--flex']]: true,
+            [styles['opponent--hidden']]: !peerStatus,
+          })}>
+              <div className={styles.opponent__content}>
+                <div className={styles['opponent__content--title']}>상대방 닉네임</div>
+                <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
+              </div>
+              <div className={styles.opponent__content}>
+                <div className={styles['opponent__content--title']}>통화 시작 시간</div>
+                <div className={styles['opponent__content--text']}>{callStartTime}</div>
+              </div>
+          </div>
+        )}
+        {callType === 'emergency' && (
+          <div className={cn({
+            [styles.opponent]: true,
+            [styles['opponent--grid']]: true,
+          })}>
+              <div className={styles.opponent__content}>
+                <div className={styles['opponent__content--title']}>상대방 닉네임</div>
+                <div className={styles['opponent__content--text']}>동동우동이 <span>(농인)</span></div>
+              </div>
+              <div className={styles.opponent__content}>
+                <div className={styles['opponent__content--title']}>상대방 연락처</div>
+                <div className={styles['opponent__content--text']}>010-1234-5678</div>
+              </div>
+              <div className={styles.opponent__content}>
+                <div className={styles['opponent__content--title']}>통화 시작 시간</div>
+                <div className={styles['opponent__content--text']}>{callStartTime}</div>
+              </div>
+              <div className={styles.opponent__content}>
+                <div className={styles['opponent__content--title']}>특이사항</div>
+                <div className={styles['opponent__content--text']}>새롭게 시작해 볼래 너 그리고 나 사랑을 동경해 앞으로도 잘 부탁 해야 해야 해야 너를 봐야 봐야</div>
+              </div>
+              <div className={styles.opponent__content}>
+                <div className={styles['opponent__content--title']}>상대방 현재 위치</div>
+                <div className={styles['opponent__content--text']}>충청남도 아산시 모종로 21</div>
+              </div>
+          </div>
+        )}
       </div>
       {/*
         <p>내 좌표 정보: {myBodyInfo}</p>
