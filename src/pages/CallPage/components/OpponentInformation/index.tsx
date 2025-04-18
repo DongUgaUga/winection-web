@@ -1,6 +1,8 @@
 import { cn } from '@bcsdlab/utils';
 import GraySearchIcon from 'src/assets/search-gray.svg';
 import styles from './OpponentInformation.module.scss';
+import { useState } from 'react';
+import ReporterPositionModal from '../ReporterPositionModal';
 
 interface OpponentInformationProps {
   callType: 'general' | 'emergency',
@@ -13,9 +15,11 @@ export default function OpponentInformation({
   peerStatus,
   callStartTime,
 }: OpponentInformationProps) {
-  const openMap = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  }
+  const openMap = () => {
+    setIsModalOpen(true);
+  };
 
   return (
     <>
@@ -78,6 +82,11 @@ export default function OpponentInformation({
               }
             </div>
         </div>
+      )}
+      {isModalOpen && (
+        <ReporterPositionModal
+          setIsModalOpen={setIsModalOpen}
+        />
       )}
     </>
   )
