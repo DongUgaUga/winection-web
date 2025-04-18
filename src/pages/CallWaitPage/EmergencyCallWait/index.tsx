@@ -36,9 +36,9 @@ export default function EmergencyCallWait() {
           <div className={styles['help__description--main']}>도움이 필요한 기관을 선택해 주세요.</div>
           <div className={styles['help__description--sub']}>클릭 시, 가장 가까운 기관으로 연결됩니다.</div>
         </div>
-        <div className={styles.agencys}>
+        <div className={styles.agencies}>
           {AGENCIES.map((value) => (
-            <div className={styles.agencys__agency}>
+            <div className={styles.agencies__agency}>
               <GrandfatherAvatar />
               <button
                 className={cn({
