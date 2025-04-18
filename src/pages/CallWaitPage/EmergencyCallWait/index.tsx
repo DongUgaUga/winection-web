@@ -1,15 +1,19 @@
 import CallIcon from 'src/assets/call.svg'
 import ActiveCallIcon from 'src/assets/call-active.svg'
-import GrandfaterAvatar from 'src/assets/grandfather-avatar.svg';
+import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
 import { useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import styles from './EmergencyCallWait.module.scss';
+import { useNavigate } from 'react-router-dom';
+import useMakeRoomId from '../hooks/useMakeRoomId';
 
 const AGENCYS = ['병원', '경찰서', '소방서'];
 
 export default function EmergencyCallWait() {
+  const navigate = useNavigate();
   const [agency, setAgency] = useState('');
   const [isChecked, setIsChecked] = useState(false);
+  const { mutateAsync: makeRoomId } = useMakeRoomId();
 
   const selectAgency = (value: string) => {
     setAgency(value);
@@ -19,8 +23,10 @@ export default function EmergencyCallWait() {
     setIsChecked(e.target.checked);
   }
 
-  const connect = () => {
-     
+  // 근처 기관 코드 받을 수 있는 소켓 통신 구현되면 변경 예정
+  const connect = async () => {
+    const newCode = await makeRoomId();
+    navigate(`/emergency-call/${newCode.room_id}`);
   }
 
   return (
@@ -33,7 +39,7 @@ export default function EmergencyCallWait() {
         <div className={styles.agencys}>
           {AGENCYS.map((value) => (
             <div className={styles.agencys__agency}>
-              <GrandfaterAvatar />
+              <GrandfatherAvatar />
               <button
                 className={cn({
                   [styles['agencys__agency--button']]: true,
