@@ -7,7 +7,7 @@ import styles from './EmergencyCallWait.module.scss';
 import { useNavigate } from 'react-router-dom';
 import useMakeRoomId from '../hooks/useMakeRoomId';
 
-const AGENCYS = ['병원', '경찰서', '소방서'];
+const AGENCIES = ['병원', '경찰서', '소방서'];
 
 export default function EmergencyCallWait() {
   const navigate = useNavigate();
@@ -37,13 +37,13 @@ export default function EmergencyCallWait() {
           <div className={styles['help__description--sub']}>클릭 시, 가장 가까운 기관으로 연결됩니다.</div>
         </div>
         <div className={styles.agencys}>
-          {AGENCYS.map((value) => (
+          {AGENCIES.map((value) => (
             <div className={styles.agencys__agency}>
               <GrandfatherAvatar />
               <button
                 className={cn({
-                  [styles['agencys__agency--button']]: true,
-                  [styles['agencys__agency--button--selected']]: value === agency,
+                  [styles['agencies__agency--button']]: true,
+                  [styles['agencies__agency--button--selected']]: value === agency,
                 })}
                 onClick={() => selectAgency(value)}
               >

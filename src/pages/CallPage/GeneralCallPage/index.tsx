@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import CameraIcon from 'src/assets/camera.svg';
-import CameraBlcokIcon from 'src/assets/block-camera.svg';
+import CameraBlockIcon from 'src/assets/block-camera.svg';
 import MicIcon from 'src/assets/mic.svg';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import CallEndIcon from 'src/assets/end-call.svg';
@@ -226,7 +226,7 @@ export default function GeneralCallPage() {
                   className={styles['video-chat__controls--button']}
                   onClick={handleVideo}
                 >
-                  {isCameraActive ? <CameraIcon /> : <CameraBlcokIcon />}
+                  {isCameraActive ? <CameraIcon /> : <CameraBlockIcon />}
                 </button>
                 <button
                   className={styles['video-chat__controls--button']}

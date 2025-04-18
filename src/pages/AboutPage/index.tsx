@@ -1,7 +1,7 @@
 import { useInView } from 'react-intersection-observer';
 import { useEffect, useState } from 'react';
 import DownArrowIcon from 'src/assets/down-arrow.svg';
-import Winecion from 'src/assets/winection.svg';
+import Winection from 'src/assets/winection.svg';
 import styles from './AboutPage.module.scss';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,7 +20,7 @@ const sections = [
   },
   {
     id: 'solution',
-    title: 'Wenection으로',
+    title: 'Winection으로',
     subtitle: '당신의 세상과 이어지는 새로운 연결',
     description: '기술로 경계를 허물고, 모두가 함께하는 세상을 만들어갑니다.'
   }
@@ -44,7 +44,7 @@ export default function AboutPage() {
   return (
     <>
       <div className={styles['about-logo']} onClick={() => navigate('/')}>
-        <Winecion />
+        <Winection />
       </div>
       <div className={styles['about-page']}>
         {sections.map((section, index) => {
