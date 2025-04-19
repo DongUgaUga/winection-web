@@ -1,4 +1,4 @@
-// @use "src/utils/scss/media" as media;
+@use "/src/utils/scss/media" as media;
 /* stylelint-disable scss/at-import-no-partial-leading-underscore */
 
 #root {
@@ -22,9 +22,13 @@
     "Segoe UI Emoji",
     "Segoe UI Symbol";
 
-  // @include media.media-breakpoint(mobile) {
-  //   min-width: 360px;
-  // }
+  @include media.mobile {
+    min-width: 360px;
+  }
+
+  @include media.tablet {
+    min-width: 768px;
+  }
 }
 
 a,

@@ -1,7 +1,14 @@
+@use '/src/utils/scss/media.scss' as media;
+
 .container {
   display: flex;
   flex-direction: column;
   gap: 60px;
+  width: 409px;
+
+  @include media.mobile {
+    width: 352px;
+  }
 
   &__input {
     display: block;
@@ -66,7 +73,8 @@
 
   &__submit {
     display: flex;
-    padding: 20px 182px;
+    padding: 20px 0;
+    width: 100%;
     justify-content: center;
     align-items: center;
     gap: 10px;
