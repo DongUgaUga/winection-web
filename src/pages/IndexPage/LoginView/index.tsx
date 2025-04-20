@@ -2,10 +2,13 @@ import { cn } from '@bcsdlab/utils';
 import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
 import { useNavigate } from 'react-router-dom';
 import useUserInfo from '../../../hooks/useUserInfo';
+import WinectionLogo from '/src/assets/winection.svg';
 import styles from './LoginView.module.scss';
+import useBreakpoint from '../../../utils/hooks/useBreakPoint';
 
 export default function LoginView() {
   const navigate = useNavigate();
+  const breakPoint = useBreakpoint();
   const { data: userInfo } = useUserInfo();
   const userClassification = userInfo!.user_type;
 
@@ -20,8 +23,15 @@ export default function LoginView() {
   return (
     <div className={styles.container}>
       <div className={styles.motto}>
-        <div>오늘도 우리는,</div>
-        <div><span className={styles.emphasize}>소통</span><span className={styles.gradient}>을 위해 달려나갑니다.</span></div>
+        {breakPoint === 'mobile' ? (
+          <WinectionLogo />
+        ) : (
+            <>
+              <div>오늘도 우리는,</div>
+              <div><span className={styles.emphasize}>소통</span><span className={styles.gradient}>을 위해 달려나갑니다.</span></div>
+            </>
+          )
+        }
         {userClassification === '농인'
         ? (
           <div className={styles.call}>

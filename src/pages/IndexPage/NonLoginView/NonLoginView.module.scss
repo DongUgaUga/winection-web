@@ -11,7 +11,7 @@
   gap: 111px;
 
   @include media.mobile {
-    margin: calc(calc(100vh - 570px) / 3) auto calc(calc(100vh - 570px) / 3 * 2); 
+    margin: calc(calc(100vh - 570px) / 3) auto calc(calc(100vh - 570px) / 3 * 2);
     gap: 101px;
   }
 }
