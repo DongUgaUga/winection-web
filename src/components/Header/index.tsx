@@ -41,12 +41,8 @@ export default function Header() {
       )
       : (
         <div className={styles.header__menu}>
-          {breakPoint !== 'mobile' && (
-            <>
-              <button className={styles['header__menu--button']} onClick={about}>소개</button>
-              <button className={styles['header__menu--button']}>개발자</button>
-            </>
-          )}          
+          <button className={styles['header__menu--button']} onClick={about}>소개</button>
+          <button className={styles['header__menu--button']}>개발자</button>
           <button className={styles['header__menu--button']} onClick={login}>로그인</button>
         </div>
       )}
