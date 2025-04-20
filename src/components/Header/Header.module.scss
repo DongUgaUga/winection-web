@@ -9,11 +9,19 @@
   @include media.mobile {
     width: auto;
     margin: 64px 30px 0;
-    justify-content: flex-end;
   }
 
   &__logo {
     cursor: pointer;
+  }
+
+  &__back {
+    align-self: center;
+    cursor: pointer;
+
+    &--hidden {
+      visibility: hidden;
+    }
   }
 
   &__menu {
