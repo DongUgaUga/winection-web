@@ -12,6 +12,7 @@ export default function Header() {
   const breakPoint = useBreakpoint();
   const params = useLocation();
   const isMainPage = params.pathname === '/';
+  const isAuthPage = params.pathname === '/auth/signup' || params.pathname === '/auth' || params.pathname === '/auth/find-pw';
 
   const logout = () => {
     localStorage.removeItem('accessToken');
@@ -27,7 +28,10 @@ export default function Header() {
   }
 
   return (
-    <div className={styles.header}>
+    <div className={cn({
+      [styles.header]: true,
+      [styles.header__auth]: isAuthPage,
+    })}>
       {breakPoint !== 'mobile' ? (
         <div className={styles.header__logo} onClick={() => navigate('/')}>
           <WinectionLogo />
@@ -54,7 +58,10 @@ export default function Header() {
         </div>
       )
       : (
-        <div className={styles.header__menu}>
+        <div className={cn({
+          [styles.header__menu]: true,
+          [styles['header__menu--hidden']]: isAuthPage
+        })}>
           <button className={styles['header__menu--button']} onClick={about}>소개</button>
           <button className={styles['header__menu--button']}>개발자</button>
           <button className={styles['header__menu--button']} onClick={login}>로그인</button>

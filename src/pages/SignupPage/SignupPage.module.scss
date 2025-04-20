@@ -1,8 +1,14 @@
+@use '/src/utils/scss/media.scss' as media;
+
 .container {
   display: flex;
   flex-direction: column;
   gap: 20px;
   width: 410px;
+
+  @include media.mobile {
+    width: calc(100vw - 32px);
+  }
 
   &__auth {
     display: flex;
@@ -82,7 +88,7 @@
   }
 
   &--submit {
-    width: 410px;
+    width: 100%;
     padding: 20px 0;
     margin-top: 40px;
     background-color: #237BFF;
@@ -172,7 +178,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    width: 136px;
+    width: calc(100% / 3);
     padding: 20px 0;
     border: 2px solid #d1d1d1;
     background: none;
@@ -246,17 +252,18 @@
 .emergency-agency {
   position: absolute;
   top: 62px;
-  right: 3px;
+  right: 2px;
   display: flex;
   flex-direction: column;
   padding: 0;
   margin: 0;
   border-radius: 0 0 16px 16px;
   background-color: #fff;
+  width: calc(100% / 3);
 
   &__item {
     padding: 20px 0;
-    width: 132px;
+    width: calc(100% - 4px);
     border: 2px solid #d1d1d1;
     font-family: Pretendard;
     font-weight: 600;
