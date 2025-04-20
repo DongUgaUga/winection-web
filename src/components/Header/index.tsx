@@ -2,10 +2,12 @@ import WinectionLogo from '/src/assets/winection.svg';
 import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
 import useUserInfo from '../../hooks/useUserInfo';
+import useBreakpoint from '../../utils/hooks/useBreakPoint';
 
 export default function Header() {
   const { data: userInfo } = useUserInfo();
   const navigate = useNavigate();
+  const breakPoint = useBreakpoint();
 
   const logout = () => {
     localStorage.removeItem('accessToken');
@@ -22,9 +24,11 @@ export default function Header() {
 
   return (
     <div className={styles.header}>
-      <div className={styles.header__logo} onClick={() => navigate('/')}>
-        <WinectionLogo />
-      </div>
+      {breakPoint !== 'mobile' && (
+        <div className={styles.header__logo} onClick={() => navigate('/')}>
+          <WinectionLogo />
+        </div>
+      )}
       {userInfo
       ? (
         <div className={styles.header__user}>
@@ -37,8 +41,12 @@ export default function Header() {
       )
       : (
         <div className={styles.header__menu}>
-          <button className={styles['header__menu--button']} onClick={about}>소개</button>
-          <button className={styles['header__menu--button']}>개발자</button>
+          {breakPoint !== 'mobile' && (
+            <>
+              <button className={styles['header__menu--button']} onClick={about}>소개</button>
+              <button className={styles['header__menu--button']}>개발자</button>
+            </>
+          )}          
           <button className={styles['header__menu--button']} onClick={login}>로그인</button>
         </div>
       )}
