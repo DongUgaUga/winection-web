@@ -20,6 +20,10 @@
     display: flex;
     gap: 75px;
 
+    @include media.mobile {
+      gap: 28px;
+    }
+
     &--button {
       border: none;
       background-color: #fff;
@@ -31,6 +35,10 @@
       line-height: normal;
       padding: 0;
       cursor: pointer;
+
+      @include media.mobile {
+        font-size: 12px;
+      }
     }
   }
 
@@ -45,6 +53,10 @@
     line-height: 100%;
     letter-spacing: 0%;
     text-align: right;
+
+    @include media.mobile {
+      font-size: 12px;
+    }
 
     & span {
       color: #237BFF;
