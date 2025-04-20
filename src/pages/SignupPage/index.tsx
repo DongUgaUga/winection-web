@@ -28,7 +28,7 @@ export default function SignupPage() {
     setValue,
     handleSubmit,
     watch,
-    formState: { errors }
+    formState: { errors, isSubmitted }
   } = useForm({ mode: 'onChange' });
 
   const { mutate: signup } = useSignup();
@@ -247,7 +247,7 @@ export default function SignupPage() {
           중복확인
         </button>
       </div>
-      {(errors.nickname || watch('nickname') || watch('nickname') !== nickname ) &&
+      {(errors.nickname || watch('nickname') || watch('nickname', '') !== nickname ) &&
         <div className={styles['error-container']}>
           {errors.nickname && (<div className={styles['error-message']}>{errors.nickname.message as string}</div>)}
           { 
@@ -340,7 +340,7 @@ export default function SignupPage() {
             </ul>
           )}
         </div>
-        {userClassification === '' &&
+        {userClassification === '' && isSubmitted &&
           <div className={styles['error-message']}>사용자 구분을 선택해주세요.</div>
         }
         {emergencyAgency && (
