@@ -65,7 +65,6 @@ export default function SignupPage() {
   const [isPasswordCheckBlind, setIsPasswordCheckBlind] = useState(true);
   
   const [nickname, setNickname] = useState('');
-  // const [isDuplicatedNickname, setIsDuplicateedNickname] = useState(false);
   
   const [userClassification, setUserClassification] = useState<UserClassification | ''>('');
   const [emergencyAgency, setEmergencyAgency] = useState<EmergencyOrganization | null>(null);

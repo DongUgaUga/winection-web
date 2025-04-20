@@ -3,40 +3,24 @@ import KeyboardIcon from 'src/assets/keyboard.svg';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn } from '@bcsdlab/utils';
+import useMakeRoomId from '../hooks/useMakeRoomId';
 import styles from './GeneralCallWait.module.scss';
-
-const generateRandomString = (length = 6): string => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
 
 export default function GeneralCallWait() {
   const navigate = useNavigate();
+  const { mutateAsync: makeRoomId } = useMakeRoomId();
 
   const [code, setCode] = useState('');
-  const [isChecked, setIsChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const makeNewCall = () => {
-    const newCode = generateRandomString();
-    navigate(`/general-call/${newCode}`);
-  }
-
-  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(e.target.checked);
+  const makeNewCall = async () => {
+    const newCode = await makeRoomId();
+    navigate(`/general-call/${newCode.room_id}`);
   }
 
   const enterCallPage = () => {
     if (code.length !== 6) {
       setErrorMessage('6자리 코드를 입력해주세요.');
-      return;
-    }
-    if (!isChecked) {
-      setErrorMessage('위치 정보 동의에 체크해주세요.');
       return;
     }
     setErrorMessage('');
@@ -70,7 +54,7 @@ export default function GeneralCallWait() {
             onClick={enterCallPage}
             className={cn({
               [styles.participate__button]: true,
-              [styles['participate__button--activated']]: code.length === 6 && isChecked,
+              [styles['participate__button--activated']]: code.length === 6,
             })}
           >
             참가
@@ -80,16 +64,6 @@ export default function GeneralCallWait() {
       {errorMessage && (
         <div className={styles.error}>{errorMessage}</div>
       )}
-      <label htmlFor='agree' className={styles.checkbox}>
-        <input
-          id='agree'
-          type='checkbox'
-          className={styles.checkbox__check}
-          checked={isChecked}
-          onChange={handleCheck}
-        />
-        <div className={styles.checkbox__agree}>참가하면 위치 정보 어쩌고에 동의</div>
-      </label>
     </div> 
   )
 }

@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import CameraIcon from 'src/assets/camera.svg';
-import CameraBlcokIcon from 'src/assets/block-camera.svg';
+import CameraBlockIcon from 'src/assets/block-camera.svg';
 import MicIcon from 'src/assets/mic.svg';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import CallEndIcon from 'src/assets/end-call.svg';
@@ -11,10 +11,11 @@ import avatar2 from 'src/assets/avatar2.png';
 import avatar3 from 'src/assets/avatar3.png';
 import avatar4 from 'src/assets/avatar4.png';
 import Video from '../components/Video';
-import LoadingSpinner from 'src/assets/loading-spinner.gif';
 import styles from './GeneralCallPage.module.scss';
 import Toast from '../../../components/Toast';
 import useUserInfo from '../../../hooks/useUserInfo';
+import Lottie from 'lottie-react';
+import videoLoading from 'src/assets/video-loading.json';
 
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
@@ -73,7 +74,6 @@ const formatKoreanDate = (date: Date | null, type: 'digit' | 'korean'): string =
 
   return `${year}년 ${month}월 ${day}일   ${hour}시 ${minute}분`;
 };
-
 
 function StyleSelect() {
   const { data: userInfo } = useUserInfo();
@@ -226,7 +226,7 @@ export default function GeneralCallPage() {
                   className={styles['video-chat__controls--button']}
                   onClick={handleVideo}
                 >
-                  {isCameraActive ? <CameraIcon /> : <CameraBlcokIcon />}
+                  {isCameraActive ? <CameraIcon /> : <CameraBlockIcon />}
                 </button>
                 <button
                   className={styles['video-chat__controls--button']}
@@ -244,7 +244,7 @@ export default function GeneralCallPage() {
               )
               : (
                 <div className={styles['connect-wait']}>
-                  <img style={{width: '17px', height: '17px' }} src={LoadingSpinner} />
+                  <Lottie animationData={videoLoading} style={{ width: '17px', height: '17px' }}/>
                   <div className={styles['connect-wait__text']}>상대방의 접속을 기다리고 있습니다.</div>
                 </div>
               )}

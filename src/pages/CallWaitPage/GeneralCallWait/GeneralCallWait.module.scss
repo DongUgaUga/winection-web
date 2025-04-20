@@ -85,55 +85,6 @@
   }
 }
 
-.checkbox {
-  align-self: flex-end;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  &__check {
-    appearance: none;
-    width: 17px;
-    height: 17px;
-    border: 1px solid #237BFF;
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-    display: inline-block;
-    position: relative;
-
-    &:checked {
-      background-color: #fff;
-      border-color: #237BFF;
-
-      &::before {
-        display: block;
-      }
-    }
-
-    &::before {
-      content: "";
-      position: absolute;
-      display: none;
-      left: 4px;
-      top: 0;
-      width: 5px;
-      height: 10px;
-      border: solid #237BFF;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-  }
-  
-  &__agree {
-    font-family: Pretendard;
-    font-weight: 600; 
-    font-size: 14px;  
-    line-height: 100%;  
-    letter-spacing: 0%;
-  }
-}
-
 .error {
   position: absolute;
   right: 0;
