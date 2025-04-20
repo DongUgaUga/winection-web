@@ -1,13 +1,17 @@
 import WinectionLogo from '/src/assets/winection.svg';
-import { useNavigate } from 'react-router-dom';
+import LeftShevron from '/src/assets/shevron-left.svg';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
 import useUserInfo from '../../hooks/useUserInfo';
 import useBreakpoint from '../../utils/hooks/useBreakPoint';
+import { cn } from '@bcsdlab/utils';
 
 export default function Header() {
   const { data: userInfo } = useUserInfo();
   const navigate = useNavigate();
   const breakPoint = useBreakpoint();
+  const params = useLocation();
+  const isMainPage = params.pathname === '/';
 
   const logout = () => {
     localStorage.removeItem('accessToken');
@@ -24,9 +28,19 @@ export default function Header() {
 
   return (
     <div className={styles.header}>
-      {breakPoint !== 'mobile' && (
+      {breakPoint !== 'mobile' ? (
         <div className={styles.header__logo} onClick={() => navigate('/')}>
           <WinectionLogo />
+        </div>
+      ) : (
+        <div
+          className={cn({
+            [styles.header__back]: true,
+            [styles['header__back--hidden']]: isMainPage,
+          })}
+          onClick={() => navigate(-1)}
+        >
+          <LeftShevron />
         </div>
       )}
       {userInfo
