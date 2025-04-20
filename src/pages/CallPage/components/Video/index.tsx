@@ -9,18 +9,6 @@ import Lottie from "lottie-react";
 import videoLoading from 'src/assets/video-loading.json';
 import OpponentInformation from "../OpponentInformation";
 
-interface Landmark {
-  x: string;
-  y: string;
-  z: string;
-}
-
-interface FullBodyData {
-  pose: Landmark[];
-  left_hand: Landmark[];
-  right_hand: Landmark[];
-}
-
 interface VideoProps {
   peerStatus: boolean;
   setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>;
@@ -42,12 +30,8 @@ export default function Video(props: VideoProps) {
     callStartTime,
   } = props;
   const { data: userInfo } = useUserInfo();
-  const [myBodyInfo, setMyBodyInfo] = useState<string>("[]");
-  const [peerBodyInfo, setPeerBodyInfo] = useState<string>("");
-  useEffect(() => {
-    console.log(myBodyInfo, peerBodyInfo);
-    console.log('camera', isCameraActive, 'mic', isMicActive);
-  } ,[]);
+  const [prediction, setPrediction] = useState<string>("");
+
   const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
   const [isPeerMicActive, setIsPeerMicActive] = useState(true);
 
@@ -68,7 +52,7 @@ export default function Video(props: VideoProps) {
     ws.onmessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log(data);
+        console.log("Received message:", data);
 
         // 📌 카메라 상태 메시지 처리
         if (data.type === 'camera_state' && data.client_id === 'peer') {
@@ -109,9 +93,6 @@ export default function Video(props: VideoProps) {
         if (data.type === "candidate") {
           await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(data.data));
         }
-        if (data.hand_data && data.client_id === "peer") {
-          setPeerBodyInfo(`상대방 좌표 정보: ${JSON.stringify(data.hand_data)}`);
-        }
         if (data.type === "leave") {
           console.log("상대방이 나갔습니다.");
 
@@ -123,8 +104,15 @@ export default function Video(props: VideoProps) {
 
           setPeerStatus(false);
         }
+        if (data.client_id === 'peer') {
+          if (data.result) {
+            console.log("Received result", data.result);
+            setPrediction(data.result);
+            setPeerStatus(true);
+          }
+        }
       } catch (error) {
-          console.error("WebSocket 메시지 처리 중 오류 발생:", error);
+        console.error("WebSocket 메시지 처리 중 오류 발생:", error);
       }
     };
   
@@ -135,6 +123,7 @@ export default function Video(props: VideoProps) {
   
     ws.onclose = () => {
       console.log("WebSocket 연결 종료");
+      setPeerStatus(false);
     };
 
     ws.onerror = (error) => {
@@ -181,11 +170,11 @@ export default function Video(props: VideoProps) {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
       if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
+        localVideoRef.current.srcObject = stream;
       }
 
       const peerConnection = new RTCPeerConnection({
-          iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
       peerConnectionRef.current = peerConnection;
 
@@ -202,44 +191,61 @@ export default function Video(props: VideoProps) {
       wsRef.current?.send(JSON.stringify({ type: "offer", data: offer }));
 
       peerConnection.onicecandidate = (event) => {
-          if (event.candidate) {
-              wsRef.current?.send(JSON.stringify({ type: "candidate", data: event.candidate }));
-          }
+        if (event.candidate) {
+          wsRef.current?.send(JSON.stringify({ type: "candidate", data: event.candidate }));
+        }
       };
 
       const holistic = new Holistic({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
       });
+      holisticRef.current = holistic;
 
       holistic.setOptions({
-          modelComplexity: 1,
-          smoothLandmarks: true,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
       });
 
       const camera = new Camera(localVideoRef.current!, {
-          onFrame: async () => {
-              await holistic.send({ image: localVideoRef.current! });
-          },
-          width: 640,
-          height: 480,
+        onFrame: async () => {
+          await holistic.send({ image: localVideoRef.current! });
+        },
+        width: 640,
+        height: 480,
       });
       cameraRef.current = camera;
       camera.start();
 
       holistic.onResults((results) => {
-          const handData: FullBodyData = {
-              pose: results.poseLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
-              left_hand: results.leftHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || [],
-              right_hand: results.rightHandLandmarks?.map((lm) => ({ x: lm.x.toFixed(2), y: lm.y.toFixed(2), z: lm.z.toFixed(2) })) || []
-          };
+        const landMark = {
+          pose: results.poseLandmarks?.map((lm) => ({
+            x: parseFloat(lm.x.toFixed(2)),
+            y: parseFloat(lm.y.toFixed(2)),
+            z: parseFloat(lm.z.toFixed(2)),
+          })) || [],
+          left_hand: results.leftHandLandmarks?.map((lm) => ({
+            x: parseFloat(lm.x.toFixed(2)),
+            y: parseFloat(lm.y.toFixed(2)),
+            z: parseFloat(lm.z.toFixed(2)),
+          })) || [],
+          right_hand: results.rightHandLandmarks?.map((lm) => ({
+            x: parseFloat(lm.x.toFixed(2)),
+            y: parseFloat(lm.y.toFixed(2)),
+            z: parseFloat(lm.z.toFixed(2)),
+          })) || [],
+        };
 
-          setMyBodyInfo(JSON.stringify(handData));
-          wsRef.current?.send(JSON.stringify({ type: "hand_data", data: { hand_data: handData } }));
+        wsRef.current?.send(
+          JSON.stringify({
+            type: "land_mark",
+            data: { land_mark: landMark },
+          })
+        );
       });
     } catch (err) {
-        console.error("웹캠 접근 에러:", err);
+      console.error("웹캠 접근 에러:", err);
     }
   };
 
@@ -411,10 +417,9 @@ export default function Video(props: VideoProps) {
           callStartTime={callStartTime}
         />
       </div>
-      {/*
-        <p>내 좌표 정보: {myBodyInfo}</p>
-        <p>{peerBodyInfo}</p>
-      */}
+      {
+        <p>예측된 결과: {prediction}</p>
+      }
     </div>
   );
 }
