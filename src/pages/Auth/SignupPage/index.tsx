@@ -11,7 +11,7 @@ import BlindIcon from 'src/assets/blind.svg';
 import EyeIcon from 'src/assets/eye.svg';
 import { cn } from '@bcsdlab/utils';
 import useSignup from './hooks/useSignup';
-import { EmergencyOrganization, SignupRequest, UserClassification } from '../../api/auth/entity';
+import { EmergencyOrganization, SignupRequest, UserClassification } from '../../../api/auth/entity';
 import useCheckNickname from './hooks/useCheckNickname';
 import { toast } from 'react-toastify';
 import styles from './SignupPage.module.scss';

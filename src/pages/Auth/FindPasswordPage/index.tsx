@@ -5,7 +5,7 @@ import EyeIcon from 'src/assets/eye.svg';
 import { useNavigate } from 'react-router-dom';
 import useFindPassword from './hooks/useFindPassword';
 import useChangePassword from './hooks/useChangePassword';
-import useLogin from '../SignupPage/hooks/useLogin';
+import useLogin from '../../Auth/SignupPage/hooks/useLogin';
 import styles from './FindPasswordPage.module.scss'
 
 const PASSWORDREG = /^(?=.*[A-Za-z])(?=.*\d)(?=.*\W).{8,}.+$/;

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { findPassword } from "../../../api/auth";
-import { PasswordFindRequest } from "../../../api/auth/entity";
+import { findPassword } from "../../../../api/auth";
+import { PasswordFindRequest } from "../../../../api/auth/entity";
 import { toast } from "react-toastify";
 
 export default function useFindPassword() {

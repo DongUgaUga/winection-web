@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { checkNicknameDuplicate } from "../../../api/auth";
+import { checkNicknameDuplicate } from "../../../../api/auth";
 import { toast } from "react-toastify";
 
 export default function useCheckNickname() {
