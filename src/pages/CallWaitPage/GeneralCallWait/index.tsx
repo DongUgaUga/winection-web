@@ -5,8 +5,10 @@ import { useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import useMakeRoomId from '../hooks/useMakeRoomId';
 import styles from './GeneralCallWait.module.scss';
+import useBreakpoint from '../../../utils/hooks/useBreakPoint';
 
 export default function GeneralCallWait() {
+  const breakPoint = useBreakpoint();
   const navigate = useNavigate();
   const { mutateAsync: makeRoomId } = useMakeRoomId();
 
@@ -37,6 +39,7 @@ export default function GeneralCallWait() {
           <RecordIcon />
           <div>새 통화</div>
         </button>
+        {breakPoint === 'mobile' && <div className={styles['enter-call-container__call--or']}>또는</div>}
         <div className={styles.participate}>
           <div className={cn({
             [styles.participate__code]: true,
