@@ -11,12 +11,12 @@ import avatar2 from 'src/assets/avatar2.png';
 import avatar3 from 'src/assets/avatar3.png';
 import avatar4 from 'src/assets/avatar4.png';
 import Video from '../components/Video';
-import styles from './GeneralCallPage.module.scss';
-import Toast from '../../../components/Toast';
-import useUserInfo from '../../../hooks/useUserInfo';
+import styles from './PCGeneralCallPage.module.scss';
+import Toast from '../../../../components/Toast';
+import useUserInfo from '../../../../hooks/useUserInfo';
 import Lottie from 'lottie-react';
 import videoLoading from 'src/assets/video-loading.json';
-import { formatTime, formatKoreanDate } from '../../../utils/functions/formatTime';
+import { formatTime, formatKoreanDate } from '../../../../utils/functions/formatTime';
 
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
@@ -87,7 +87,7 @@ function StyleSelect() {
 }
 
 // 농인과 일반인만 사용하는 페이지
-export default function GeneralCallPage() {
+export default function PCGeneralCallPage() {
   const params = useParams();
   const navigate = useNavigate();
 

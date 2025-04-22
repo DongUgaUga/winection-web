@@ -1,6 +1,6 @@
 // import { useState } from "react";
 import { useEffect, useRef, useState } from 'react';
-import styles from './EmergencyCallPage.module.scss';
+import styles from './PCEmergencyCallPage.module.scss';
 import { useNavigate, useParams } from 'react-router-dom';
 import CameraIcon from 'src/assets/camera.svg';
 import CameraBlockIcon from 'src/assets/block-camera.svg';
@@ -10,10 +10,10 @@ import CallEndIcon from 'src/assets/end-call.svg';
 import Lottie from 'lottie-react';
 import videoLoading from 'src/assets/video-loading.json';
 import Video from '../components/Video';
-import EmergencyReportModal from '../components/EmergencyReportModal';
-import { formatTime, formatKoreanDate } from '../../../utils/functions/formatTime';
+import EmergencyReportModal from '../../components/EmergencyReportModal';
+import { formatTime, formatKoreanDate } from '../../../../utils/functions/formatTime';
 
-export default function EmergencyCallPage() {
+export default function PCEmergencyCallPage() {
   const params = useParams();
   const navigate = useNavigate();
 

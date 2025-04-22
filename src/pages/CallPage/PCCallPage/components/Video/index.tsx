@@ -4,7 +4,7 @@ import { Camera } from "@mediapipe/camera_utils";
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import { cn } from "@bcsdlab/utils";
 import styles from './Video.module.scss';
-import useUserInfo from "../../../../hooks/useUserInfo";
+import useUserInfo from "../../../../../hooks/useUserInfo";
 import Lottie from "lottie-react";
 import videoLoading from 'src/assets/video-loading.json';
 import OpponentInformation from "../OpponentInformation";
