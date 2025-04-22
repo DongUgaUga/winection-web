@@ -4,7 +4,7 @@ import STTWebSocket from './pages/ToSign'
 import TranslatePage from './pages/ts'
 import IndexPage from './pages/IndexPage'
 import BoardPage from './pages/BoardPage'
-import AuthPage from './pages/Auth/AuthPage'
+import Auth from './pages/Auth'
 import SignupPage from './pages/Auth/SignupPage'
 import LoginPage from './pages/Auth/LoginPage'
 import FindPasswordPage from './pages/Auth/FindPasswordPage'
@@ -29,7 +29,7 @@ function App() {
             <Route path="/stsl" element={<STTWebSocket />} />
             <Route path="/slts" element={<VideoChatHandTracking />} />
           </Route>
-          <Route path="/auth" element={<AuthPage />}>
+          <Route path="/auth" element={<Auth />}>
             <Route index element={<LoginPage />} />
             <Route path="/auth/signup" element={<SignupPage />} />
             <Route path="/auth/find-pw" element={<FindPasswordPage />} />
