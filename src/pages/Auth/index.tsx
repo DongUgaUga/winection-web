@@ -1,11 +1,11 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import WinectionIcon from 'src/assets/winection.svg';
-import styles from './AuthPage.module.scss';
+import styles from './Auth.module.scss';
 import useBreakpoint from '../../utils/hooks/useBreakPoint';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
-export default function AuthPage() {
+export default function Auth() {
   const navigate = useNavigate();
   const breakPoint = useBreakpoint();
 
