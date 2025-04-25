@@ -263,7 +263,7 @@
 
   &__item {
     padding: 20px 0;
-    width: calc(100% - 4px);
+    width: 100%;
     border: 2px solid #d1d1d1;
     font-family: Pretendard;
     font-weight: 600;
@@ -272,6 +272,7 @@
     letter-spacing: 0%;
     text-align: center;
     color: #a2a2a2;
+    background-color: #fff;
     cursor: pointer;
 
     &:nth-child(2) {

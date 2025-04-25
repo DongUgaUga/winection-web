@@ -18,12 +18,16 @@
   }
 
   &__logo {
+    background-color: #fff;
+    border: none;
     cursor: pointer;
   }
 
   &__back {
     align-self: center;
     cursor: pointer;
+    background-color: #fff;
+    border: none;
 
     &--hidden {
       visibility: hidden;
