@@ -4,14 +4,11 @@ WORKDIR /src
 
 COPY /package.json .
 
-#     RUN npm install -g pnpm && \
-#     pnpm install
-RUN npm install --legacy-peer-deps
+RUN pnpm install
 
 COPY . .
 
-RUN npm run build
-#RUN pnpm build
+RUN pnpm run build
 
 EXPOSE 3000
-CMD ["npm", "run", "preview"]
+CMD ["pnpm", "run", "preview"]
