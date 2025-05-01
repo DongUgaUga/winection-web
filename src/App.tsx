@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage'
 import FindPasswordPage from './pages/FindPasswordPage'
 import CallWaitPage from './pages/CallWaitPage'
 import AboutPage from './pages/AboutPage'
+import UnityPage from './pages/UnityPlayer'
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
             <Route path="/auth/find-pw" element={<FindPasswordPage />} />
           </Route>
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/unity" element={<UnityPage />} />
         </Routes>
       </BrowserRouter>
     </>
