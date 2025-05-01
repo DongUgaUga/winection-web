@@ -1,0 +1,131 @@
+@use '/src/utils/scss/media.scss' as media;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  width: 409px;
+
+  @include media.mobile {
+    width: calc(100vw - 60px);
+  }
+
+  &__input {
+    display: block;
+    unicode-bidi: isolate;
+  }
+
+  &__input--field-id {
+    display: flex;
+    position: relative;
+    padding: 21px 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid #d1d1d1;
+    color: #a2a2a2;
+    border-radius: 16px 16px 0 0;
+  }
+
+  &__input--field-id:focus-within {
+    border: 2px solid #237BFF;
+    z-index: 5;
+  }
+
+  &__input--field-pw:focus-within {
+    border: 2px solid #237BFF;
+  }
+
+  &__input--field-pw {
+    display: flex;
+    position: relative;
+    margin-top: -2px;
+    padding: 21px 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid #d1d1d1;
+    border-radius: 0 0 16px 16px;
+  }
+
+  &__input--text {
+    width: 100%;
+    border-radius: 16px;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 160%;
+    border: 0;
+    outline: none;
+  }
+
+  &__input--icon {
+    border: 0;
+    background-color: #fff;
+    cursor: pointer;
+  }
+
+  &__input--icons {
+    display: flex;
+    gap: 12px;
+  }
+
+  &__submit {
+    display: flex;
+    padding: 20px 0;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 16px;
+    background: #237BFF;
+    color: #fff;
+    font-family: Pretendard;
+    font-size: 17px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+  }
+}
+
+.find-wrap {
+  display: flex;
+  justify-content: center;
+  gap: 38px;
+  padding: 0;
+  color: #919191;
+  font-family: Pretendard;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  letter-spacing: 0%;
+
+
+  &__button {
+    color: #919191;
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    background-color: #fff;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.error {
+  position: relative;
+  bottom: 10px;
+  font-family: Pretendard;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #F10000;
+}

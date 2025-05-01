@@ -1,13 +1,13 @@
-import Header from '../../components/Header';
+import { Outlet } from 'react-router-dom';
 import Footer from '../../components/Footer';
-import { Outlet } from "react-router-dom";
+import Header from '../../components/Header';
 
 export default function BoardPage() {
-  return (
-    <>
-      <Header />
-      <Outlet />
-      <Footer />
-    </>
-  )
+	return (
+		<>
+			<Header />
+			<Outlet />
+			<Footer />
+		</>
+	);
 }

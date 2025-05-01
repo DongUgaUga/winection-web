@@ -1,10 +1,17 @@
+@use '/src/utils/scss/media.scss' as media;
+
 .container {
   margin-top: 60px;
   display: flex;
   flex-direction: column;
-  gap: 30px; 
+  gap: 20px; 
   justify-content: center;
   align-items: center;
+
+  @include media.mobile {
+    margin-top: 0;
+    width: calc(100vw - 60px);
+  }
 }
 
 .help {
@@ -15,11 +22,19 @@
   border: 2px solid #237BFF;
   border-radius: 16px;
 
+  @include media.mobile {
+    width: 100%;
+    padding: 0;
+    border: none;
+  }
+
   &__description {
     display: flex;
     flex-direction: column;
     gap: 12px;
     align-items: center;
+    overflow-wrap: break-word;
+    word-break: keep-all;
 
     &--main {
       font-family: Pretendard;
@@ -42,14 +57,26 @@
   }
 }
 
-.agencys {
+.agencies {
   display: flex;
   gap: 24px;
+  justify-content: center;
+
+  @include media.mobile {
+    gap: 10px;
+  }
 
   &__agency {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    & > svg {
+      @include media.mobile {
+        width: 100px;
+        height: 100px;
+      }
+    }
 
     &--button {
       padding: 8px 35.5px;
@@ -73,8 +100,18 @@
         background-color: #e1e1e1;
       }
 
+      @include media.mobile {
+        padding: 8px 0;
+        width: 88px;
+        border-width: 1.5px;
+
+        &:hover {
+          background-color: #fff;
+        }
+      }
+
       &--selected {
-        border: 2px solid #237BFF;
+        border-color:#237BFF;
         color: #237BFF;
       }
     }
@@ -106,6 +143,76 @@
     &--able {
       cursor: pointer;
       color: #237BFF;
+    }
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-self: flex-end;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  top: -5px;
+
+  @include media.mobile {
+    gap: 8px;
+  }
+
+  &__check {
+    appearance: none;
+    width: 17px;
+    height: 17px;
+    border: 1px solid #237BFF;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+
+    @include media.mobile {
+      width: 14px;
+      height: 14px;
+    }
+
+    &:checked {
+      background-color: #fff;
+      border-color: #237BFF;
+
+      &::before {
+        display: block;
+      }
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 4px;
+      top: 0;
+      width: 5px;
+      height: 10px;
+      border: solid #237BFF;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+
+      @include media.mobile {
+        left: 3px;
+        top: -1px;
+        border-width: 0 1.5px 1.5px 0;
+      }
+    }
+  }
+  
+  &__agree {
+    font-family: Pretendard;
+    font-weight: 600; 
+    font-size: 14px;  
+    line-height: 100%;  
+    letter-spacing: 0%;
+
+    @include media.mobile {
+      font-size: 12px;
     }
   }
 }

@@ -7,6 +7,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
     />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Winection</title>
 
@@ -15,7 +16,18 @@
     <meta property="og:image" content="https://winection.kro.kr/og-image.jpg" />
     <meta property="og:url" content="https://winection.kro.kr/" />
     <meta property="og:type" content="website" />
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=%VITE_NAVERMAP_CLIENT_ID%&callback=CALLBACK_FUNCTION"></script>
   </head>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8VH93B6P8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-V8VH93B6P8');
+  </script>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
