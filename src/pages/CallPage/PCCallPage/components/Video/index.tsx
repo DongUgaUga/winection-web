@@ -42,26 +42,29 @@ export default function Video(props: VideoProps) {
 	const streamRef = useRef<MediaStream | null>(null);
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
+	const [peerNickname, setPeerNickname] = useState<string>('상대방');
+	const [peerType, setPeerType] = useState<string>('일반인');
+	const [peerStarttime, setStarttime] = useState<string>('00:00:00');
 
 	useEffect(() => {
 		if (!code) return;
 
+		const token = localStorage.getItem('accessToken'); // 토큰 가져오기(어디서?)
+
 		const ws = new WebSocket(
-			`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}`,
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}?token=${token}`,
 		);
 		wsRef.current = ws;
 
 		ws.onmessage = async (event) => {
 			try {
 				const data = JSON.parse(event.data);
-				console.log('Received message:', data);
+				console.log('WebSocket 메시지 수신:', data);
 
-				// 📌 카메라 상태 메시지 처리
 				if (data.type === 'camera_state' && data.client_id === 'peer') {
 					console.log('상대방 카메라 상태 변경:', data.data.isCameraActive);
 					setIsPeerCameraActive(data.data.isCameraActive);
 
-					// 강제 재할당으로 멈춘 영상 리렌더링
 					if (remoteVideoRef.current && peerConnectionRef.current) {
 						const receiverStreams = peerConnectionRef.current
 							.getReceivers()
@@ -88,14 +91,16 @@ export default function Video(props: VideoProps) {
 					if (answer) {
 						await peerConnectionRef.current?.setLocalDescription(answer);
 						ws.send(JSON.stringify({ type: 'answer', data: answer }));
+						ws.send(JSON.stringify({ type: 'startCall' }));
 					}
-					setPeerStatus(true);
+					//setPeerStatus(true);
 				}
 				if (data.type === 'answer') {
 					await peerConnectionRef.current?.setRemoteDescription(
 						new RTCSessionDescription(data.data),
 					);
-					setPeerStatus(true);
+					//setPeerStatus(true);
+					ws.send(JSON.stringify({ type: 'startCall' }));
 				}
 				if (data.type === 'candidate') {
 					await peerConnectionRef.current?.addIceCandidate(
@@ -112,6 +117,19 @@ export default function Video(props: VideoProps) {
 					peerConnectionRef.current = null;
 
 					setPeerStatus(false);
+				}
+				if (data.type === 'startCall' && data.client_id === 'peer') {
+					console.log(
+						'상대방 닉네임:',
+						data.nickname,
+						'상대방 닉네임:',
+						data.user_types,
+						'시작 시간',
+						data.started_at,
+					);
+					setPeerNickname(data.nickname);
+					setPeerType(data.user_types);
+					setStarttime(data.started_at);
 				}
 				if (data.client_id === 'peer') {
 					if (data.result) {
@@ -199,14 +217,12 @@ export default function Video(props: VideoProps) {
 					const currentStream = remoteVideoRef.current.srcObject as MediaStream;
 
 					if (currentStream) {
-						// 이미 stream이 있다면 새 트랙만 추가
 						event.streams[0].getTracks().forEach((track) => {
 							if (!currentStream.getTracks().includes(track)) {
 								currentStream.addTrack(track);
 							}
 						});
 					} else {
-						// stream이 없다면 새로 할당
 						remoteVideoRef.current.srcObject = event.streams[0];
 					}
 				}
@@ -304,7 +320,6 @@ export default function Video(props: VideoProps) {
 				localVideoRef.current.srcObject = stream;
 			}
 
-			// ✅ 새 비디오 트랙으로 기존 sender 교체
 			const videoTrack = stream.getVideoTracks()[0];
 			const sender = peerConnectionRef.current
 				?.getSenders()
@@ -313,7 +328,6 @@ export default function Video(props: VideoProps) {
 				sender.replaceTrack(videoTrack);
 			}
 
-			// MediaPipe Camera 연결
 			const holistic = new Holistic({
 				locateFile: (file) =>
 					`https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
@@ -428,7 +442,7 @@ export default function Video(props: VideoProps) {
 					)}
 					{peerStatus && !isPeerCameraActive && (
 						<div className={styles['video-wrapper__overlay']}>
-							<span>동동우동이</span>
+							<span>{peerNickname}</span>
 						</div>
 					)}
 					{peerStatus && !isPeerMicActive && (
