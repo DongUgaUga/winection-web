@@ -196,7 +196,19 @@ export default function Video(props: VideoProps) {
 
 			peerConnection.ontrack = (event) => {
 				if (remoteVideoRef.current) {
-					remoteVideoRef.current.srcObject = event.streams[0];
+					const currentStream = remoteVideoRef.current.srcObject as MediaStream;
+
+					if (currentStream) {
+						// 이미 stream이 있다면 새 트랙만 추가
+						event.streams[0].getTracks().forEach((track) => {
+							if (!currentStream.getTracks().includes(track)) {
+								currentStream.addTrack(track);
+							}
+						});
+					} else {
+						// stream이 없다면 새로 할당
+						remoteVideoRef.current.srcObject = event.streams[0];
+					}
 				}
 			};
 
