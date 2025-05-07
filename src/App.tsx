@@ -1,19 +1,20 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import AboutPage from './pages/AboutPage';
-import Auth from './pages/Auth';
-import FindPasswordPage from './pages/Auth/FindPasswordPage';
-import LoginPage from './pages/Auth/LoginPage';
-import SignupPage from './pages/Auth/SignupPage';
-import BoardPage from './pages/BoardPage';
-import CallEndPage from './pages/CallEndPage';
-import CallPage from './pages/CallPage';
-import CallWaitPage from './pages/CallWaitPage';
-import IndexPage from './pages/IndexPage';
-import STTWebSocket from './pages/ToSign';
-import VideoChatHandTracking from './pages/ToSpeech';
-import TranslatePage from './pages/ts';
-import UnityPage from './pages/UnityPlayer';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import AboutPage from "./pages/AboutPage";
+import Auth from "./pages/Auth";
+import FindPasswordPage from "./pages/Auth/FindPasswordPage";
+import LoginPage from "./pages/Auth/LoginPage";
+import SignupPage from "./pages/Auth/SignupPage";
+import BoardPage from "./pages/BoardPage";
+import CallEndPage from "./pages/CallEndPage";
+import CallPage from "./pages/CallPage";
+import CallWaitPage from "./pages/CallWaitPage";
+import IndexPage from "./pages/IndexPage";
+import STTWebSocket from "./pages/ToSign";
+import VideoChatHandTracking from "./pages/ToSpeech";
+import TranslatePage from "./pages/ts";
+import UnityPage from "./pages/UnityPlayer";
+import TestGeneralCallWait from "./pages/UnityPlayer/TestGeneralCallWait";
 
 function App() {
 	return (
@@ -35,7 +36,8 @@ function App() {
 						<Route path="/auth/find-pw" element={<FindPasswordPage />} />
 					</Route>
 					<Route path="/about" element={<AboutPage />} />
-					<Route path="/unity" element={<UnityPage />} />
+					<Route path="/unity" element={<TestGeneralCallWait />} />
+					<Route path="/unity/:code" element={<UnityPage />} />
 				</Routes>
 				<ToastContainer />
 			</BrowserRouter>

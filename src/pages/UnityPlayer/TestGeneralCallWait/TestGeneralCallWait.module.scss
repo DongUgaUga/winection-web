@@ -1,0 +1,142 @@
+@use '/src/utils/scss/media.scss' as media;
+
+.enter-call-container {
+  position: relative;
+  margin: 121px 0 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @include media.mobile {
+    margin: 0;
+    width: calc(100vw - 60px);
+  }
+
+  &__call {
+    display: flex;
+    gap: 50px;
+
+    @include media.mobile {
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    &--or {
+      font-family: Pretendard, sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      margin-left: 48px;
+    }
+  }
+}
+
+.new-call {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  background-color: #237BFF;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-family: Pretendard, sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #fff;  
+  cursor: pointer;
+
+  @include media.mobile {
+    width: 126px;
+    padding: 12px 0;
+    gap: 8px;
+    font-size: 20px;
+  }
+}
+
+.participate {
+  display: flex;
+  gap: 12px;
+  height: 53px; 
+
+  &__code {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border: 1px solid #d1d1d1;
+    border-radius: 16px;
+    padding: 12px 20px;
+    
+    @include media.mobile {
+      flex: 1;
+    }
+
+    &--input {
+      border: none;
+      font-family: Pretendard, sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      color: #a2a2a2;
+      width: 238px;
+      outline: none;
+      color: #000;
+
+      @include media.mobile {
+        width: 100%;
+        font-size: 20px;
+      }
+    }
+
+    &:focus-within {
+      border: 1px #237BFF solid;
+    }
+
+    &--error {
+      border: 1px #F10000 solid;
+    }
+  }
+
+  &__button {
+    background-color: #ebebeb;
+    padding: 8px 24px;
+    border: none;
+    border-radius: 16px;
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    color: #919191;
+    cursor: pointer;
+
+    &--activated {
+      background-color: #237BFF;
+      color: #fff;
+    }
+
+    @include media.mobile {
+      font-size: 20px;
+      width: 70px;
+      padding: 8px 0;
+    }
+  }
+}
+
+.error {
+  position: absolute;
+  right: 0;
+  bottom: -20px;
+  text-align: right;
+  font-family: Pretendard, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #F10000;
+}
