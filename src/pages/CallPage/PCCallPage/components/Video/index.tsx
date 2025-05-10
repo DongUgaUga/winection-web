@@ -43,8 +43,8 @@ export default function Video(props: VideoProps) {
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [peerType, setPeerType] = useState<string>('일반인');
-	const [peerStarttime, setStarttime] = useState<string>('00:00:00');
+	const [, setPeerType] = useState<string>('일반인');
+	const [, setStarttime] = useState<string>('00:00:00');
 
 	useEffect(() => {
 		if (!code) return;
