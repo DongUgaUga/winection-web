@@ -30,7 +30,8 @@ export default function Video(props: VideoProps) {
 		callStartTime,
 	} = props;
 	const { data: userInfo } = useUserInfo();
-	const [prediction, setPrediction] = useState<string>('');
+	const [predictionWord, setPredictionWord] = useState<string>('');
+	const [predictionSen, setPredictionSen] = useState<string>('');
 
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
 	const [isPeerMicActive, setIsPeerMicActive] = useState(true);
@@ -45,6 +46,7 @@ export default function Video(props: VideoProps) {
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
 	const [, setPeerType] = useState<string>('일반인');
 	const [, setStarttime] = useState<string>('00:00:00');
+	const landmarkBufferRef = useRef<any[][]>([]);
 
 	useEffect(() => {
 		if (!code) return;
@@ -131,10 +133,17 @@ export default function Video(props: VideoProps) {
 					setPeerType(data.user_types);
 					setStarttime(data.started_at);
 				}
-				if (data.client_id === 'peer') {
+				if (data.type === 'text' && data.client_id === 'peer') {
 					if (data.result) {
-						console.log('Received result', data.result);
-						setPrediction(data.result);
+						console.log('단어: ', data.result);
+						setPredictionWord(data.result);
+						setPeerStatus(true);
+					}
+				}
+				if (data.type === 'sentence' && data.client_id === 'peer') {
+					if (data.result) {
+						console.log('문장: ', data.result);
+						setPredictionSen(data.result);
 						setPeerStatus(true);
 					}
 				}
@@ -264,33 +273,41 @@ export default function Video(props: VideoProps) {
 			camera.start();
 
 			holistic.onResults((results) => {
-				const landMark = {
-					pose:
-						results.poseLandmarks?.map((lm) => ({
-							x: parseFloat(lm.x.toFixed(2)),
-							y: parseFloat(lm.y.toFixed(2)),
-							z: parseFloat(lm.z.toFixed(2)),
-						})) || [],
-					left_hand:
-						results.leftHandLandmarks?.map((lm) => ({
-							x: parseFloat(lm.x.toFixed(2)),
-							y: parseFloat(lm.y.toFixed(2)),
-							z: parseFloat(lm.z.toFixed(2)),
-						})) || [],
-					right_hand:
-						results.rightHandLandmarks?.map((lm) => ({
-							x: parseFloat(lm.x.toFixed(2)),
-							y: parseFloat(lm.y.toFixed(2)),
-							z: parseFloat(lm.z.toFixed(2)),
-						})) || [],
-				};
+				const allLandmarks = [
+					...(results.poseLandmarks ?? []),
+					...(results.leftHandLandmarks ?? []),
+					...(results.rightHandLandmarks ?? []),
+				];
 
-				wsRef.current?.send(
-					JSON.stringify({
+				const frame = [];
+
+				for (let i = 0; i < 75; i++) {
+					const lm = allLandmarks[i];
+					if (lm) {
+						frame.push({
+							x: parseFloat(lm.x.toFixed(4)),
+							y: parseFloat(lm.y.toFixed(4)),
+							z: parseFloat(lm.z.toFixed(4)),
+						});
+					} else {
+						frame.push({ x: 0.0, y: 0.0, z: 0.0 });
+					}
+				}
+
+				const buffer = landmarkBufferRef.current;
+				buffer.push(frame);
+
+				if (buffer.length >= 30) {
+					const payload = {
 						type: 'land_mark',
-						data: { land_mark: landMark },
-					}),
-				);
+						data: {
+							pose: buffer.slice(0, 30),
+						},
+					};
+					wsRef.current?.send(JSON.stringify(payload));
+
+					landmarkBufferRef.current = buffer.slice(5);
+				}
 			});
 		} catch (err) {
 			console.error('웹캠 접근 에러:', err);
@@ -484,7 +501,8 @@ export default function Video(props: VideoProps) {
 					callStartTime={callStartTime}
 				/>
 			</div>
-			{<p>예측된 결과: {prediction}</p>}
+			{<p>현재 단어: {predictionWord}</p>}
+			{<p>현재 문장: {predictionSen}</p>}
 		</div>
 	);
 }
