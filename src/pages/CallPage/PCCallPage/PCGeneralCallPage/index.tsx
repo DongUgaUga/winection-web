@@ -1,43 +1,43 @@
-import { useEffect, useRef, useState } from "react";
-import { cn } from "@bcsdlab/utils";
-import Lottie from "lottie-react";
-import { useNavigate, useParams } from "react-router-dom";
-import avatar1 from "src/assets/avatar1.png";
-import avatar2 from "src/assets/avatar2.png";
-import avatar3 from "src/assets/avatar3.png";
-import avatar4 from "src/assets/avatar4.png";
-import CameraBlockIcon from "src/assets/block-camera.svg";
-import MicBlockIcon from "src/assets/block-mic.svg";
-import CameraIcon from "src/assets/camera.svg";
-import CallEndIcon from "src/assets/end-call.svg";
-import MicIcon from "src/assets/mic.svg";
-import videoLoading from "src/assets/video-loading.json";
-import Toast from "../../../../components/Toast";
-import useUserInfo from "../../../../hooks/useUserInfo";
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '@bcsdlab/utils';
+import Lottie from 'lottie-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import avatar1 from 'src/assets/avatar1.png';
+import avatar2 from 'src/assets/avatar2.png';
+import avatar3 from 'src/assets/avatar3.png';
+import avatar4 from 'src/assets/avatar4.png';
+import CameraBlockIcon from 'src/assets/block-camera.svg';
+import MicBlockIcon from 'src/assets/block-mic.svg';
+import CameraIcon from 'src/assets/camera.svg';
+import CallEndIcon from 'src/assets/end-call.svg';
+import MicIcon from 'src/assets/mic.svg';
+import videoLoading from 'src/assets/video-loading.json';
+import Toast from '../../../../components/Toast';
+import useUserInfo from '../../../../hooks/useUserInfo';
 import {
 	formatTime,
 	formatKoreanDate,
-} from "../../../../utils/functions/formatTime";
-import Video from "../components/Video";
-import styles from "./PCGeneralCallPage.module.scss";
+} from '../../../../utils/functions/formatTime';
+import Video from '../components/Video';
+import styles from './PCGeneralCallPage.module.scss';
 
-const VOICES = ["성인 남자", "성인 여자", "어린 남자", "어린 여자"];
+const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
 	{
 		src: avatar1,
-		name: "지민",
+		name: '지민',
 	},
 	{
 		src: avatar2,
-		name: "시안",
+		name: '시안',
 	},
 	{
 		src: avatar3,
-		name: "영현",
+		name: '영현',
 	},
 	{
 		src: avatar4,
-		name: "유나",
+		name: '유나',
 	},
 ];
 
@@ -53,7 +53,7 @@ const StyleSelect = () => {
 
 	return (
 		<>
-			{userInfo!.user_type === "농인" ? (
+			{userInfo!.user_type === '농인' ? (
 				<div className={styles.style}>
 					<div className={styles.style__select}>목소리 선택</div>
 					<div className={styles.voices}>
@@ -61,8 +61,8 @@ const StyleSelect = () => {
 							<button
 								key={v}
 								className={cn({
-									[styles["voices__voice"]]: true,
-									[styles["voices__voice--selected"]]: voice === v,
+									[styles['voices__voice']]: true,
+									[styles['voices__voice--selected']]: voice === v,
 								})}
 								onClick={() => setVoice(v)}
 							>
@@ -84,9 +84,9 @@ const StyleSelect = () => {
 								<img
 									src={avatar.src}
 									alt="avatar"
-									className={styles["avatars__avatar--image"]}
+									className={styles['avatars__avatar--image']}
 								/>
-								<div className={styles["avatars__avatar--name"]}>
+								<div className={styles['avatars__avatar--name']}>
 									{avatar.name}
 								</div>
 							</button>
@@ -120,7 +120,7 @@ export default function PCGeneralCallPage() {
 				setCopyToast(true);
 			})
 			.catch(() => {
-				alert("코드 복사에 실패했습니다.");
+				alert('코드 복사에 실패했습니다.');
 			});
 	};
 
@@ -133,10 +133,10 @@ export default function PCGeneralCallPage() {
 	};
 
 	const endCall = () => {
-		navigate("/call-end", {
+		navigate('/call-end', {
 			state: {
-				callTime: formatTime(callTime, "korean"),
-				callStartTime: formatKoreanDate(callStartTime, "korean"),
+				callTime: formatTime(callTime, 'korean'),
+				callStartTime: formatKoreanDate(callStartTime, 'korean'),
 			},
 		});
 	};
@@ -170,7 +170,7 @@ export default function PCGeneralCallPage() {
 			<div
 				className={cn({
 					[styles.code]: true,
-					[styles["code__success-connect"]]: peerStatus,
+					[styles['code__success-connect']]: peerStatus,
 				})}
 			>
 				<input disabled value={params.code} className={styles.code__input} />
@@ -186,48 +186,48 @@ export default function PCGeneralCallPage() {
 			<div
 				className={cn({
 					[styles.content]: true,
-					[styles["content__success-connect"]]: peerStatus,
+					[styles['content__success-connect']]: peerStatus,
 				})}
 			>
 				<StyleSelect />
 				<div>
-					<div className={styles["video-chat__box"]}>
-						<div className={styles["video-chat__controls"]}>
+					<div className={styles['video-chat__box']}>
+						<div className={styles['video-chat__controls']}>
 							<div>
 								<button
-									className={styles["video-chat__controls--button"]}
+									className={styles['video-chat__controls--button']}
 									onClick={handleVideo}
 								>
 									{isCameraActive ? <CameraIcon /> : <CameraBlockIcon />}
 								</button>
 								<button
-									className={styles["video-chat__controls--button"]}
+									className={styles['video-chat__controls--button']}
 									onClick={handleMic}
 								>
 									{isMicActive ? <MicIcon /> : <MicBlockIcon />}
 								</button>
 							</div>
 							{peerStatus ? (
-								<div className={styles["call-time"]}>
-									<div className={styles["call-time__recording"]}></div>
-									<div className={styles["call-time__time"]}>
-										{formatTime(callTime, "digit")}
+								<div className={styles['call-time']}>
+									<div className={styles['call-time__recording']}></div>
+									<div className={styles['call-time__time']}>
+										{formatTime(callTime, 'digit')}
 									</div>
 								</div>
 							) : (
-								<div className={styles["connect-wait"]}>
+								<div className={styles['connect-wait']}>
 									<Lottie
 										animationData={videoLoading}
-										style={{ width: "17px", height: "17px" }}
+										style={{ width: '17px', height: '17px' }}
 									/>
-									<div className={styles["connect-wait__text"]}>
+									<div className={styles['connect-wait__text']}>
 										상대방의 접속을 기다리고 있습니다.
 									</div>
 								</div>
 							)}
 
 							<button
-								className={styles["video-chat__controls--button"]}
+								className={styles['video-chat__controls--button']}
 								onClick={endCall}
 							>
 								<CallEndIcon />
@@ -241,7 +241,7 @@ export default function PCGeneralCallPage() {
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="general"
-								callStartTime={formatKoreanDate(callStartTime, "digit")}
+								callStartTime={formatKoreanDate(callStartTime, 'digit')}
 							/>
 						) : (
 							<div>올바르지 않은 경로입니다.</div>

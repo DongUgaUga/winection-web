@@ -1,15 +1,15 @@
-import { SetStateAction, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import BlindIcon from "src/assets/blind.svg";
-import DeleteIcon from "src/assets/delete.svg";
-import EyeIcon from "src/assets/eye.svg";
-import useLogin from "../SignupPage/hooks/useLogin";
-import styles from "./LoginPage.module.scss";
+import { SetStateAction, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import BlindIcon from 'src/assets/blind.svg';
+import DeleteIcon from 'src/assets/delete.svg';
+import EyeIcon from 'src/assets/eye.svg';
+import useLogin from '../SignupPage/hooks/useLogin';
+import styles from './LoginPage.module.scss';
 
 export default function LoginPage() {
 	const navigate = useNavigate();
-	const [id, setId] = useState("");
-	const [pw, setPw] = useState("");
+	const [id, setId] = useState('');
+	const [pw, setPw] = useState('');
 	const [showPw, setShowPw] = useState<boolean>(false);
 
 	const { mutate: login, isError } = useLogin();
@@ -23,11 +23,11 @@ export default function LoginPage() {
 	};
 
 	const deleteIdHandler = () => {
-		setId("");
+		setId('');
 	};
 
 	const deletePwHandler = () => {
-		setPw("");
+		setPw('');
 	};
 
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -48,36 +48,36 @@ export default function LoginPage() {
 		<div className={styles.container}>
 			<form className={styles.container} onSubmit={onSubmit}>
 				<div className={styles.container__input}>
-					<div className={styles["container__input--field-id"]}>
+					<div className={styles['container__input--field-id']}>
 						<input
 							placeholder="아이디를 입력하세요."
-							className={styles["container__input--text"]}
+							className={styles['container__input--text']}
 							onChange={currentId}
 							value={id}
 						/>
 						<button
 							type="button"
 							onClick={deleteIdHandler}
-							className={styles["container__input--icon"]}
+							className={styles['container__input--icon']}
 							tabIndex={-1}
 						>
 							<DeleteIcon />
 						</button>
 					</div>
 
-					<div className={styles["container__input--field-pw"]}>
+					<div className={styles['container__input--field-pw']}>
 						<input
-							type={showPw ? "text" : "password"}
+							type={showPw ? 'text' : 'password'}
 							placeholder="비밀번호를 입력하세요."
-							className={styles["container__input--text"]}
+							className={styles['container__input--text']}
 							onChange={currentPw}
 							value={pw}
 						/>
-						<div className={styles["container__input--icons"]}>
+						<div className={styles['container__input--icons']}>
 							<button
 								type="button"
 								onClick={toggleShowPw}
-								className={styles["container__input--icon"]}
+								className={styles['container__input--icon']}
 								tabIndex={-1}
 							>
 								{showPw ? <EyeIcon /> : <BlindIcon />}
@@ -85,7 +85,7 @@ export default function LoginPage() {
 							<button
 								type="button"
 								onClick={deletePwHandler}
-								className={styles["container__input--icon"]}
+								className={styles['container__input--icon']}
 								tabIndex={-1}
 							>
 								<DeleteIcon />
@@ -105,19 +105,19 @@ export default function LoginPage() {
 				</div>
 			</form>
 
-			<div className={styles["find-wrap"]}>
+			<div className={styles['find-wrap']}>
 				<button
 					type="button"
-					className={styles["find-wrap__button"]}
-					onClick={() => navigate("/auth/find-pw")}
+					className={styles['find-wrap__button']}
+					onClick={() => navigate('/auth/find-pw')}
 				>
 					비밀번호 찾기
 				</button>
 				<div>|</div>
 				<button
 					type="button"
-					className={styles["find-wrap__button"]}
-					onClick={() => navigate("/auth/signup")}
+					className={styles['find-wrap__button']}
+					onClick={() => navigate('/auth/signup')}
 				>
 					회원가입
 				</button>

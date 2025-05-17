@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { cn } from "@bcsdlab/utils";
-import { useNavigate } from "react-router-dom";
-import ActiveCallIcon from "src/assets/call-active.svg";
-import CallIcon from "src/assets/call.svg";
-import GrandfatherAvatar from "src/assets/grandfather-avatar.svg";
-import useMakeRoomId from "../hooks/useMakeRoomId";
-import styles from "./EmergencyCallWait.module.scss";
+import { useState } from 'react';
+import { cn } from '@bcsdlab/utils';
+import { useNavigate } from 'react-router-dom';
+import ActiveCallIcon from 'src/assets/call-active.svg';
+import CallIcon from 'src/assets/call.svg';
+import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
+import useMakeRoomId from '../hooks/useMakeRoomId';
+import styles from './EmergencyCallWait.module.scss';
 
-const AGENCIES = ["병원", "경찰서", "소방서"];
+const AGENCIES = ['병원', '경찰서', '소방서'];
 
 export default function EmergencyCallWait() {
 	const navigate = useNavigate();
-	const [agency, setAgency] = useState("");
+	const [agency, setAgency] = useState('');
 	const [isChecked, setIsChecked] = useState(false);
 	const { mutateAsync: makeRoomId } = useMakeRoomId();
 
@@ -33,10 +33,10 @@ export default function EmergencyCallWait() {
 		<div className={styles.container}>
 			<div className={styles.help}>
 				<div className={styles.help__description}>
-					<div className={styles["help__description--main"]}>
+					<div className={styles['help__description--main']}>
 						도움이 필요한 기관을 선택해 주세요.
 					</div>
-					<div className={styles["help__description--sub"]}>
+					<div className={styles['help__description--sub']}>
 						클릭 시, 가장 가까운 기관으로 연결됩니다.
 					</div>
 				</div>
@@ -46,8 +46,8 @@ export default function EmergencyCallWait() {
 							<GrandfatherAvatar />
 							<button
 								className={cn({
-									[styles["agencies__agency--button"]]: true,
-									[styles["agencies__agency--button--selected"]]:
+									[styles['agencies__agency--button']]: true,
+									[styles['agencies__agency--button--selected']]:
 										value === agency,
 								})}
 								onClick={() => selectAgency(value)}
@@ -73,14 +73,14 @@ export default function EmergencyCallWait() {
 			<div
 				className={cn({
 					[styles.connect]: true,
-					[styles["connect--able"]]: !!agency,
+					[styles['connect--able']]: !!agency,
 				})}
 			>
 				{!!agency && isChecked ? <ActiveCallIcon /> : <CallIcon />}
 				<button
 					className={cn({
 						[styles.connect__button]: true,
-						[styles["connect__button--able"]]: !!agency && isChecked,
+						[styles['connect__button--able']]: !!agency && isChecked,
 					})}
 					disabled={!agency && !isChecked}
 					onClick={connect}

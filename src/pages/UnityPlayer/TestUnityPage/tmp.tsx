@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Camera } from "@mediapipe/camera_utils";
-import { Hands } from "@mediapipe/hands";
-import { useParams } from "react-router-dom";
-import styles from "./TestUnityPage.module.scss";
+import React, { useEffect, useRef, useState } from 'react';
+import { Camera } from '@mediapipe/camera_utils';
+import { Hands } from '@mediapipe/hands';
+import { useParams } from 'react-router-dom';
+import styles from './TestUnityPage.module.scss';
 
 const TestUnityPage = () => {
 	const { roomId } = useParams();
@@ -13,28 +13,28 @@ const TestUnityPage = () => {
 
 	useEffect(() => {
 		// ✅ Unity 인스턴스 로드
-		const script = document.createElement("script");
-		script.src = "/unity-build/Build/unity-build.loader.js";
+		const script = document.createElement('script');
+		script.src = '/unity-build/Build/unity-build.loader.js';
 		script.onload = () => {
 			setTimeout(() => {
-				const canvas = document.querySelector("#unity-canvas");
+				const canvas = document.querySelector('#unity-canvas');
 				if (!canvas) {
-					console.error("❌ unity-canvas를 찾을 수 없습니다.");
+					console.error('❌ unity-canvas를 찾을 수 없습니다.');
 					return;
 				}
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
-					dataUrl: "/unity-build/Build/unity-build.data",
-					frameworkUrl: "/unity-build/Build/unity-build.framework.js",
-					codeUrl: "/unity-build/Build/unity-build.wasm",
+					dataUrl: '/unity-build/Build/unity-build.data',
+					frameworkUrl: '/unity-build/Build/unity-build.framework.js',
+					codeUrl: '/unity-build/Build/unity-build.wasm',
 				})
 					.then((unityInstance: any) => {
-						console.log("✅ Unity 인스턴스 로드 완료", unityInstance);
-						unityInstance.SendMessage("ReceiverObject", "SetRoomId", roomId);
+						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
+						unityInstance.SendMessage('ReceiverObject', 'SetRoomId', roomId);
 					})
 					.catch((err: any) => {
-						console.error("❌ Unity 인스턴스 로드 실패", err);
+						console.error('❌ Unity 인스턴스 로드 실패', err);
 					});
 			}, 100);
 		};
@@ -49,17 +49,17 @@ const TestUnityPage = () => {
 		setWs(socket);
 
 		socket.onopen = () => {
-			console.log("✅ WebSocket 연결 성공");
+			console.log('✅ WebSocket 연결 성공');
 		};
-		socket.onerror = (err) => console.error("❌ WebSocket 오류", err);
-		socket.onclose = () => console.warn("🔌 WebSocket 연결 종료됨");
+		socket.onerror = (err) => console.error('❌ WebSocket 오류', err);
+		socket.onclose = () => console.warn('🔌 WebSocket 연결 종료됨');
 
 		return () => socket.close();
 	}, [roomId]);
 
 	useEffect(() => {
 		if (!ws || ws.readyState !== WebSocket.OPEN) {
-			console.warn("🛑 WebSocket이 아직 열리지 않아서 손 추적 시작 안함");
+			console.warn('🛑 WebSocket이 아직 열리지 않아서 손 추적 시작 안함');
 			return;
 		}
 
@@ -80,9 +80,9 @@ const TestUnityPage = () => {
 			if (results.multiHandLandmarks && results.multiHandedness) {
 				const handData = results.multiHandLandmarks.map((landmark, index) => ({
 					hand_type:
-						results.multiHandedness[index].label === "Right"
-							? "왼손"
-							: "오른손",
+						results.multiHandedness[index].label === 'Right'
+							? '왼손'
+							: '오른손',
 					x: landmark[0].x.toFixed(2),
 					y: landmark[0].y.toFixed(2),
 					z: landmark[0].z.toFixed(2),
@@ -91,7 +91,7 @@ const TestUnityPage = () => {
 				if (ws?.readyState === WebSocket.OPEN) {
 					ws.send(
 						JSON.stringify({
-							type: "hand_data",
+							type: 'hand_data',
 							data: { hand_data: handData },
 						}),
 					);
@@ -118,7 +118,7 @@ const TestUnityPage = () => {
 	}, [ws]);
 
 	return (
-		<div id="unity-container" className={styles["unity-container"]}>
+		<div id="unity-container" className={styles['unity-container']}>
 			<h1 className={styles.header}>Unity - 실시간 손 제어 테스트</h1>
 			<canvas
 				id="unity-canvas"
@@ -130,7 +130,7 @@ const TestUnityPage = () => {
 				ref={videoRef}
 				autoPlay
 				playsInline
-				style={{ width: 1, height: 1, opacity: 0, position: "absolute" }}
+				style={{ width: 1, height: 1, opacity: 0, position: 'absolute' }}
 			></video>
 		</div>
 	);

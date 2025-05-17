@@ -1,20 +1,20 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import AboutPage from "./pages/AboutPage";
-import Auth from "./pages/Auth";
-import FindPasswordPage from "./pages/Auth/FindPasswordPage";
-import LoginPage from "./pages/Auth/LoginPage";
-import SignupPage from "./pages/Auth/SignupPage";
-import BoardPage from "./pages/BoardPage";
-import CallEndPage from "./pages/CallEndPage";
-import CallPage from "./pages/CallPage";
-import CallWaitPage from "./pages/CallWaitPage";
-import IndexPage from "./pages/IndexPage";
-import STTWebSocket from "./pages/ToSign";
-import VideoChatHandTracking from "./pages/ToSpeech";
-import TranslatePage from "./pages/ts";
-import TestUnityCallWait from "./pages/UnityPlayer/TestUnityCallWait";
-import UnityPage from "./pages/UnityPlayer/TestUnityPage";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import AboutPage from './pages/AboutPage';
+import Auth from './pages/Auth';
+import FindPasswordPage from './pages/Auth/FindPasswordPage';
+import LoginPage from './pages/Auth/LoginPage';
+import SignupPage from './pages/Auth/SignupPage';
+import BoardPage from './pages/BoardPage';
+import CallEndPage from './pages/CallEndPage';
+import CallPage from './pages/CallPage';
+import CallWaitPage from './pages/CallWaitPage';
+import IndexPage from './pages/IndexPage';
+import STTWebSocket from './pages/ToSign';
+import VideoChatHandTracking from './pages/ToSpeech';
+import TranslatePage from './pages/ts';
+import TestUnityCallWait from './pages/UnityPlayer/TestUnityCallWait';
+import UnityPage from './pages/UnityPlayer/TestUnityPage';
 
 function App() {
 	return (
