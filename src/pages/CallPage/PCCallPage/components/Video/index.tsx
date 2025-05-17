@@ -266,18 +266,12 @@ export default function Video(props: VideoProps) {
 				}
 			};
 
-			peerConnection.onicegatheringstatechange = async () => {
-				if (peerConnection.iceGatheringState === 'complete') {
-					console.log('🧊 ICE gathering complete → offer 전송');
-					const offer = peerConnection.localDescription;
-					if (offer && wsRef.current?.readyState === WebSocket.OPEN) {
-						wsRef.current.send(JSON.stringify({ type: 'offer', data: offer }));
-					}
-				}
-			};
-
 			const offer = await peerConnection.createOffer();
 			await peerConnection.setLocalDescription(offer);
+
+			if (wsRef.current?.readyState === WebSocket.OPEN) {
+				wsRef.current.send(JSON.stringify({ type: 'offer', data: offer }));
+			}
 
 			const holistic = new Holistic({
 				locateFile: (file) =>
