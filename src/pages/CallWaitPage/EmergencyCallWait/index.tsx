@@ -24,6 +24,7 @@ export default function EmergencyCallWait() {
 	};
 
 	// 근처 기관 코드 받을 수 있는 소켓 통신 구현되면 변경 예정
+	// 백으로 가장 가까운 기관 post요청(사용자 위치 정보). 해당 기관의 방 코드로 아동하기
 	const connect = async () => {
 		const newCode = await makeRoomId();
 		navigate(`/emergency-call/${newCode.room_id}`);

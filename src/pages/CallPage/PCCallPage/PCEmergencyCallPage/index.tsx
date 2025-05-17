@@ -47,6 +47,8 @@ export default function PCEmergencyCallPage() {
 		});
 	};
 
+	// todo 소켓 통신으로 백에서 신고 접수 들어오면 자동으로 열게 하기
+	// 그리고 사용자 정보 다 모달 컴포넌트에 전달
 	const openModal = () => {
 		setIsModalOpen(true);
 	};
