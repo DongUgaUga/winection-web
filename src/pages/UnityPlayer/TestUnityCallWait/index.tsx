@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { cn } from "@bcsdlab/utils";
 import { useNavigate } from "react-router-dom";
-import KeyboardIcon from "src/assets/keyboard.svg?url";
-import RecordIcon from "src/assets/record.svg?url";
+import KeyboardIcon from "src/assets/keyboard.svg";
+import RecordIcon from "src/assets/record.svg";
 import useMakeRoomId from "src/pages/CallWaitPage/hooks/useMakeRoomId";
 import useBreakpoint from "src/utils/hooks/useBreakPoint";
-import styles from "./TestGeneralCallWait.module.scss";
+import styles from "./TestUnityCallWait.module.scss";
 
-export default function TestGeneralCallWait() {
+export default function TestUnityCallWait() {
 	const breakPoint = useBreakpoint();
 	const navigate = useNavigate();
 	const { mutateAsync: makeRoomId } = useMakeRoomId();

@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "@mediapipe/camera_utils";
 import { Hands } from "@mediapipe/hands";
 import { useParams } from "react-router-dom";
-import styles from "./UnityPlayer.module.scss";
+import styles from "./TestUnityPage.module.scss";
 
-const UnityPlayer = () => {
+const TestUnityPage = () => {
 	const { roomId } = useParams();
 	const unityCanvasRef = useRef<HTMLCanvasElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -14,7 +14,7 @@ const UnityPlayer = () => {
 	useEffect(() => {
 		// ✅ Unity 인스턴스 로드
 		const script = document.createElement("script");
-		script.src = "/unity-build/Build/Build.loader.js";
+		script.src = "/unity-build/Build/unity-build.loader.js";
 		script.onload = () => {
 			setTimeout(() => {
 				const canvas = document.querySelector("#unity-canvas");
@@ -25,9 +25,9 @@ const UnityPlayer = () => {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
-					dataUrl: "/unity-build/Build/Build.data",
-					frameworkUrl: "/unity-build/Build/Build.framework.js",
-					codeUrl: "/unity-build/Build/Build.wasm",
+					dataUrl: "/unity-build/Build/unity-build.data",
+					frameworkUrl: "/unity-build/Build/unity-build.framework.js",
+					codeUrl: "/unity-build/Build/unity-build.wasm",
 				})
 					.then((unityInstance: any) => {
 						console.log("✅ Unity 인스턴스 로드 완료", unityInstance);
@@ -136,4 +136,4 @@ const UnityPlayer = () => {
 	);
 };
 
-export default UnityPlayer;
+export default TestUnityPage;

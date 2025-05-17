@@ -1,8 +1,8 @@
-import { useParams } from 'react-router-dom';
-import useBreakpoint from '../../utils/hooks/useBreakPoint';
-import styles from './CallWaitPage.module.scss';
-import EmergencyCallWait from './EmergencyCallWait';
-import GeneralCallWait from './GeneralCallWait';
+import { useParams } from "react-router-dom";
+import useBreakpoint from "../../utils/hooks/useBreakPoint";
+import styles from "./CallWaitPage.module.scss";
+import EmergencyCallWait from "./EmergencyCallWait";
+import GeneralCallWait from "./GeneralCallWait";
 
 export default function CallWaitPage() {
 	const param = useParams();
@@ -10,7 +10,7 @@ export default function CallWaitPage() {
 
 	return (
 		<div className={styles.container}>
-			{breakPoint !== 'mobile' && (
+			{breakPoint !== "mobile" && (
 				<div className={styles.motto}>
 					<div>오늘도 우리는,</div>
 					<div>
@@ -19,8 +19,8 @@ export default function CallWaitPage() {
 					</div>
 				</div>
 			)}
-			<div className={styles['before-call']}>
-				{param.calltype === 'general-call' ? (
+			<div className={styles["before-call"]}>
+				{param.calltype === "general-call" ? (
 					<GeneralCallWait />
 				) : (
 					<EmergencyCallWait />

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@bcsdlab/utils";
+import { Camera } from "@mediapipe/camera_utils"; // 원래 유니티 코드
+import { Hands } from "@mediapipe/hands"; // 원래 유니티 코드
 import Lottie from "lottie-react";
 import { useNavigate, useParams } from "react-router-dom";
 import avatar1 from "src/assets/avatar1.png";
@@ -12,14 +14,12 @@ import CameraIcon from "src/assets/camera.svg";
 import CallEndIcon from "src/assets/end-call.svg";
 import MicIcon from "src/assets/mic.svg";
 import videoLoading from "src/assets/video-loading.json";
-import Toast from "../../../../components/Toast";
-import useUserInfo from "../../../../hooks/useUserInfo";
-import {
-	formatTime,
-	formatKoreanDate,
-} from "../../../../utils/functions/formatTime";
-import Video from "../components/Video";
-import styles from "./PCGeneralCallPage.module.scss";
+import Toast from "src/components/Toast";
+import useUserInfo from "src/hooks/useUserInfo";
+import Video from "src/pages/CallPage/PCCallPage/components/Video";
+import { formatTime, formatKoreanDate } from "src/utils/functions/formatTime";
+// import { useParams } from "react-router-dom"; // 원래 유니티 코드
+import styles from "./TestUnityPage.module.scss"; // 원래 유니티 코드
 
 const VOICES = ["성인 남자", "성인 여자", "어린 남자", "어린 여자"];
 const AVATARS = [
@@ -100,8 +100,13 @@ const StyleSelect = () => {
 
 // 농인과 일반인만 사용하는 페이지
 export default function PCGeneralCallPage() {
-	const params = useParams();
+	const params = useParams(); // {calltype: 'unity', code: 'x9cq52'}
 	const navigate = useNavigate();
+
+	const roomId = params.code; // Unity
+	const unityCanvasRef = useRef<HTMLCanvasElement>(null); // Unity
+	const videoRef = useRef<HTMLVideoElement>(null); // Unity
+	const [ws, setWs] = useState<WebSocket | null>(null); // Unity
 
 	const [copyToast, setCopyToast] = useState(false);
 
@@ -165,6 +170,113 @@ export default function PCGeneralCallPage() {
 		};
 	}, [peerStatus]);
 
+	// 유니티 입니다 =========================
+	useEffect(() => {
+		// ✅ Unity 인스턴스 로드
+		const script = document.createElement("script");
+		script.src = "/unity-build/Build/unity-build.loader.js";
+		script.onload = () => {
+			setTimeout(() => {
+				const canvas = document.querySelector("#unity-canvas");
+				if (!canvas) {
+					console.error("❌ unity-canvas를 찾을 수 없습니다.");
+					return;
+				}
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-expect-error
+				createUnityInstance(canvas, {
+					dataUrl: "/unity-build/Build/unity-build.data",
+					frameworkUrl: "/unity-build/Build/unity-build.framework.js",
+					codeUrl: "/unity-build/Build/unity-build.wasm",
+				})
+					.then((unityInstance: any) => {
+						console.log("✅ Unity 인스턴스 로드 완료", unityInstance);
+						unityInstance.SendMessage("ReceiverObject", "SetRoomId", roomId);
+					}, 5000)
+					.catch((err: any) => {
+						console.error("❌ Unity 인스턴스 로드 실패", err);
+					});
+			}, 100);
+		};
+		document.body.appendChild(script);
+	}, []);
+
+	useEffect(() => {
+		// ✅ WebSocket 연결
+		const socket = new WebSocket(`wss://localhost:9090/unity/${roomId}`);
+		setWs(socket);
+
+		socket.onopen = () => {
+			console.log("✅ WebSocket 연결 성공");
+		};
+		socket.onerror = (err) => console.error("❌ WebSocket 오류", err);
+		socket.onclose = () => console.warn("🔌 WebSocket 연결 종료됨");
+
+		return () => socket.close();
+	}, [roomId]);
+
+	useEffect(() => {
+		if (!ws || ws.readyState !== WebSocket.OPEN) {
+			console.warn("🛑 WebSocket이 아직 열리지 않아서 손 추적 시작 안함");
+			return;
+		}
+
+		// ✅ MediaPipe Hands 설정
+		const hands = new Hands({
+			locateFile: (file) =>
+				`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+		});
+
+		hands.setOptions({
+			maxNumHands: 2,
+			modelComplexity: 1,
+			minDetectionConfidence: 0.5,
+			minTrackingConfidence: 0.5,
+		});
+
+		hands.onResults((results) => {
+			if (results.multiHandLandmarks && results.multiHandedness) {
+				const handData = results.multiHandLandmarks.map((landmark, index) => ({
+					hand_type:
+						results.multiHandedness[index].label === "Right"
+							? "왼손"
+							: "오른손",
+					x: landmark[0].x.toFixed(2),
+					y: landmark[0].y.toFixed(2),
+					z: landmark[0].z.toFixed(2),
+				}));
+
+				if (ws?.readyState === WebSocket.OPEN) {
+					ws.send(
+						JSON.stringify({
+							type: "hand_data",
+							data: { hand_data: handData },
+						}),
+					);
+				}
+			}
+		});
+
+		const initCamera = async () => {
+			const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+			if (videoRef.current) {
+				videoRef.current.srcObject = stream;
+			}
+			const camera = new Camera(videoRef.current!, {
+				onFrame: async () => {
+					await hands.send({ image: videoRef.current! });
+				},
+				width: 640,
+				height: 480,
+			});
+			camera.start();
+		};
+
+		initCamera();
+	}, [ws]);
+
+	// 유니티 끝 ! ===========================
+
 	return (
 		<div className={styles.container}>
 			<div
@@ -220,9 +332,7 @@ export default function PCGeneralCallPage() {
 										animationData={videoLoading}
 										style={{ width: "17px", height: "17px" }}
 									/>
-									<div className={styles["connect-wait__text"]}>
-										상대방의 접속을 기다리고 있습니다.
-									</div>
+									상대방의 접속을 기다리고 있습니다...
 								</div>
 							)}
 
@@ -234,15 +344,28 @@ export default function PCGeneralCallPage() {
 							</button>
 						</div>
 						{params.code ? (
-							<Video
-								peerStatus={peerStatus}
-								setPeerStatus={setPeerStatus}
-								code={params.code}
-								isCameraActive={isCameraActive}
-								isMicActive={isMicActive}
-								callType="general"
-								callStartTime={formatKoreanDate(callStartTime, "digit")}
-							/>
+							<div
+								id="unity-container"
+								className={styles["connect-wait__text"]}
+							>
+								<canvas
+									id="unity-canvas"
+									ref={unityCanvasRef}
+									className={styles.show}
+									tabIndex={-1}
+								></canvas>
+								<video
+									ref={videoRef}
+									autoPlay
+									playsInline
+									style={{
+										width: 1,
+										height: 1,
+										opacity: 0,
+										position: "absolute",
+									}}
+								></video>
+							</div>
 						) : (
 							<div>올바르지 않은 경로입니다.</div>
 						)}
