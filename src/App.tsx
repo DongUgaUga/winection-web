@@ -13,6 +13,8 @@ import IndexPage from './pages/IndexPage';
 import STTWebSocket from './pages/ToSign';
 import VideoChatHandTracking from './pages/ToSpeech';
 import TranslatePage from './pages/ts';
+import TestUnityCallWait from './pages/UnityPlayer/TestUnityCallWait';
+import UnityPage from './pages/UnityPlayer/TestUnityPage';
 
 function App() {
 	return (
@@ -34,6 +36,8 @@ function App() {
 						<Route path="/auth/find-pw" element={<FindPasswordPage />} />
 					</Route>
 					<Route path="/about" element={<AboutPage />} />
+					<Route path="/unity" element={<TestUnityCallWait />} />
+					<Route path="/:unity/:code" element={<UnityPage />} />
 				</Routes>
 				<ToastContainer />
 			</BrowserRouter>
