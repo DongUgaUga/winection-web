@@ -16,7 +16,8 @@ export default function LoginView() {
 		if (userClassification === '일반인') {
 			navigate('/general-call');
 		} else {
-			// 신고 접수 대기 페이지로 이동
+			// 응급기관별 통화 코드 고정. 응급기관 user에게 고정 코드 api로 주가?
+			navigate('/emergency-call/999999');
 		}
 	};
 

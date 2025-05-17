@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import RecordIcon from 'src/assets/record.svg';
 import ReturnIcon from 'src/assets/return.svg';
 import useUserInfo from '../../hooks/useUserInfo';
 import styles from './CallEndPage.module.scss';
@@ -28,10 +29,24 @@ export default function CallEndPage() {
 					<div>{callTimeState.callTime}</div>
 				</div>
 			</div>
-			<button className={styles.return} onClick={() => navigate('/')}>
-				<div>메인페이지로</div>
-				<ReturnIcon />
-			</button>
+			<div className={styles['return-container']}>
+				<button
+					className={styles['return-container__return']}
+					onClick={() => navigate('/')}
+				>
+					<div>메인페이지로</div>
+					<ReturnIcon />
+				</button>
+				{userInfo!.user_type === '응급기관' && (
+					<button
+						className={styles['return-container__return']}
+						onClick={() => navigate('/emergency-call/99999')}
+					>
+						<div>신고 접수 대기하기</div>
+						<RecordIcon />
+					</button>
+				)}
+			</div>
 		</div>
 	);
 }
