@@ -48,9 +48,8 @@ export default function Video(props: VideoProps) {
 	const [, setStarttime] = useState<string>('00:00:00');
 	const landmarkBufferRef = useRef<any[][]>([]);
 
-	// 웹소켓 관련
-	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]); // candidate를 임시 저장하는 큐
-	const isRemoteDescSetRef = useRef(false); // remoteDescription 세팅 여부
+	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
+	const isRemoteDescSetRef = useRef(false);
 
 	useEffect(() => {
 		if (!code) return;
@@ -116,6 +115,25 @@ export default function Video(props: VideoProps) {
 						new RTCSessionDescription(data.data),
 					);
 					setPeerStatus(true);
+					setTimeout(() => {
+						if (
+							remoteVideoRef.current &&
+							!remoteVideoRef.current.srcObject &&
+							peerConnectionRef.current
+						) {
+							const remoteStream = new MediaStream();
+							peerConnectionRef.current.getReceivers().forEach((receiver) => {
+								if (
+									receiver.track.kind === 'video' ||
+									receiver.track.kind === 'audio'
+								) {
+									remoteStream.addTrack(receiver.track);
+								}
+							});
+							remoteVideoRef.current.srcObject = remoteStream;
+							remoteVideoRef.current.play();
+						}
+					}, 1000);
 				}
 				if (data.type === 'candidate') {
 					const candidate = new RTCIceCandidate(data.data);
@@ -239,22 +257,47 @@ export default function Video(props: VideoProps) {
 			});
 			peerConnectionRef.current = peerConnection;
 
+			peerConnection.onconnectionstatechange = () => {
+				if (peerConnection.connectionState === 'connected') {
+					console.log('✅ peer connected → 수신 트랙 수동 설정 시도');
+					if (
+						remoteVideoRef.current &&
+						!remoteVideoRef.current.srcObject &&
+						peerConnection
+					) {
+						const remoteStream = new MediaStream();
+						peerConnection.getReceivers().forEach((receiver) => {
+							if (
+								receiver.track.kind === 'video' ||
+								receiver.track.kind === 'audio'
+							) {
+								remoteStream.addTrack(receiver.track);
+							}
+						});
+						remoteVideoRef.current.srcObject = remoteStream;
+						remoteVideoRef.current.play();
+					}
+				}
+			};
+
 			stream
 				.getTracks()
 				.forEach((track) => peerConnection.addTrack(track, stream));
 
 			peerConnection.ontrack = (event) => {
-				if (remoteVideoRef.current) {
-					const currentStream = remoteVideoRef.current.srcObject as MediaStream;
-					if (currentStream) {
-						event.streams[0].getTracks().forEach((track) => {
-							if (!currentStream.getTracks().includes(track)) {
-								currentStream.addTrack(track);
-							}
-						});
-					} else {
-						remoteVideoRef.current.srcObject = event.streams[0];
+				const remoteVideo = remoteVideoRef.current;
+				if (remoteVideo) {
+					let remoteStream = remoteVideo.srcObject as MediaStream | null;
+					if (!remoteStream) {
+						remoteStream = new MediaStream();
+						remoteVideo.srcObject = remoteStream;
 					}
+
+					if (!remoteStream.getTracks().includes(event.track)) {
+						remoteStream.addTrack(event.track);
+					}
+
+					remoteVideo.play();
 				}
 			};
 
