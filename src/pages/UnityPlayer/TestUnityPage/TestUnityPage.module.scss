@@ -1,0 +1,244 @@
+@keyframes fadeSlideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(1px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .container {
+    margin: auto;
+    padding: 20px 0;
+  }
+  
+  .content {
+    width: 1155px;
+    display: flex;
+    justify-content: space-between;
+  
+    &__success-connect {
+      width: 1500px;
+    }
+  }
+  
+  .code {
+    position: relative;
+    top: -40px;
+    left: 279px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  
+    &__input {
+      width: 531px;
+      height: 55px;
+      background-color: #fff;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0px 4px 4px 0px #00000040;
+      color: #7A7A7A;
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      text-align: center;
+    }
+  
+    &__button {
+      width: 110px;
+      height: 55px;
+      background-color: #237BFF;
+      color: #FBFBFB;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0px 2px 4px 0px #00000040;
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      text-align: center;
+      cursor: pointer;
+    }
+  
+    &__success-connect {
+      left: 395px;
+    }
+  }
+  
+  .toast {
+    display: relative;
+  
+    & > p {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      text-align: center;
+      animation: fadeSlideIn 0.3s ease-out forwards;
+    }
+  }
+  
+  .style {
+    display: flex;
+    flex-direction: column;
+    height: 597px;
+    justify-content: space-between;
+    position: relative;
+    top: 65px;
+  
+    &__select {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      text-align: center;
+    }
+  }
+  
+  .voices {
+    display: flex;
+    flex-direction: column;
+    height: 530px;
+    justify-content: space-between;
+  
+    &__voice {
+      width: 120px;
+      padding: 20px 0;
+      color: #237BFF;
+      background-color: #FBFBFB;
+      box-shadow: 0px 4px 4px 0px #00000040;
+      border: none;
+      border-radius: 8px;
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      text-align: center;
+      cursor: pointer;
+  
+      &--selected {
+        color: #FBFBFB;
+        background-color: #237BFF;
+      }
+    }
+  }
+  
+  .avatars {
+    display: flex;
+    flex-direction: column;
+    height: 551px;
+    justify-content: space-between;
+  
+    &__avatar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+    
+      &--image {
+        width: 170px;
+        height: 95px;
+        object-fit: scale-down;
+      }
+  
+      &--name {
+        font-family: Pretendard;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 100%;
+        letter-spacing: 0%;
+        text-align: center;
+        color: #777777;
+      }
+    }
+  }
+  
+  .call-time {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  
+    &__recording {
+      width: 18px;
+      height: 18px;
+      background-color: #F10000;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 1px 1px 4px 0px #00000080;
+    }
+  
+    &__time {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      text-align: center;
+    }
+  }
+  
+  .connect-wait {
+    display: flex;
+    gap: 8px;
+  
+    &__text {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      text-align: center;
+    }
+  }
+  
+  .video-chat {
+  
+    &__controls {
+      width: 954px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  
+      &--button {
+        width: 65px;
+        height: 65px;
+        background-color: #FBFBFB;
+        border: 2px solid #237BFF;
+        border-bottom-width: 0;
+        cursor: pointer;
+  
+        &:first-child {
+          border-top-left-radius: 8px;
+        }
+  
+        &:nth-child(2) {
+          margin-left: -2px;
+          border-top-right-radius: 8px;
+        }
+        &:nth-child(3) {
+          border-radius: 8px 8px 0 0;
+        }
+      }
+    }
+  
+    &__video {
+      width: 950px;
+      height: 600px;
+      border: 2px solid #237BFF;
+      text-align: center;
+    }
+  }
+
+.show {
+    width: 960px;
+    height: 600px;
+}

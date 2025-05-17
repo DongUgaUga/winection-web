@@ -16,6 +16,7 @@ export default function IndexPage() {
 				<button onClick={() => navigate('/ts')}>ts</button>
 				<button onClick={() => navigate('/stsl')}>stsl</button>
 				<button onClick={() => navigate('/slts')}>slts</button>
+				<button onClick={() => navigate('/unity')}>unity</button>
 			</div>
 		</>
 	);
