@@ -30,7 +30,8 @@ export default function Video(props: VideoProps) {
 		callStartTime,
 	} = props;
 	const { data: userInfo } = useUserInfo();
-	const [prediction, setPrediction] = useState<string>('');
+	const [predictionWord, setPredictionWord] = useState<string>('');
+	const [predictionSen, setPredictionSen] = useState<string>('');
 
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
 	const [isPeerMicActive, setIsPeerMicActive] = useState(true);
@@ -43,13 +44,18 @@ export default function Video(props: VideoProps) {
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [peerType, setPeerType] = useState<string>('일반인');
-	const [peerStarttime, setStarttime] = useState<string>('00:00:00');
+	const [, setPeerType] = useState<string>('일반인');
+	const [, setStarttime] = useState<string>('00:00:00');
+	const landmarkBufferRef = useRef<any[][]>([]);
+
+	// 웹소켓 관련
+	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]); // candidate를 임시 저장하는 큐
+	const isRemoteDescSetRef = useRef(false); // remoteDescription 세팅 여부
 
 	useEffect(() => {
 		if (!code) return;
 
-		const token = localStorage.getItem('accessToken'); // 토큰 가져오기(어디서?)
+		const token = localStorage.getItem('accessToken');
 
 		const ws = new WebSocket(
 			`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}?token=${token}`,
@@ -87,25 +93,42 @@ export default function Video(props: VideoProps) {
 					await peerConnectionRef.current?.setRemoteDescription(
 						new RTCSessionDescription(data.data),
 					);
+					isRemoteDescSetRef.current = true;
+
 					const answer = await peerConnectionRef.current?.createAnswer();
 					if (answer) {
 						await peerConnectionRef.current?.setLocalDescription(answer);
 						ws.send(JSON.stringify({ type: 'answer', data: answer }));
-						ws.send(JSON.stringify({ type: 'startCall' }));
 					}
-					//setPeerStatus(true);
+
+					while (candidateQueueRef.current.length > 0) {
+						const candidate = candidateQueueRef.current.shift();
+						if (candidate) {
+							await peerConnectionRef.current?.addIceCandidate(
+								new RTCIceCandidate(candidate),
+							);
+						}
+					}
+					setPeerStatus(true);
 				}
 				if (data.type === 'answer') {
 					await peerConnectionRef.current?.setRemoteDescription(
 						new RTCSessionDescription(data.data),
 					);
-					//setPeerStatus(true);
-					ws.send(JSON.stringify({ type: 'startCall' }));
+					setPeerStatus(true);
 				}
 				if (data.type === 'candidate') {
-					await peerConnectionRef.current?.addIceCandidate(
-						new RTCIceCandidate(data.data),
-					);
+					const candidate = new RTCIceCandidate(data.data);
+					if (!isRemoteDescSetRef.current) {
+						console.log('⏳ remoteDescription 아직 없음 → candidate 큐에 저장');
+						candidateQueueRef.current.push(data.data); // ✅ 큐잉
+					} else {
+						try {
+							await peerConnectionRef.current?.addIceCandidate(candidate);
+						} catch (e) {
+							console.error('❌ addIceCandidate 오류:', e);
+						}
+					}
 				}
 				if (data.type === 'leave') {
 					console.log('상대방이 나갔습니다.');
@@ -116,25 +139,34 @@ export default function Video(props: VideoProps) {
 					peerConnectionRef.current?.close();
 					peerConnectionRef.current = null;
 
+					isRemoteDescSetRef.current = false;
+					candidateQueueRef.current = [];
+
 					setPeerStatus(false);
 				}
-				if (data.type === 'startCall' && data.client_id === 'peer') {
-					console.log(
-						'상대방 닉네임:',
-						data.nickname,
-						'상대방 닉네임:',
-						data.user_types,
-						'시작 시간',
-						data.started_at,
-					);
+				if (data.type === 'startCall') {
+					console.log('🟢 startCall 수신', data.client_id);
+
+					if (data.client_id === 'self') {
+						console.log('🟢 나는 initiator, offer 생성 시작');
+						startStreaming();
+					}
+
 					setPeerNickname(data.nickname);
-					setPeerType(data.user_types);
+					setPeerType(data.user_type);
 					setStarttime(data.started_at);
 				}
-				if (data.client_id === 'peer') {
+				if (data.type === 'text' && data.client_id === 'peer') {
 					if (data.result) {
-						console.log('Received result', data.result);
-						setPrediction(data.result);
+						console.log('단어: ', data.result);
+						setPredictionWord(data.result);
+						setPeerStatus(true);
+					}
+				}
+				if (data.type === 'sentence' && data.client_id === 'peer') {
+					if (data.result) {
+						console.log('문장: ', data.result);
+						setPredictionSen(data.result);
 						setPeerStatus(true);
 					}
 				}
@@ -145,7 +177,6 @@ export default function Video(props: VideoProps) {
 
 		ws.onopen = () => {
 			console.log(`Connected to room ${code}`);
-			startStreaming();
 		};
 
 		ws.onclose = () => {
@@ -215,7 +246,6 @@ export default function Video(props: VideoProps) {
 			peerConnection.ontrack = (event) => {
 				if (remoteVideoRef.current) {
 					const currentStream = remoteVideoRef.current.srcObject as MediaStream;
-
 					if (currentStream) {
 						event.streams[0].getTracks().forEach((track) => {
 							if (!currentStream.getTracks().includes(track)) {
@@ -228,10 +258,6 @@ export default function Video(props: VideoProps) {
 				}
 			};
 
-			const offer = await peerConnection.createOffer();
-			await peerConnection.setLocalDescription(offer);
-			wsRef.current?.send(JSON.stringify({ type: 'offer', data: offer }));
-
 			peerConnection.onicecandidate = (event) => {
 				if (event.candidate) {
 					wsRef.current?.send(
@@ -239,6 +265,19 @@ export default function Video(props: VideoProps) {
 					);
 				}
 			};
+
+			peerConnection.onicegatheringstatechange = async () => {
+				if (peerConnection.iceGatheringState === 'complete') {
+					console.log('🧊 ICE gathering complete → offer 전송');
+					const offer = peerConnection.localDescription;
+					if (offer && wsRef.current?.readyState === WebSocket.OPEN) {
+						wsRef.current.send(JSON.stringify({ type: 'offer', data: offer }));
+					}
+				}
+			};
+
+			const offer = await peerConnection.createOffer();
+			await peerConnection.setLocalDescription(offer);
 
 			const holistic = new Holistic({
 				locateFile: (file) =>
@@ -264,33 +303,41 @@ export default function Video(props: VideoProps) {
 			camera.start();
 
 			holistic.onResults((results) => {
-				const landMark = {
-					pose:
-						results.poseLandmarks?.map((lm) => ({
-							x: parseFloat(lm.x.toFixed(2)),
-							y: parseFloat(lm.y.toFixed(2)),
-							z: parseFloat(lm.z.toFixed(2)),
-						})) || [],
-					left_hand:
-						results.leftHandLandmarks?.map((lm) => ({
-							x: parseFloat(lm.x.toFixed(2)),
-							y: parseFloat(lm.y.toFixed(2)),
-							z: parseFloat(lm.z.toFixed(2)),
-						})) || [],
-					right_hand:
-						results.rightHandLandmarks?.map((lm) => ({
-							x: parseFloat(lm.x.toFixed(2)),
-							y: parseFloat(lm.y.toFixed(2)),
-							z: parseFloat(lm.z.toFixed(2)),
-						})) || [],
-				};
+				const allLandmarks = [
+					...(results.poseLandmarks ?? []),
+					...(results.leftHandLandmarks ?? []),
+					...(results.rightHandLandmarks ?? []),
+				];
 
-				wsRef.current?.send(
-					JSON.stringify({
+				const frame = [];
+
+				for (let i = 0; i < 75; i++) {
+					const lm = allLandmarks[i];
+					if (lm) {
+						frame.push({
+							x: parseFloat(lm.x.toFixed(4)),
+							y: parseFloat(lm.y.toFixed(4)),
+							z: parseFloat(lm.z.toFixed(4)),
+						});
+					} else {
+						frame.push({ x: 0.0, y: 0.0, z: 0.0 });
+					}
+				}
+
+				const buffer = landmarkBufferRef.current;
+				buffer.push(frame);
+
+				if (buffer.length >= 30) {
+					const payload = {
 						type: 'land_mark',
-						data: { land_mark: landMark },
-					}),
-				);
+						data: {
+							pose: buffer.slice(0, 30),
+						},
+					};
+					wsRef.current?.send(JSON.stringify(payload));
+
+					landmarkBufferRef.current = buffer.slice(5);
+				}
 			});
 		} catch (err) {
 			console.error('웹캠 접근 에러:', err);
@@ -484,7 +531,8 @@ export default function Video(props: VideoProps) {
 					callStartTime={callStartTime}
 				/>
 			</div>
-			{<p>예측된 결과: {prediction}</p>}
+			{<p>현재 단어: {predictionWord}</p>}
+			{<p>현재 문장: {predictionSen}</p>}
 		</div>
 	);
 }
