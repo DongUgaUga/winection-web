@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Camera } from '@mediapipe/camera_utils';
 import { Hands } from '@mediapipe/hands';
 import { useParams } from 'react-router-dom';
