@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../../../api/auth";
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../../../api/auth';
 // import { toast } from "react-toastify";
 
 export default function useLogin() {
@@ -10,8 +10,8 @@ export default function useLogin() {
 		mutationFn: login,
 
 		onSuccess: (data) => {
-			localStorage.setItem("accessToken", data.token);
-			navigate("/");
+			localStorage.setItem('accessToken', data.token);
+			navigate('/');
 		},
 
 		onError: () => {
