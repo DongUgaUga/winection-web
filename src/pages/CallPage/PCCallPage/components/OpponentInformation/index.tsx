@@ -3,19 +3,25 @@ import { cn } from '@bcsdlab/utils';
 import GraySearchIcon from 'src/assets/search-gray.svg';
 import ReporterPositionModal from '../ReporterPositionModal';
 import styles from './OpponentInformation.module.scss';
+import { formatKoreanDate } from '@/utils/functions/formatTime';
 
 interface OpponentInformationProps {
 	callType: 'general' | 'emergency';
 	peerStatus: boolean;
-	callStartTime: string | null;
+	peerNickname: string;
+	peerType: string;
+	startTime: string;
 }
 
 export default function OpponentInformation({
 	callType,
 	peerStatus,
-	callStartTime,
+	peerNickname,
+	peerType,
+	startTime,
 }: OpponentInformationProps) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const callStartTime = formatKoreanDate(startTime, 'digit');
 
 	const openMap = () => {
 		setIsModalOpen(true);
@@ -36,7 +42,7 @@ export default function OpponentInformation({
 							상대방 닉네임
 						</div>
 						<div className={styles['opponent__content--text']}>
-							동동우동이 <span>(농인)</span>
+							{peerNickname} <span>({peerType})</span>
 						</div>
 					</div>
 					<div className={styles.opponent__content}>
@@ -62,7 +68,7 @@ export default function OpponentInformation({
 						</div>
 						{peerStatus ? (
 							<div className={styles['opponent__content--text']}>
-								동동우동이 <span>(농인)</span>
+								{peerNickname} <span>({peerType})</span>
 							</div>
 						) : (
 							<div className={styles['opponent__content--text']}>...</div>

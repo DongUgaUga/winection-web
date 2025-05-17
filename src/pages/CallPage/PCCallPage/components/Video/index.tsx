@@ -8,6 +8,7 @@ import videoLoading from 'src/assets/video-loading.json';
 import useUserInfo from '../../../../../hooks/useUserInfo';
 import OpponentInformation from '../OpponentInformation';
 import styles from './Video.module.scss';
+import { useStartTimeStore } from '@/utils/zustand/callTime';
 
 interface VideoProps {
 	peerStatus: boolean;
@@ -16,7 +17,6 @@ interface VideoProps {
 	isCameraActive: boolean;
 	isMicActive: boolean;
 	callType: 'general' | 'emergency';
-	callStartTime: string | null;
 }
 
 export default function Video(props: VideoProps) {
@@ -27,9 +27,10 @@ export default function Video(props: VideoProps) {
 		isCameraActive,
 		isMicActive,
 		callType,
-		callStartTime,
 	} = props;
 	const { data: userInfo } = useUserInfo();
+	const { startTime, setStartTime } = useStartTimeStore();
+
 	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
 
@@ -44,8 +45,7 @@ export default function Video(props: VideoProps) {
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [, setPeerType] = useState<string>('일반인');
-	const [, setStarttime] = useState<string>('00:00:00');
+	const [peerType, setPeerType] = useState<string>('일반인');
 	const landmarkBufferRef = useRef<any[][]>([]);
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
@@ -172,7 +172,7 @@ export default function Video(props: VideoProps) {
 
 					setPeerNickname(data.nickname);
 					setPeerType(data.user_type);
-					setStarttime(data.started_at);
+					setStartTime(data.started_at);
 				}
 				if (data.type === 'text' && data.client_id === 'peer') {
 					if (data.result) {
@@ -565,7 +565,9 @@ export default function Video(props: VideoProps) {
 				<OpponentInformation
 					callType={callType}
 					peerStatus={peerStatus}
-					callStartTime={callStartTime}
+					peerNickname={peerNickname}
+					peerType={peerType}
+					startTime={startTime}
 				/>
 			</div>
 			{<p>현재 단어: {predictionWord}</p>}

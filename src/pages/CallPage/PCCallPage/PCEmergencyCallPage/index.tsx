@@ -8,10 +8,7 @@ import CameraIcon from 'src/assets/camera.svg';
 import CallEndIcon from 'src/assets/end-call.svg';
 import MicIcon from 'src/assets/mic.svg';
 import videoLoading from 'src/assets/video-loading.json';
-import {
-	formatTime,
-	formatKoreanDate,
-} from '../../../../utils/functions/formatTime';
+import { formatTime } from '../../../../utils/functions/formatTime';
 import EmergencyReportModal from '../../components/EmergencyReportModal';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
@@ -24,7 +21,6 @@ export default function PCEmergencyCallPage() {
 	const [isCameraActive, setIsCameraActive] = useState(true);
 
 	const [peerStatus, setPeerStatus] = useState(false);
-	const [callStartTime, setCallStartTime] = useState<Date | null>(null);
 	const [callTime, setCallTime] = useState(0);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,7 +38,6 @@ export default function PCEmergencyCallPage() {
 		navigate('/call-end', {
 			state: {
 				callTime: formatTime(callTime, 'korean'),
-				callStartTime: formatKoreanDate(callStartTime, 'korean'),
 			},
 		});
 	};
@@ -52,13 +47,6 @@ export default function PCEmergencyCallPage() {
 	const openModal = () => {
 		setIsModalOpen(true);
 	};
-
-	useEffect(() => {
-		if (peerStatus && !callStartTime) {
-			const now = new Date();
-			setCallStartTime(now);
-		}
-	}, [peerStatus]);
 
 	useEffect(() => {
 		if (peerStatus) {
@@ -131,7 +119,6 @@ export default function PCEmergencyCallPage() {
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="emergency"
-								callStartTime={formatKoreanDate(callStartTime, 'digit')}
 							/>
 						) : (
 							<div>올바르지 않은 경로입니다.</div>
