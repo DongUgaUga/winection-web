@@ -8,6 +8,8 @@ import videoLoading from 'src/assets/video-loading.json';
 import useUserInfo from '../../../../../hooks/useUserInfo';
 import OpponentInformation from '../OpponentInformation';
 import styles from './Video.module.scss';
+import EmergencyReportModal from '@/pages/CallPage/components/EmergencyReportModal';
+import { useStartTimeStore } from '@/utils/zustand/callTime';
 
 interface VideoProps {
 	peerStatus: boolean;
@@ -16,7 +18,6 @@ interface VideoProps {
 	isCameraActive: boolean;
 	isMicActive: boolean;
 	callType: 'general' | 'emergency';
-	callStartTime: string | null;
 }
 
 export default function Video(props: VideoProps) {
@@ -27,9 +28,10 @@ export default function Video(props: VideoProps) {
 		isCameraActive,
 		isMicActive,
 		callType,
-		callStartTime,
 	} = props;
 	const { data: userInfo } = useUserInfo();
+	const { startTime, setStartTime } = useStartTimeStore();
+
 	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
 
@@ -44,12 +46,18 @@ export default function Video(props: VideoProps) {
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [, setPeerType] = useState<string>('일반인');
-	const [, setStarttime] = useState<string>('00:00:00');
+	const [peerType, setPeerType] = useState<string>('일반인');
 	const landmarkBufferRef = useRef<any[][]>([]);
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
 	const isRemoteDescSetRef = useRef(false);
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	// todo 소켓 통신으로 백에서 신고 접수 들어오면 자동으로 열게 하기
+	// 그리고 사용자 정보 다 모달 컴포넌트에 전달
+	const openModal = () => {
+		setIsModalOpen(true);
+	};
 
 	useEffect(() => {
 		if (!code) return;
@@ -172,7 +180,7 @@ export default function Video(props: VideoProps) {
 
 					setPeerNickname(data.nickname);
 					setPeerType(data.user_type);
-					setStarttime(data.started_at);
+					setStartTime(data.started_at);
 				}
 				if (data.type === 'text' && data.client_id === 'peer') {
 					if (data.result) {
@@ -565,8 +573,23 @@ export default function Video(props: VideoProps) {
 				<OpponentInformation
 					callType={callType}
 					peerStatus={peerStatus}
-					callStartTime={callStartTime}
+					peerNickname={peerNickname}
+					peerType={peerType}
+					startTime={startTime}
+					address={'충절로 1628-12'}
 				/>
+				{isModalOpen && (
+					<EmergencyReportModal
+						setIsModalOpen={setIsModalOpen}
+						userDetailInfo={{
+							nickname: peerNickname,
+							phoneNumber: '010-1234-5678',
+							latitude: 37.5729,
+							longitude: 126.9794,
+						}}
+					/>
+				)}
+				<button onClick={openModal}>테스트용 신고접수 모달 열기</button>
 			</div>
 			{<p>현재 단어: {predictionWord}</p>}
 			{<p>현재 문장: {predictionSen}</p>}

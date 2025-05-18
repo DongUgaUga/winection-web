@@ -14,10 +14,7 @@ import MicIcon from 'src/assets/mic.svg';
 import videoLoading from 'src/assets/video-loading.json';
 import Toast from '../../../../components/Toast';
 import useUserInfo from '../../../../hooks/useUserInfo';
-import {
-	formatTime,
-	formatKoreanDate,
-} from '../../../../utils/functions/formatTime';
+import { formatTime } from '../../../../utils/functions/formatTime';
 import Video from '../components/Video';
 import styles from './PCGeneralCallPage.module.scss';
 
@@ -109,8 +106,8 @@ export default function PCGeneralCallPage() {
 	const [isCameraActive, setIsCameraActive] = useState(true);
 
 	const [peerStatus, setPeerStatus] = useState(false);
-	const [callStartTime, setCallStartTime] = useState<Date | null>(null);
 	const [callTime, setCallTime] = useState(0);
+	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
 	const copyRoomCode = () => {
@@ -135,23 +132,19 @@ export default function PCGeneralCallPage() {
 	const endCall = () => {
 		navigate('/call-end', {
 			state: {
-				callTime: formatTime(callTime, 'korean'),
-				callStartTime: formatKoreanDate(callStartTime, 'korean'),
+				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
 	};
 
 	useEffect(() => {
-		if (peerStatus && !callStartTime) {
-			const now = new Date();
-			setCallStartTime(now);
-		}
-	}, [peerStatus]);
-
-	useEffect(() => {
 		if (peerStatus) {
 			intervalRef.current = window.setInterval(() => {
-				setCallTime((prev) => prev + 1);
+				setCallTime((prev) => {
+					const newTime = prev + 1;
+					lastCallTimeRef.current = newTime;
+					return newTime;
+				});
 			}, 1000);
 		}
 
@@ -241,7 +234,6 @@ export default function PCGeneralCallPage() {
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="general"
-								callStartTime={formatKoreanDate(callStartTime, 'digit')}
 							/>
 						) : (
 							<div>올바르지 않은 경로입니다.</div>

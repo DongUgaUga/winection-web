@@ -4,12 +4,12 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import AgencyIcon from 'src/assets/agency.svg';
 import BlindIcon from 'src/assets/blind.svg';
+import ChevronDownIcon from 'src/assets/chevron-down.svg';
 import EyeIcon from 'src/assets/eye.svg';
 import HomeIcon from 'src/assets/home.svg';
 import LockIcon from 'src/assets/lock.svg';
 import ManIcon from 'src/assets/man.svg';
 import PhoneIcon from 'src/assets/phone.svg';
-import ShevronDownIcon from 'src/assets/shevron-down.svg';
 import UserIcon from 'src/assets/user-classification.svg';
 import {
 	EmergencyOrganization,
@@ -17,12 +17,14 @@ import {
 	UserClassification,
 } from '../../../api/auth/entity';
 import useCheckNickname from './hooks/useCheckNickname';
+import useGeocode from './hooks/useGeocode';
 import useSignup from './hooks/useSignup';
 import styles from './SignupPage.module.scss';
 
 declare global {
 	interface Window {
 		daum: any;
+		naver: any;
 	}
 }
 
@@ -40,7 +42,13 @@ export default function SignupPage() {
 	const { mutate: checkNickname, isError: isNicknameError } =
 		useCheckNickname();
 
-	const onSubmit = (data: any) => {
+	const onSubmit = async (data: any) => {
+		let coords: { lat: number; lng: number } | undefined = undefined;
+
+		if (userClassification === '응급기관') {
+			coords = await useGeocode(data.address);
+		}
+
 		const submitData: SignupRequest = {
 			username: data.id!,
 			password: data.password!,
@@ -52,6 +60,10 @@ export default function SignupPage() {
 				userClassification === '응급기관' ? emergencyAgency! : undefined,
 			address: data.address,
 			organization_name: data.agency,
+			...(coords && {
+				latitude: coords.lat,
+				longitude: coords.lng,
+			}),
 		};
 
 		if (
@@ -64,8 +76,6 @@ export default function SignupPage() {
 		}
 
 		signup(submitData);
-
-		return;
 	};
 
 	const passwordRef = useRef(null);
@@ -138,6 +148,21 @@ export default function SignupPage() {
 		document.body.appendChild(script);
 	};
 
+	const loadNaverScript = () => {
+		const script = document.createElement('script');
+		script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${import.meta.env.VITE_NAVERMAP_CLIENT_ID}&submodules=geocoder`;
+		script.async = true;
+
+		script.onload = () => {
+			if (!window.naver) {
+				console.log('error');
+				return;
+			}
+			console.log('load 완');
+		};
+		document.body.appendChild(script);
+	};
+
 	const handleSearch = () => {
 		new window.daum.Postcode({
 			oncomplete: function (data: any) {
@@ -156,6 +181,7 @@ export default function SignupPage() {
 
 	useEffect(() => {
 		loadPostcodeScript();
+		loadNaverScript();
 	}, []);
 
 	return (
@@ -382,7 +408,7 @@ export default function SignupPage() {
 						}}
 					>
 						<div>{emergencyAgency || '응급기관'}</div>
-						<ShevronDownIcon />
+						<ChevronDownIcon />
 					</button>
 					{isOpen && (
 						<ul className={styles['emergency-agency']}>

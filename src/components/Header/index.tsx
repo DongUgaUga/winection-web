@@ -1,5 +1,5 @@
 import WinectionLogo from '/src/assets/winection.svg';
-import LeftShevron from '/src/assets/shevron-left.svg';
+import LeftChevron from '/src/assets/chevron-left.svg';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
 import useUserInfo from '../../hooks/useUserInfo';
@@ -49,7 +49,7 @@ export default function Header() {
 					})}
 					onClick={() => navigate(-1)}
 				>
-					<LeftShevron />
+					<LeftChevron />
 				</button>
 			)}
 			{userInfo ? (

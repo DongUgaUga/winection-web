@@ -13,7 +13,6 @@
   font-family: Pretendard;
   font-weight: 600;
   font-size: 32px;
-  line-height: 100%;
   letter-spacing: 0%;
   text-align: center;
 
@@ -44,16 +43,31 @@
   }
 }
 
-.return {
+.return-container {
   display: flex;
-  gap: 8px;
-  background-color: #fff;
-  border: none;
-  font-family: Pretendard;
-  font-weight: 600;
-  font-size: 25px;
-  text-align: center;
-  color: #237BFF;
-  padding: 0;
-  cursor: pointer;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+
+  &__return {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
+    border: none;
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 25px;
+    text-align: center;
+    color: #237BFF;
+    padding: 0;
+    cursor: pointer;
+    line-height: 100%;
+  
+    & > svg {
+      & > path {
+        fill: #237BFF;
+      }
+    }
+  }
 }

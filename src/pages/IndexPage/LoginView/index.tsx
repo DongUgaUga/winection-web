@@ -16,7 +16,7 @@ export default function LoginView() {
 		if (userClassification === '일반인') {
 			navigate('/general-call');
 		} else {
-			// 신고 접수 대기 페이지로 이동
+			navigate(`/emergency-call/${userInfo?.emergency_code}`);
 		}
 	};
 

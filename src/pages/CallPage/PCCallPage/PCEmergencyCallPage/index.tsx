@@ -8,11 +8,7 @@ import CameraIcon from 'src/assets/camera.svg';
 import CallEndIcon from 'src/assets/end-call.svg';
 import MicIcon from 'src/assets/mic.svg';
 import videoLoading from 'src/assets/video-loading.json';
-import {
-	formatTime,
-	formatKoreanDate,
-} from '../../../../utils/functions/formatTime';
-import EmergencyReportModal from '../../components/EmergencyReportModal';
+import { formatTime } from '../../../../utils/functions/formatTime';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
 
@@ -24,10 +20,8 @@ export default function PCEmergencyCallPage() {
 	const [isCameraActive, setIsCameraActive] = useState(true);
 
 	const [peerStatus, setPeerStatus] = useState(false);
-	const [callStartTime, setCallStartTime] = useState<Date | null>(null);
 	const [callTime, setCallTime] = useState(0);
-
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
 	const handleMic = () => {
@@ -41,27 +35,19 @@ export default function PCEmergencyCallPage() {
 	const endCall = () => {
 		navigate('/call-end', {
 			state: {
-				callTime: formatTime(callTime, 'korean'),
-				callStartTime: formatKoreanDate(callStartTime, 'korean'),
+				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
 	};
 
-	const openModal = () => {
-		setIsModalOpen(true);
-	};
-
-	useEffect(() => {
-		if (peerStatus && !callStartTime) {
-			const now = new Date();
-			setCallStartTime(now);
-		}
-	}, [peerStatus]);
-
 	useEffect(() => {
 		if (peerStatus) {
 			intervalRef.current = window.setInterval(() => {
-				setCallTime((prev) => prev + 1);
+				setCallTime((prev) => {
+					const newTime = prev + 1;
+					lastCallTimeRef.current = newTime;
+					return newTime;
+				});
 			}, 1000);
 		}
 
@@ -129,7 +115,6 @@ export default function PCEmergencyCallPage() {
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="emergency"
-								callStartTime={formatKoreanDate(callStartTime, 'digit')}
 							/>
 						) : (
 							<div>올바르지 않은 경로입니다.</div>
@@ -137,8 +122,6 @@ export default function PCEmergencyCallPage() {
 					</div>
 				</div>
 			</div>
-			{isModalOpen && <EmergencyReportModal setIsModalOpen={setIsModalOpen} />}
-			<button onClick={openModal}>테스트용 신고접수 모달 열기</button>
 		</div>
 	);
 }

@@ -17,7 +17,7 @@ import videoLoading from 'src/assets/video-loading.json';
 import Toast from 'src/components/Toast';
 import useUserInfo from 'src/hooks/useUserInfo';
 // import Video from 'src/pages/CallPage/PCCallPage/components/Video';
-import { formatTime, formatKoreanDate } from 'src/utils/functions/formatTime';
+import { formatTime } from 'src/utils/functions/formatTime';
 // import { useParams } from "react-router-dom"; // 원래 유니티 코드
 import styles from './TestUnityPage.module.scss'; // 원래 유니티 코드
 
@@ -114,7 +114,6 @@ export default function PCGeneralCallPage() {
 	const [isCameraActive, setIsCameraActive] = useState(true);
 
 	const [peerStatus] = useState(false);
-	const [callStartTime, setCallStartTime] = useState<Date | null>(null);
 	const [callTime, setCallTime] = useState(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
@@ -141,17 +140,9 @@ export default function PCGeneralCallPage() {
 		navigate('/call-end', {
 			state: {
 				callTime: formatTime(callTime, 'korean'),
-				callStartTime: formatKoreanDate(callStartTime, 'korean'),
 			},
 		});
 	};
-
-	useEffect(() => {
-		if (peerStatus && !callStartTime) {
-			const now = new Date();
-			setCallStartTime(now);
-		}
-	}, [peerStatus]);
 
 	useEffect(() => {
 		if (peerStatus) {

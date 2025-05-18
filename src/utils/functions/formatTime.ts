@@ -20,17 +20,18 @@ export const formatTime = (seconds: number, type: 'digit' | 'korean') => {
 	return '0';
 };
 
+// 2025-05-17T22:05:36+09:00 -
 export const formatKoreanDate = (
-	date: Date | null,
+	date: string,
 	type: 'digit' | 'korean',
 ): string => {
 	if (!date) return '';
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0'); // 0-based month
-	const day = String(date.getDate()).padStart(2, '0');
+	const year = date.slice(0, 4);
+	const month = date.slice(5, 7);
+	const day = date.slice(8, 10);
 
-	const hour = String(date.getHours()).padStart(2, '0');
-	const minute = String(date.getMinutes()).padStart(2, '0');
+	const hour = date.slice(11, 13);
+	const minute = date.slice(14, 16);
 
 	if (type === 'digit') {
 		return `${year}.${month}.${day}  ${hour}:${minute}`;
