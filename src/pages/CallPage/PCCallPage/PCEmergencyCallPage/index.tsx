@@ -21,6 +21,7 @@ export default function PCEmergencyCallPage() {
 
 	const [peerStatus, setPeerStatus] = useState(false);
 	const [callTime, setCallTime] = useState(0);
+	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
 	const handleMic = () => {
@@ -34,7 +35,7 @@ export default function PCEmergencyCallPage() {
 	const endCall = () => {
 		navigate('/call-end', {
 			state: {
-				callTime: formatTime(callTime, 'korean'),
+				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
 	};
@@ -42,7 +43,11 @@ export default function PCEmergencyCallPage() {
 	useEffect(() => {
 		if (peerStatus) {
 			intervalRef.current = window.setInterval(() => {
-				setCallTime((prev) => prev + 1);
+				setCallTime((prev) => {
+					const newTime = prev + 1;
+					lastCallTimeRef.current = newTime;
+					return newTime;
+				});
 			}, 1000);
 		}
 
