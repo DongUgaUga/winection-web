@@ -4,12 +4,12 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import AgencyIcon from 'src/assets/agency.svg';
 import BlindIcon from 'src/assets/blind.svg';
+import ChevronDownIcon from 'src/assets/chevron-down.svg';
 import EyeIcon from 'src/assets/eye.svg';
 import HomeIcon from 'src/assets/home.svg';
 import LockIcon from 'src/assets/lock.svg';
 import ManIcon from 'src/assets/man.svg';
 import PhoneIcon from 'src/assets/phone.svg';
-import ShevronDownIcon from 'src/assets/shevron-down.svg';
 import UserIcon from 'src/assets/user-classification.svg';
 import {
 	EmergencyOrganization,
@@ -408,7 +408,7 @@ export default function SignupPage() {
 						}}
 					>
 						<div>{emergencyAgency || '응급기관'}</div>
-						<ShevronDownIcon />
+						<ChevronDownIcon />
 					</button>
 					{isOpen && (
 						<ul className={styles['emergency-agency']}>
