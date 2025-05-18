@@ -8,6 +8,7 @@ import videoLoading from 'src/assets/video-loading.json';
 import useUserInfo from '../../../../../hooks/useUserInfo';
 import OpponentInformation from '../OpponentInformation';
 import styles from './Video.module.scss';
+import EmergencyReportModal from '@/pages/CallPage/components/EmergencyReportModal';
 import { useStartTimeStore } from '@/utils/zustand/callTime';
 
 interface VideoProps {
@@ -50,6 +51,13 @@ export default function Video(props: VideoProps) {
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
 	const isRemoteDescSetRef = useRef(false);
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	// todo 소켓 통신으로 백에서 신고 접수 들어오면 자동으로 열게 하기
+	// 그리고 사용자 정보 다 모달 컴포넌트에 전달
+	const openModal = () => {
+		setIsModalOpen(true);
+	};
 
 	useEffect(() => {
 		if (!code) return;
@@ -568,7 +576,20 @@ export default function Video(props: VideoProps) {
 					peerNickname={peerNickname}
 					peerType={peerType}
 					startTime={startTime}
+					address={'충절로 1628-12'}
 				/>
+				{isModalOpen && (
+					<EmergencyReportModal
+						setIsModalOpen={setIsModalOpen}
+						userDetailInfo={{
+							nickname: peerNickname,
+							phoneNumber: '010-1234-5678',
+							latitude: 37.5729,
+							longitude: 126.9794,
+						}}
+					/>
+				)}
+				<button onClick={openModal}>테스트용 신고접수 모달 열기</button>
 			</div>
 			{<p>현재 단어: {predictionWord}</p>}
 			{<p>현재 문장: {predictionSen}</p>}

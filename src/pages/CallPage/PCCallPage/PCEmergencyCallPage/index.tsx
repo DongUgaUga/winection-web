@@ -9,7 +9,6 @@ import CallEndIcon from 'src/assets/end-call.svg';
 import MicIcon from 'src/assets/mic.svg';
 import videoLoading from 'src/assets/video-loading.json';
 import { formatTime } from '../../../../utils/functions/formatTime';
-import EmergencyReportModal from '../../components/EmergencyReportModal';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
 
@@ -22,8 +21,6 @@ export default function PCEmergencyCallPage() {
 
 	const [peerStatus, setPeerStatus] = useState(false);
 	const [callTime, setCallTime] = useState(0);
-
-	const [isModalOpen, setIsModalOpen] = useState(false);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 
 	const handleMic = () => {
@@ -40,12 +37,6 @@ export default function PCEmergencyCallPage() {
 				callTime: formatTime(callTime, 'korean'),
 			},
 		});
-	};
-
-	// todo 소켓 통신으로 백에서 신고 접수 들어오면 자동으로 열게 하기
-	// 그리고 사용자 정보 다 모달 컴포넌트에 전달
-	const openModal = () => {
-		setIsModalOpen(true);
 	};
 
 	useEffect(() => {
@@ -126,8 +117,6 @@ export default function PCEmergencyCallPage() {
 					</div>
 				</div>
 			</div>
-			{isModalOpen && <EmergencyReportModal setIsModalOpen={setIsModalOpen} />}
-			<button onClick={openModal}>테스트용 신고접수 모달 열기</button>
 		</div>
 	);
 }

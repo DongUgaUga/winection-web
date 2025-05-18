@@ -11,6 +11,7 @@ interface OpponentInformationProps {
 	peerNickname: string;
 	peerType: string;
 	startTime: string;
+	address?: string;
 }
 
 export default function OpponentInformation({
@@ -19,6 +20,7 @@ export default function OpponentInformation({
 	peerNickname,
 	peerType,
 	startTime,
+	address,
 }: OpponentInformationProps) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const callStartTime = formatKoreanDate(startTime, 'digit');
@@ -105,7 +107,7 @@ export default function OpponentInformation({
 						{peerStatus ? (
 							<div>
 								<div className={styles['opponent__content--text']}>
-									충청남도 아산시 모종로 21
+									{address}
 								</div>
 								<button
 									className={styles['opponent__content--open-map']}
@@ -121,7 +123,12 @@ export default function OpponentInformation({
 					</div>
 				</div>
 			)}
-			{isModalOpen && <ReporterPositionModal setIsModalOpen={setIsModalOpen} />}
+			{isModalOpen && (
+				<ReporterPositionModal
+					setIsModalOpen={setIsModalOpen}
+					address={address!}
+				/>
+			)}
 		</>
 	);
 }

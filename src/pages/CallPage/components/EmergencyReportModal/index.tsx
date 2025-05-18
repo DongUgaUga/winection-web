@@ -5,11 +5,19 @@ import styles from './EmergencyReportModal.module.scss';
 
 interface EmergencyReportModalProps {
 	setIsModalOpen: (value: boolean) => void;
+	userDetailInfo: {
+		nickname: string;
+		phoneNumber: string;
+		latitude: number;
+		longitude: number;
+	};
 }
 
 export default function EmergencyReportModal({
 	setIsModalOpen,
+	userDetailInfo,
 }: EmergencyReportModalProps) {
+	// todo 서버에서 상대 위도, 경도값 받아오는 api 추가 시 삭제 예정
 	const [locationInfo, setLocationInfo] = useState({
 		roadAddress: '',
 		jibunAddress: '',
@@ -37,11 +45,20 @@ export default function EmergencyReportModal({
 
 				<div className={styles.content}>
 					<div className={styles.content__map}>
-						<NaverMap onLocationUpdate={handleLocationUpdate} />
+						<NaverMap
+							coordinates={{
+								lat: userDetailInfo.latitude,
+								lng: userDetailInfo.longitude,
+							}}
+							onLocationUpdate={handleLocationUpdate}
+						/>
 					</div>
 					<div className={styles.content__infos}>
-						<InfoRow label="닉네임" value="가드닝" />
-						<InfoRow label="사용자 전화번호" value="010-1234-5678" />
+						<InfoRow label="닉네임" value={userDetailInfo.nickname} />
+						<InfoRow
+							label="사용자 전화번호"
+							value={userDetailInfo.phoneNumber}
+						/>
 						<InfoRow
 							label="사용자 현재 위치"
 							value={
