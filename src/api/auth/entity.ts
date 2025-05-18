@@ -30,6 +30,9 @@ export interface MeResponse {
 	emergency_type?: EmergencyOrganization;
 	address?: string;
 	organization_name?: string;
+	latitude?: string;
+	longitude?: string;
+	emergency_code?: string;
 }
 
 export interface NicknameCheckRequest {

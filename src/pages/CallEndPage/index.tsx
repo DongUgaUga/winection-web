@@ -44,7 +44,9 @@ export default function CallEndPage() {
 				{userInfo!.user_type === '응급기관' && (
 					<button
 						className={styles['return-container__return']}
-						onClick={() => navigate('/emergency-call/99999')}
+						onClick={() =>
+							navigate(`/emergency-call/${userInfo?.emergency_code}`)
+						}
 					>
 						<div>신고 접수 대기하기</div>
 						<RecordIcon />
