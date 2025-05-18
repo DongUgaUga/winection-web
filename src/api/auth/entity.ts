@@ -12,6 +12,8 @@ export interface SignupRequest {
 	emergency_type?: EmergencyOrganization;
 	address?: string;
 	organization_name?: string;
+	latitude?: number;
+	longitude?: number;
 }
 
 export interface LoginRequest {
