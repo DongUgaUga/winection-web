@@ -48,6 +48,10 @@
     }
 
     &--open-map {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-family: Pretendard;
       font-weight: 600;
       font-size: 18px;
@@ -57,6 +61,7 @@
       cursor: pointer;
       background-color: #fff;
       border: none;
+      padding: 0;
     }
   }
 }

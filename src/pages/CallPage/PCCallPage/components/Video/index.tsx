@@ -170,10 +170,11 @@ export default function Video(props: VideoProps) {
 						console.log('🟢 나는 initiator, offer 생성 시작');
 						startStreaming();
 					}
-
-					setPeerNickname(data.nickname);
-					setPeerType(data.user_type);
-					setStartTime(data.started_at);
+					if (data.client_id === 'peer') {
+						setPeerNickname(data.nickname);
+						setPeerType(data.user_type);
+						setStartTime(data.started_at);
+					}
 				}
 				if (data.type === 'text' && data.client_id === 'peer') {
 					if (data.result) {
@@ -569,7 +570,6 @@ export default function Video(props: VideoProps) {
 					peerNickname={peerNickname}
 					peerType={peerType}
 					startTime={startTime}
-					address={'충절로 1628-12'}
 				/>
 			</div>
 			{<p>현재 단어: {predictionWord}</p>}

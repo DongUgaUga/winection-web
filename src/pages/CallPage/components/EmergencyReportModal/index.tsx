@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import AlertIcon from 'src/assets/alert.svg';
 import NaverMap from '../NaverMap';
 import styles from './EmergencyReportModal.module.scss';
+import { useUserInfoStore } from '@/utils/zustand/userInfo';
 
 interface EmergencyReportModalProps {
 	setIsModalOpen: (value: boolean) => void;
@@ -21,17 +22,30 @@ export default function EmergencyReportModal({
 	userDetailInfo,
 	socket,
 }: EmergencyReportModalProps) {
-	// todo 서버에서 상대 위도, 경도값 받아오는 api 추가 시 삭제 예정
+	const { setDeafAddress } = useUserInfoStore();
+
 	const [locationInfo, setLocationInfo] = useState({
 		roadAddress: '',
 		jibunAddress: '',
-		lat: 0,
-		lng: 0,
+		lat: userDetailInfo.latitude,
+		lng: userDetailInfo.longitude,
 	});
 
-	const handleLocationUpdate = (info: typeof locationInfo) => {
-		setLocationInfo(info);
-	};
+	const handleLocationUpdate = useCallback(
+		(info: typeof locationInfo) => {
+			if (
+				info.lat === locationInfo.lat &&
+				info.lng === locationInfo.lng &&
+				info.roadAddress === locationInfo.roadAddress &&
+				info.jibunAddress === locationInfo.jibunAddress
+			) {
+				return;
+			}
+			setLocationInfo(info);
+			setDeafAddress(info.roadAddress || info.jibunAddress);
+		},
+		[locationInfo],
+	);
 
 	const receiveReport = () => {
 		if (socket && socket.readyState === WebSocket.OPEN) {
@@ -46,7 +60,6 @@ export default function EmergencyReportModal({
 			console.error('❌ WebSocket이 연결되어 있지 않음');
 		}
 	};
-	console.log(locationInfo);
 
 	return (
 		<div className={styles.background}>

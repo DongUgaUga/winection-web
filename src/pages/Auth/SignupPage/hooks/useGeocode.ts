@@ -22,7 +22,6 @@ export default function useGeocode(
 				}
 
 				const result = response.v2.addresses[0];
-				console.log(result);
 				resolve({
 					lat: parseFloat(result.y),
 					lng: parseFloat(result.x),

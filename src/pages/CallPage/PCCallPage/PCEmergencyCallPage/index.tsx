@@ -13,10 +13,12 @@ import EmergencyReportModal from '../../components/EmergencyReportModal';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
 import useTokenState from '@/hooks/useTokenState';
+import { useUserInfoStore } from '@/utils/zustand/userInfo';
 
 export default function PCEmergencyCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();
+	const { setDeafPhoneNumber } = useUserInfoStore();
 
 	const [isMicActive, setIsMicActive] = useState(true);
 	const [isCameraActive, setIsCameraActive] = useState(true);
@@ -56,6 +58,7 @@ export default function PCEmergencyCallPage() {
 					latitude: location.latitude,
 					longitude: location.longitude,
 				});
+				setDeafPhoneNumber(phone_number);
 				setIsModalOpen(true);
 			}
 		};
