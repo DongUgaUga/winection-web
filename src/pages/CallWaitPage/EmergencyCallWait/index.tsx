@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { cn } from '@bcsdlab/utils';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -10,6 +10,7 @@ import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
 import styles from './EmergencyCallWait.module.scss';
 import type { EmergencyLocationRequest } from '@/api/room/entity';
 import { emergencyLocation } from '@/api/room';
+import useTokenState from '@/hooks/useTokenState';
 
 const AGENCIES = ['병원', '경찰서', '소방서'];
 
@@ -54,9 +55,22 @@ function connectNearAgency() {
 
 export default function EmergencyCallWait() {
 	const navigate = useNavigate();
+	const token = useTokenState();
 	const [agency, setAgency] = useState('');
+	const [emergencyCode, setEmergencyCode] = useState('');
 	const [isChecked, setIsChecked] = useState(false);
 	const [isWaiting, setIsWaiting] = useState(false);
+	const [waitingTime, setWaitingTime] = useState(0);
+
+	useEffect(() => {
+		if (!isWaiting) return;
+
+		const interval = setInterval(() => {
+			setWaitingTime((prev) => prev + 1);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, [isWaiting]);
 
 	// WebSocket instance for 농인 입장
 	const socketRef = useRef<WebSocket | null>(null);
@@ -81,12 +95,10 @@ export default function EmergencyCallWait() {
 			emergency_type: agency,
 		});
 
-		const emergencyCode = nearAgency.message;
-
-		const token = localStorage.getItem('accessToken');
+		setEmergencyCode(nearAgency.message);
 
 		const socket = new WebSocket(
-			`wss://${import.meta.env.VITE_SERVER_URL}/ws/waitqueue/${emergencyCode}?token=${token}`,
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/waitqueue/${nearAgency.message}?token=${token}`,
 		);
 		socketRef.current = socket;
 
@@ -98,7 +110,7 @@ export default function EmergencyCallWait() {
 					data.data;
 				setIsWaiting(false);
 
-				navigate(`/emergency-call/${emergencyCode}`, {
+				navigate(`/emergency-call/${nearAgency.message}`, {
 					state: {
 						organization_name,
 						address,
@@ -124,6 +136,21 @@ export default function EmergencyCallWait() {
 		};
 	};
 
+	const cancelConnect = () => {
+		const socket = new WebSocket(
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/waitqueue/${emergencyCode}?token=${token}`,
+		);
+		socket.onmessage = () => {
+			socket.send(
+				JSON.stringify({
+					type: 'quitCall',
+				}),
+			);
+
+			setIsWaiting(false);
+		};
+	};
+
 	return (
 		<div className={styles.container}>
 			{!isWaiting ? (
@@ -139,7 +166,7 @@ export default function EmergencyCallWait() {
 						</div>
 						<div className={styles.agencies}>
 							{AGENCIES.map((value) => (
-								<div className={styles.agencies__agency}>
+								<div className={styles.agencies__agency} key={value}>
 									<GrandfatherAvatar />
 									<button
 										className={cn({
@@ -164,7 +191,7 @@ export default function EmergencyCallWait() {
 							onChange={handleCheck}
 						/>
 						<div className={styles.checkbox__agree}>
-							참가하면 위치 정보 어쩌고에 동의
+							개인 위치 정보 수집 및 이용에 동의합니다.
 						</div>
 					</label>
 					<div
@@ -187,7 +214,25 @@ export default function EmergencyCallWait() {
 					</div>
 				</>
 			) : (
-				<div>대기 중...</div>
+				<div className={styles['wait-container']}>
+					<div className={styles['wait-container__title']}>
+						<div className={styles['wait-container__title--main']}>
+							연결 중입니다...
+						</div>
+						<div className={styles['wait-container__title--sub']}>
+							잠시만 기다려 주세요.
+						</div>
+					</div>
+					<div className={styles['wait-container__time']}>
+						대기 시간 {waitingTime}초
+					</div>
+					<button
+						className={styles['wait-container__button']}
+						onClick={cancelConnect}
+					>
+						취소
+					</button>
+				</div>
 			)}
 		</div>
 	);

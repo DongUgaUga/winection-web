@@ -216,3 +216,64 @@
     }
   }
 }
+
+.wait-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 200px;
+  border: 1.5px solid #237bff;
+  border-radius: 16px;
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    &--main {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: 0%;
+      text-align: center;
+    }
+
+    &--sub {
+      font-family: Pretendard;
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0%;
+      text-align: center;
+      color: #A2A2A2;
+    }
+  }
+
+  &__time {
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    color: #237BFF;
+  }
+
+  &__button {
+    border: 1.5px solid #919191;
+    border-radius: 8px;
+    padding: 8px 0;
+    box-sizing: border-box;
+    width: 140px;
+    font-family: Pretendard;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    color: #484848;
+    background-color: #fff;
+    cursor: pointer;
+  }
+}
