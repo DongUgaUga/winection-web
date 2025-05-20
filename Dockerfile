@@ -7,7 +7,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # 2. 의존성 설치
 COPY package.json ./
-COPY .env.production .env
+COPY .env ./
 COPY pnpm-lock.yaml ./
 RUN pnpm install
 
