@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { cn } from '@bcsdlab/utils';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -56,6 +56,10 @@ export default function EmergencyCallWait() {
 	const navigate = useNavigate();
 	const [agency, setAgency] = useState('');
 	const [isChecked, setIsChecked] = useState(false);
+	const [isWaiting, setIsWaiting] = useState(false);
+
+	// WebSocket instance for 농인 입장
+	const socketRef = useRef<WebSocket | null>(null);
 
 	const selectAgency = (value: string) => {
 		setAgency(value);
@@ -76,68 +80,115 @@ export default function EmergencyCallWait() {
 			longitude: myLocation.lng,
 			emergency_type: agency,
 		});
-		navigate(`/emergency-call/${nearAgency.message}`);
+
+		const emergencyCode = nearAgency.message;
+
+		const token = localStorage.getItem('accessToken');
+
+		const socket = new WebSocket(
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/waitqueue/${emergencyCode}?token=${token}`,
+		);
+		socketRef.current = socket;
+
+		socket.onmessage = (event) => {
+			const data = JSON.parse(event.data);
+
+			if (data.type === 'startCall') {
+				const { organization_name, address, latitude, longitude, start_time } =
+					data.data;
+				setIsWaiting(false);
+
+				navigate(`/emergency-call/${emergencyCode}`, {
+					state: {
+						organization_name,
+						address,
+						latitude,
+						longitude,
+						start_time,
+					},
+				});
+			}
+		};
+
+		socket.onopen = () => {
+			console.log('✅ 농인 WebSocket 연결 완료');
+			setIsWaiting(true);
+		};
+
+		socket.onerror = (e) => {
+			console.error('❌ WebSocket 연결 오류', e);
+		};
+
+		socket.onclose = () => {
+			console.log('🛑 WebSocket 연결 종료');
+		};
 	};
 
 	return (
 		<div className={styles.container}>
-			<div className={styles.help}>
-				<div className={styles.help__description}>
-					<div className={styles['help__description--main']}>
-						도움이 필요한 기관을 선택해 주세요.
-					</div>
-					<div className={styles['help__description--sub']}>
-						클릭 시, 가장 가까운 기관으로 연결됩니다.
-					</div>
-				</div>
-				<div className={styles.agencies}>
-					{AGENCIES.map((value) => (
-						<div className={styles.agencies__agency}>
-							<GrandfatherAvatar />
-							<button
-								className={cn({
-									[styles['agencies__agency--button']]: true,
-									[styles['agencies__agency--button--selected']]:
-										value === agency,
-								})}
-								onClick={() => selectAgency(value)}
-							>
-								{value}
-							</button>
+			{!isWaiting ? (
+				<>
+					<div className={styles.help}>
+						<div className={styles.help__description}>
+							<div className={styles['help__description--main']}>
+								도움이 필요한 기관을 선택해 주세요.
+							</div>
+							<div className={styles['help__description--sub']}>
+								클릭 시, 가장 가까운 기관으로 연결됩니다.
+							</div>
 						</div>
-					))}
-				</div>
-			</div>
-			<label htmlFor="agree" className={styles.checkbox}>
-				<input
-					id="agree"
-					type="checkbox"
-					className={styles.checkbox__check}
-					checked={isChecked}
-					onChange={handleCheck}
-				/>
-				<div className={styles.checkbox__agree}>
-					참가하면 위치 정보 어쩌고에 동의
-				</div>
-			</label>
-			<div
-				className={cn({
-					[styles.connect]: true,
-					[styles['connect--able']]: !!agency,
-				})}
-			>
-				{!!agency && isChecked ? <ActiveCallIcon /> : <CallIcon />}
-				<button
-					className={cn({
-						[styles.connect__button]: true,
-						[styles['connect__button--able']]: !!agency && isChecked,
-					})}
-					disabled={!agency && !isChecked}
-					onClick={connect}
-				>
-					연결하기
-				</button>
-			</div>
+						<div className={styles.agencies}>
+							{AGENCIES.map((value) => (
+								<div className={styles.agencies__agency}>
+									<GrandfatherAvatar />
+									<button
+										className={cn({
+											[styles['agencies__agency--button']]: true,
+											[styles['agencies__agency--button--selected']]:
+												value === agency,
+										})}
+										onClick={() => selectAgency(value)}
+									>
+										{value}
+									</button>
+								</div>
+							))}
+						</div>
+					</div>
+					<label htmlFor="agree" className={styles.checkbox}>
+						<input
+							id="agree"
+							type="checkbox"
+							className={styles.checkbox__check}
+							checked={isChecked}
+							onChange={handleCheck}
+						/>
+						<div className={styles.checkbox__agree}>
+							참가하면 위치 정보 어쩌고에 동의
+						</div>
+					</label>
+					<div
+						className={cn({
+							[styles.connect]: true,
+							[styles['connect--able']]: !!agency,
+						})}
+					>
+						{!!agency && isChecked ? <ActiveCallIcon /> : <CallIcon />}
+						<button
+							className={cn({
+								[styles.connect__button]: true,
+								[styles['connect__button--able']]: !!agency && isChecked,
+							})}
+							disabled={!agency && !isChecked}
+							onClick={connect}
+						>
+							연결하기
+						</button>
+					</div>
+				</>
+			) : (
+				<div>대기 중...</div>
+			)}
 		</div>
 	);
 }

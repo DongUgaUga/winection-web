@@ -6,16 +6,20 @@ import styles from './EmergencyReportModal.module.scss';
 interface EmergencyReportModalProps {
 	setIsModalOpen: (value: boolean) => void;
 	userDetailInfo: {
+		userId: number;
 		nickname: string;
 		phoneNumber: string;
-		latitude: number;
-		longitude: number;
+		latitude?: number;
+		longitude?: number;
+		address?: string;
 	};
+	socket?: WebSocket | null;
 }
 
 export default function EmergencyReportModal({
 	setIsModalOpen,
 	userDetailInfo,
+	socket,
 }: EmergencyReportModalProps) {
 	// todo 서버에서 상대 위도, 경도값 받아오는 api 추가 시 삭제 예정
 	const [locationInfo, setLocationInfo] = useState({
@@ -30,8 +34,17 @@ export default function EmergencyReportModal({
 	};
 
 	const receiveReport = () => {
-		// TODO: roomId 등을 signaling 서버에 emit
-		setIsModalOpen(false);
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			socket.send(
+				JSON.stringify({
+					type: 'acceptCall',
+					data: { user_id: userDetailInfo.userId },
+				}),
+			);
+			setIsModalOpen(false);
+		} else {
+			console.error('❌ WebSocket이 연결되어 있지 않음');
+		}
 	};
 	console.log(locationInfo);
 
@@ -46,10 +59,20 @@ export default function EmergencyReportModal({
 				<div className={styles.content}>
 					<div className={styles.content__map}>
 						<NaverMap
-							coordinates={{
-								lat: userDetailInfo.latitude,
-								lng: userDetailInfo.longitude,
-							}}
+							coordinates={
+								userDetailInfo.latitude !== undefined &&
+								userDetailInfo.longitude !== undefined
+									? {
+											lat: userDetailInfo.latitude,
+											lng: userDetailInfo.longitude,
+										}
+									: undefined
+							}
+							address={
+								userDetailInfo.latitude === undefined && userDetailInfo.address
+									? userDetailInfo.address
+									: undefined
+							}
 							onLocationUpdate={handleLocationUpdate}
 						/>
 					</div>

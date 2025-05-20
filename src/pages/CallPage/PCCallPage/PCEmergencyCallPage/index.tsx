@@ -9,6 +9,7 @@ import CallEndIcon from 'src/assets/end-call.svg';
 import MicIcon from 'src/assets/mic.svg';
 import videoLoading from 'src/assets/video-loading.json';
 import { formatTime } from '../../../../utils/functions/formatTime';
+import EmergencyReportModal from '../../components/EmergencyReportModal';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
 
@@ -23,6 +24,43 @@ export default function PCEmergencyCallPage() {
 	const [callTime, setCallTime] = useState(0);
 	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [modalUserDetailInfo, setModalUserDetailInfo] = useState<{
+		userId: number;
+		nickname: string;
+		phoneNumber: string;
+		latitude: number;
+		longitude: number;
+	} | null>(null);
+
+	const emergencySocketRef = useRef<WebSocket | null>(null);
+
+	const token = localStorage.getItem('accessToken');
+
+	useEffect(() => {
+		const ws = new WebSocket(
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/emergency/${params.code}?token=${token}`,
+		);
+		emergencySocketRef.current = ws;
+
+		ws.onmessage = (event) => {
+			const data = JSON.parse(event.data);
+			if (data.type === 'requestCall') {
+				const { nickname, phone_number, location, user_id } = data.data;
+				setModalUserDetailInfo({
+					userId: user_id,
+					nickname,
+					phoneNumber: phone_number,
+					latitude: location.latitude,
+					longitude: location.longitude,
+				});
+				setIsModalOpen(true);
+			}
+		};
+
+		return () => ws.close();
+	}, [params.code]);
 
 	const handleMic = () => {
 		setIsMicActive((state) => !state);
@@ -122,6 +160,13 @@ export default function PCEmergencyCallPage() {
 					</div>
 				</div>
 			</div>
+			{isModalOpen && modalUserDetailInfo && (
+				<EmergencyReportModal
+					setIsModalOpen={setIsModalOpen}
+					userDetailInfo={modalUserDetailInfo}
+					socket={emergencySocketRef.current}
+				/>
+			)}
 		</div>
 	);
 }
