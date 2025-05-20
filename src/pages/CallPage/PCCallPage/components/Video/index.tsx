@@ -8,6 +8,7 @@ import videoLoading from 'src/assets/video-loading.json';
 import useUserInfo from '../../../../../hooks/useUserInfo';
 import OpponentInformation from '../OpponentInformation';
 import styles from './Video.module.scss';
+import useTokenState from '@/hooks/useTokenState';
 import { useStartTimeStore } from '@/utils/zustand/callTime';
 
 interface VideoProps {
@@ -54,7 +55,7 @@ export default function Video(props: VideoProps) {
 	useEffect(() => {
 		if (!code) return;
 
-		const token = localStorage.getItem('accessToken');
+		const token = useTokenState();
 
 		const ws = new WebSocket(
 			`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}?token=${token}`,

@@ -12,6 +12,7 @@ import { formatTime } from '../../../../utils/functions/formatTime';
 import EmergencyReportModal from '../../components/EmergencyReportModal';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
+import useTokenState from '@/hooks/useTokenState';
 
 export default function PCEmergencyCallPage() {
 	const params = useParams();
@@ -36,7 +37,7 @@ export default function PCEmergencyCallPage() {
 
 	const emergencySocketRef = useRef<WebSocket | null>(null);
 
-	const token = localStorage.getItem('accessToken');
+	const token = useTokenState();
 
 	useEffect(() => {
 		const ws = new WebSocket(
