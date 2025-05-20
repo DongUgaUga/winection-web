@@ -7,6 +7,7 @@ import NonLoginView from './NonLoginView/index.tsx';
 export default function IndexPage() {
 	const navigate = useNavigate();
 	const token = useTokenState();
+	console.log('[지도 ClientID]', import.meta.env.VITE_NAVERMAP_CLIENT_ID);
 
 	return (
 		<>
