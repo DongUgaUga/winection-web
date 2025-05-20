@@ -7,7 +7,7 @@ type Store = {
 	setDeafPhoneNumber: (address: string) => void;
 };
 
-export const useUserInfoStore = create<Store>((set) => ({
+export const useDeafInfoStore = create<Store>((set) => ({
 	deafAddress: '',
 	setDeafAddress: (address) => set(() => ({ deafAddress: address })),
 	deafPhoneNumber: '',

@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import AlertIcon from 'src/assets/alert.svg';
 import NaverMap from '../NaverMap';
 import styles from './EmergencyReportModal.module.scss';
-import { useUserInfoStore } from '@/utils/zustand/userInfo';
+import { useDeafInfoStore } from '@/utils/zustand/deafInfo';
 
 interface EmergencyReportModalProps {
 	setIsModalOpen: (value: boolean) => void;
@@ -22,7 +22,7 @@ export default function EmergencyReportModal({
 	userDetailInfo,
 	socket,
 }: EmergencyReportModalProps) {
-	const { setDeafAddress } = useUserInfoStore();
+	const { setDeafAddress } = useDeafInfoStore();
 
 	const [locationInfo, setLocationInfo] = useState({
 		roadAddress: '',

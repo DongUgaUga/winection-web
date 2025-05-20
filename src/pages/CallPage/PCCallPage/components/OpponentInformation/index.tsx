@@ -4,7 +4,8 @@ import GraySearchIcon from 'src/assets/search-gray.svg';
 import ReporterPositionModal from '../ReporterPositionModal';
 import styles from './OpponentInformation.module.scss';
 import { formatKoreanDate } from '@/utils/functions/formatTime';
-import { useUserInfoStore } from '@/utils/zustand/userInfo';
+import { useDeafInfoStore } from '@/utils/zustand/deafInfo';
+import { useEmergencyInfoStore } from '@/utils/zustand/emergencyInfo';
 
 interface OpponentInformationProps {
 	callType: 'general' | 'emergency';
@@ -23,7 +24,9 @@ export default function OpponentInformation({
 }: OpponentInformationProps) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const callStartTime = formatKoreanDate(startTime, 'digit');
-	const { deafAddress, deafPhoneNumber } = useUserInfoStore();
+	const { deafAddress, deafPhoneNumber } = useDeafInfoStore();
+	const { emergencyName, emergencyAddress } = useEmergencyInfoStore();
+	// console.log(emergencyAddress);
 
 	const openMap = () => {
 		setIsModalOpen(true);
@@ -70,7 +73,13 @@ export default function OpponentInformation({
 						</div>
 						{peerStatus ? (
 							<div className={styles['opponent__content--text']}>
-								{peerNickname} <span>({peerType})</span>
+								{peerType === '응급기관' ? (
+									<div>{emergencyName}</div>
+								) : (
+									<>
+										{peerNickname} <span>({peerType})</span>
+									</>
+								)}
 							</div>
 						) : (
 							<div className={styles['opponent__content--text']}>...</div>
@@ -107,7 +116,7 @@ export default function OpponentInformation({
 						{peerStatus ? (
 							<div>
 								<div className={styles['opponent__content--text']}>
-									{deafAddress}
+									{deafAddress || emergencyAddress}
 								</div>
 								<button
 									className={styles['opponent__content--open-map']}

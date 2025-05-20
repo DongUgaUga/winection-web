@@ -13,12 +13,12 @@ import EmergencyReportModal from '../../components/EmergencyReportModal';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
 import useTokenState from '@/hooks/useTokenState';
-import { useUserInfoStore } from '@/utils/zustand/userInfo';
+import { useDeafInfoStore } from '@/utils/zustand/deafInfo';
 
 export default function PCEmergencyCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();
-	const { setDeafPhoneNumber } = useUserInfoStore();
+	const { setDeafPhoneNumber } = useDeafInfoStore();
 
 	const [isMicActive, setIsMicActive] = useState(true);
 	const [isCameraActive, setIsCameraActive] = useState(true);

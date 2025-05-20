@@ -11,6 +11,7 @@ import styles from './EmergencyCallWait.module.scss';
 import type { EmergencyLocationRequest } from '@/api/room/entity';
 import { emergencyLocation } from '@/api/room';
 import useTokenState from '@/hooks/useTokenState';
+import { useEmergencyInfoStore } from '@/utils/zustand/emergencyInfo';
 
 const AGENCIES = ['병원', '경찰서', '소방서'];
 
@@ -61,6 +62,7 @@ export default function EmergencyCallWait() {
 	const [isChecked, setIsChecked] = useState(false);
 	const [isWaiting, setIsWaiting] = useState(false);
 	const [waitingTime, setWaitingTime] = useState(0);
+	const { setEmergencyName, setEmergencyAddress } = useEmergencyInfoStore();
 
 	useEffect(() => {
 		if (!isWaiting) return;
@@ -109,6 +111,8 @@ export default function EmergencyCallWait() {
 				const { organization_name, address, latitude, longitude, start_time } =
 					data.data;
 				setIsWaiting(false);
+				setEmergencyName(organization_name);
+				setEmergencyAddress(address);
 
 				navigate(`/emergency-call/${nearAgency.message}`, {
 					state: {
