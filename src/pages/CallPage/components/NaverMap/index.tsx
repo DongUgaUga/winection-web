@@ -107,15 +107,13 @@ export default function NaverMap({
 						},
 						function (status: any, response: any) {
 							if (status === window.naver.maps.Service.Status.OK) {
-								const item = response.result.items[0];
+								console.log(response);
+								const item = response.v2.addresses[0];
 								if (!item) {
 									console.log('주소를 찾을 수 없습니다.');
 									return;
 								}
-								const point = new window.naver.maps.Point(
-									item.point.x,
-									item.point.y,
-								);
+								const point = new window.naver.maps.Point(item.x, item.y);
 								const latlng = new window.naver.maps.LatLng(point.y, point.x);
 								map.setCenter(latlng);
 

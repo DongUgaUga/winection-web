@@ -26,7 +26,6 @@ export default function OpponentInformation({
 	const callStartTime = formatKoreanDate(startTime, 'digit');
 	const { deafAddress, deafPhoneNumber } = useDeafInfoStore();
 	const { emergencyName, emergencyAddress } = useEmergencyInfoStore();
-	// console.log(emergencyAddress);
 
 	const openMap = () => {
 		setIsModalOpen(true);
@@ -135,7 +134,7 @@ export default function OpponentInformation({
 			{isModalOpen && (
 				<ReporterPositionModal
 					setIsModalOpen={setIsModalOpen}
-					address={deafAddress!}
+					address={deafAddress || emergencyAddress}
 				/>
 			)}
 		</>
