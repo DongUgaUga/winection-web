@@ -107,7 +107,6 @@ export default function NaverMap({
 						},
 						function (status: any, response: any) {
 							if (status === window.naver.maps.Service.Status.OK) {
-								console.log(response);
 								const item = response.v2.addresses[0];
 								if (!item) {
 									console.log('주소를 찾을 수 없습니다.');

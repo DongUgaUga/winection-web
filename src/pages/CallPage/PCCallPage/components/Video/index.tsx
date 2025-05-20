@@ -17,6 +17,7 @@ interface VideoProps {
 	code: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
+	onLeave?: () => void;
 	callType: 'general' | 'emergency';
 }
 
@@ -27,6 +28,7 @@ export default function Video(props: VideoProps) {
 		code,
 		isCameraActive,
 		isMicActive,
+		onLeave,
 		callType,
 	} = props;
 	const { data: userInfo } = useUserInfo();
@@ -162,6 +164,7 @@ export default function Video(props: VideoProps) {
 					candidateQueueRef.current = [];
 
 					setPeerStatus(false);
+					onLeave?.();
 				}
 				if (data.type === 'startCall') {
 					console.log('🟢 startCall 수신', data.client_id);

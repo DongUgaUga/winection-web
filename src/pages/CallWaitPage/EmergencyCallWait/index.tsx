@@ -58,7 +58,6 @@ export default function EmergencyCallWait() {
 	const navigate = useNavigate();
 	const token = useTokenState();
 	const [agency, setAgency] = useState('');
-	const [emergencyCode, setEmergencyCode] = useState('');
 	const [isChecked, setIsChecked] = useState(false);
 	const [isWaiting, setIsWaiting] = useState(false);
 	const [waitingTime, setWaitingTime] = useState(0);
@@ -96,8 +95,6 @@ export default function EmergencyCallWait() {
 			longitude: myLocation.lng,
 			emergency_type: agency,
 		});
-
-		setEmergencyCode(nearAgency.message);
 
 		const socket = new WebSocket(
 			`wss://${import.meta.env.VITE_SERVER_URL}/ws/waitqueue/${nearAgency.message}?token=${token}`,
@@ -141,18 +138,21 @@ export default function EmergencyCallWait() {
 	};
 
 	const cancelConnect = () => {
-		const socket = new WebSocket(
-			`wss://${import.meta.env.VITE_SERVER_URL}/ws/waitqueue/${emergencyCode}?token=${token}`,
-		);
-		socket.onmessage = () => {
-			socket.send(
-				JSON.stringify({
-					type: 'quitCall',
-				}),
-			);
+		const socket = socketRef.current;
+		if (!socket || socket.readyState !== WebSocket.OPEN) {
+			console.warn('🚫 WebSocket이 아직 연결되지 않았거나 종료됨');
+			return;
+		}
 
-			setIsWaiting(false);
-		};
+		socket.send(
+			JSON.stringify({
+				type: 'quitCall',
+			}),
+		);
+
+		socket.close();
+		setIsWaiting(false);
+		setWaitingTime(0);
 	};
 
 	return (

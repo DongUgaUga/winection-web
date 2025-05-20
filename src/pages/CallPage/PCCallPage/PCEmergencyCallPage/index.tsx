@@ -61,9 +61,20 @@ export default function PCEmergencyCallPage() {
 				setDeafPhoneNumber(phone_number);
 				setIsModalOpen(true);
 			}
+			if (data.type === 'cancelCall') {
+				setIsModalOpen(false);
+
+				if (emergencySocketRef.current?.readyState === WebSocket.OPEN) {
+					emergencySocketRef.current.send(
+						JSON.stringify({ type: 'readyCall' }),
+					);
+				}
+			}
 		};
 
-		return () => ws.close();
+		return () => {
+			ws.close();
+		};
 	}, [params.code]);
 
 	const handleMic = () => {
@@ -156,6 +167,16 @@ export default function PCEmergencyCallPage() {
 								code={params.code}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								onLeave={() => {
+									console.log('📦 leave 수신 → readyCall 다시 보냄');
+									if (
+										emergencySocketRef.current?.readyState === WebSocket.OPEN
+									) {
+										emergencySocketRef.current.send(
+											JSON.stringify({ type: 'readyCall' }),
+										);
+									}
+								}}
 								callType="emergency"
 							/>
 						) : (
