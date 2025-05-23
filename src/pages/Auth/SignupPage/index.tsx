@@ -388,11 +388,11 @@ export default function SignupPage() {
 						className={cn({
 							[styles['button-container__button']]: true,
 							[styles['button-container__button--selected']]:
-								userClassification === '일반인',
+								userClassification === '청인',
 						})}
-						onClick={() => onSelectUserClassification('일반인')}
+						onClick={() => onSelectUserClassification('청인')}
 					>
-						<div>일반인</div>
+						<div>청인</div>
 					</button>
 					<button
 						type="button"

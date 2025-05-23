@@ -42,13 +42,14 @@ export default function Video(props: VideoProps) {
 
 	const localVideoRef = useRef<HTMLVideoElement>(null);
 	const remoteVideoRef = useRef<HTMLVideoElement>(null);
+	const unityCanvasRef = useRef<HTMLCanvasElement>(null);
 	const wsRef = useRef<WebSocket | null>(null);
 	const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 	const streamRef = useRef<MediaStream | null>(null);
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [peerType, setPeerType] = useState<string>('일반인');
+	const [peerType, setPeerType] = useState<string>('청인');
 	const landmarkBufferRef = useRef<any[][]>([]);
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
@@ -60,7 +61,7 @@ export default function Video(props: VideoProps) {
 		const token = useTokenState();
 
 		const ws = new WebSocket(
-			`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}?token=${token}`,
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/video/${code}?token=${token}`,
 		);
 		wsRef.current = ws;
 
@@ -492,6 +493,36 @@ export default function Video(props: VideoProps) {
 		}
 	}, [isMicActive]);
 
+	useEffect(() => {
+		// ✅ Unity 인스턴스 로드
+		const script = document.createElement('script');
+		script.src = '/unity-build/Build/unity-build.loader.js';
+		script.onload = () => {
+			setTimeout(() => {
+				const canvas = document.querySelector('#unity-canvas');
+				if (!canvas) {
+					console.error('❌ unity-canvas를 찾을 수 없습니다.');
+					return;
+				}
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-expect-error
+				createUnityInstance(canvas, {
+					dataUrl: '/unity-build/Build/unity-build.data',
+					frameworkUrl: '/unity-build/Build/unity-build.framework.js',
+					codeUrl: '/unity-build/Build/unity-build.wasm',
+				})
+					.then((unityInstance: any) => {
+						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
+						unityInstance.SendMessage('ReceiverObject', 'SetRoomId', code);
+					}, 5000)
+					.catch((err: any) => {
+						console.error('❌ Unity 인스턴스 로드 실패', err);
+					});
+			}, 100);
+		};
+		document.body.appendChild(script);
+	}, []);
+
 	return (
 		<div>
 			<div
@@ -513,16 +544,16 @@ export default function Video(props: VideoProps) {
 					})}
 				>
 					{peerStatus ? (
-						<video
+						<canvas
+							id="unity-canvas"
+							ref={unityCanvasRef}
 							className={cn({
 								[styles['video-container__main-video']]: peerStatus,
 								[styles['video-container--hidden']]:
 									callType === 'general' && !peerStatus,
 							})}
-							ref={remoteVideoRef}
-							autoPlay
-							playsInline
-						/>
+							tabIndex={-1}
+						></canvas>
 					) : (
 						<Lottie
 							animationData={videoLoading}
@@ -547,15 +578,15 @@ export default function Video(props: VideoProps) {
 						[styles['video-wrapper__main']]: !peerStatus,
 					})}
 				>
-					<video
+					<canvas
+						id="unity-canvas"
+						ref={unityCanvasRef}
 						className={cn({
 							[styles['video-container__sub-video']]: peerStatus,
 							[styles['video-container__main-video']]: !peerStatus,
 						})}
-						ref={localVideoRef}
-						autoPlay
-						playsInline
-					/>
+						tabIndex={-1}
+					></canvas>
 					{!isCameraActive && (
 						<div className={styles['video-wrapper__overlay']}>
 							<span>{userInfo!.nickname}</span>
