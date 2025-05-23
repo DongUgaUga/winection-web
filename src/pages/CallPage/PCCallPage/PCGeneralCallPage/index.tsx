@@ -15,6 +15,7 @@ import videoLoading from 'src/assets/video-loading.json';
 import Toast from '../../../../components/Toast';
 import useUserInfo from '../../../../hooks/useUserInfo';
 import { formatTime } from '../../../../utils/functions/formatTime';
+import DeafVideo from '../components/DeafVideo';
 import Video from '../components/Video';
 import styles from './PCGeneralCallPage.module.scss';
 
@@ -45,8 +46,16 @@ const StyleSelect = () => {
 	const [avatar, setAvatar] = useState(AVATARS[0].name);
 
 	useEffect(() => {
-		console.log(voice, avatar);
-	}, []);
+		console.log('hihi');
+		if ((window as any).unityInstance && avatar) {
+			console.log('[React] 보내는 아바타:', avatar);
+			(window as any).unityInstance.SendMessage(
+				'WebAvatarReceiver',
+				'ReceiveAvatarName',
+				avatar,
+			);
+		}
+	}, [avatar]);
 
 	return (
 		<>
@@ -105,6 +114,7 @@ const StyleSelect = () => {
 export default function PCGeneralCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();
+	const { data: userInfo } = useUserInfo();
 
 	const [copyToast, setCopyToast] = useState(false);
 
@@ -142,6 +152,8 @@ export default function PCGeneralCallPage() {
 			},
 		});
 	};
+
+	const isDeaf = userInfo?.user_type === '농인';
 
 	useEffect(() => {
 		if (peerStatus) {
@@ -232,17 +244,24 @@ export default function PCGeneralCallPage() {
 								<CallEndIcon />
 							</button>
 						</div>
-						{params.code ? (
-							<Video
+						{isDeaf ? (
+							<DeafVideo
 								peerStatus={peerStatus}
 								setPeerStatus={setPeerStatus}
-								code={params.code}
+								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="general"
 							/>
 						) : (
-							<div>올바르지 않은 경로입니다.</div>
+							<Video
+								peerStatus={peerStatus}
+								setPeerStatus={setPeerStatus}
+								code={params.code!}
+								isCameraActive={isCameraActive}
+								isMicActive={isMicActive}
+								callType="general"
+							/>
 						)}
 					</div>
 				</div>

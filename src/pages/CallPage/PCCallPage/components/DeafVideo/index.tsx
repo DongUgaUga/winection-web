@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@bcsdlab/utils';
+import { Camera } from '@mediapipe/camera_utils';
+import { Holistic } from '@mediapipe/holistic';
 import Lottie from 'lottie-react';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import videoLoading from 'src/assets/video-loading.json';
 import useUserInfo from '../../../../../hooks/useUserInfo';
 import OpponentInformation from '../OpponentInformation';
-import styles from './Video.module.scss';
+import styles from './DeafVideo.module.scss';
 import useTokenState from '@/hooks/useTokenState';
 import { useStartTimeStore } from '@/utils/zustand/callTime';
 
@@ -38,12 +40,16 @@ export default function DeafVideo(props: VideoProps) {
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
 	const [isPeerMicActive, setIsPeerMicActive] = useState(true);
 
-	const remoteVideoRef = useRef<HTMLVideoElement>(null);
+	const localVideoRef = useRef<HTMLVideoElement>(null);
 	const unityCanvasRef = useRef<HTMLCanvasElement>(null);
 	const wsRef = useRef<WebSocket | null>(null);
 	const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+	const streamRef = useRef<MediaStream | null>(null);
+	const cameraRef = useRef<Camera | null>(null);
+	const holisticRef = useRef<Holistic | null>(null);
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
 	const [peerType, setPeerType] = useState<string>('청인');
+	const landmarkBufferRef = useRef<any[][]>([]);
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
 	const isRemoteDescSetRef = useRef(false);
@@ -68,18 +74,6 @@ export default function DeafVideo(props: VideoProps) {
 				if (data.type === 'camera_state' && data.client_id === 'peer') {
 					console.log('상대방 카메라 상태 변경:', data.data.isCameraActive);
 					setIsPeerCameraActive(data.data.isCameraActive);
-
-					if (remoteVideoRef.current && peerConnectionRef.current) {
-						const receiverStreams = peerConnectionRef.current
-							.getReceivers()
-							.map((r) => r.track)
-							.filter(Boolean);
-
-						const newStream = new MediaStream();
-						receiverStreams.forEach((track) => newStream.addTrack(track));
-						remoteVideoRef.current.srcObject = newStream;
-						remoteVideoRef.current.play();
-					}
 				}
 
 				if (data.type === 'mic_state' && data.client_id === 'peer') {
@@ -114,25 +108,6 @@ export default function DeafVideo(props: VideoProps) {
 						new RTCSessionDescription(data.data),
 					);
 					setPeerStatus(true);
-					setTimeout(() => {
-						if (
-							remoteVideoRef.current &&
-							!remoteVideoRef.current.srcObject &&
-							peerConnectionRef.current
-						) {
-							const remoteStream = new MediaStream();
-							peerConnectionRef.current.getReceivers().forEach((receiver) => {
-								if (
-									receiver.track.kind === 'video' ||
-									receiver.track.kind === 'audio'
-								) {
-									remoteStream.addTrack(receiver.track);
-								}
-							});
-							remoteVideoRef.current.srcObject = remoteStream;
-							remoteVideoRef.current.play();
-						}
-					}, 1000);
 				}
 				if (data.type === 'candidate') {
 					const candidate = new RTCIceCandidate(data.data);
@@ -150,9 +125,6 @@ export default function DeafVideo(props: VideoProps) {
 				if (data.type === 'leave') {
 					console.log('상대방이 나갔습니다.');
 
-					if (remoteVideoRef.current) {
-						remoteVideoRef.current.srcObject = null;
-					}
 					peerConnectionRef.current?.close();
 					peerConnectionRef.current = null;
 
@@ -209,21 +181,44 @@ export default function DeafVideo(props: VideoProps) {
 
 		return () => {
 			console.log('Video 컴포넌트 언마운트 - 정리 로직 실행');
-			if (remoteVideoRef.current) {
-				remoteVideoRef.current.pause();
-				remoteVideoRef.current.srcObject = null;
-				remoteVideoRef.current.load();
+
+			if (streamRef.current) {
+				streamRef.current.getTracks().forEach((track) => track.stop());
+				streamRef.current = null;
 			}
+
+			if (cameraRef.current) {
+				cameraRef.current.stop();
+				cameraRef.current = null;
+			}
+
+			if (localVideoRef.current) {
+				localVideoRef.current.pause();
+				localVideoRef.current.srcObject = null;
+				localVideoRef.current.load();
+			}
+
 			wsRef.current?.close();
 			wsRef.current = null;
+
 			peerConnectionRef.current?.close();
 			peerConnectionRef.current = null;
+
 			setPeerStatus(false);
 		};
 	}, [code]);
 
 	const startStreaming = async () => {
 		try {
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: true,
+				audio: true,
+			});
+			streamRef.current = stream;
+			if (localVideoRef.current) {
+				localVideoRef.current.srcObject = stream;
+			}
+
 			const peerConnection = new RTCPeerConnection({
 				iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
 			});
@@ -232,42 +227,12 @@ export default function DeafVideo(props: VideoProps) {
 			peerConnection.onconnectionstatechange = () => {
 				if (peerConnection.connectionState === 'connected') {
 					console.log('✅ peer connected → 수신 트랙 수동 설정 시도');
-					if (
-						remoteVideoRef.current &&
-						!remoteVideoRef.current.srcObject &&
-						peerConnection
-					) {
-						const remoteStream = new MediaStream();
-						peerConnection.getReceivers().forEach((receiver) => {
-							if (
-								receiver.track.kind === 'video' ||
-								receiver.track.kind === 'audio'
-							) {
-								remoteStream.addTrack(receiver.track);
-							}
-						});
-						remoteVideoRef.current.srcObject = remoteStream;
-						remoteVideoRef.current.play();
-					}
 				}
 			};
 
-			peerConnection.ontrack = (event) => {
-				const remoteVideo = remoteVideoRef.current;
-				if (remoteVideo) {
-					let remoteStream = remoteVideo.srcObject as MediaStream | null;
-					if (!remoteStream) {
-						remoteStream = new MediaStream();
-						remoteVideo.srcObject = remoteStream;
-					}
-
-					if (!remoteStream.getTracks().includes(event.track)) {
-						remoteStream.addTrack(event.track);
-					}
-
-					remoteVideo.play();
-				}
-			};
+			stream
+				.getTracks()
+				.forEach((track) => peerConnection.addTrack(track, stream));
 
 			peerConnection.onicecandidate = (event) => {
 				if (event.candidate) {
@@ -283,24 +248,203 @@ export default function DeafVideo(props: VideoProps) {
 			if (wsRef.current?.readyState === WebSocket.OPEN) {
 				wsRef.current.send(JSON.stringify({ type: 'offer', data: offer }));
 			}
+
+			const holistic = new Holistic({
+				locateFile: (file) =>
+					`https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+			});
+			holisticRef.current = holistic;
+
+			holistic.setOptions({
+				modelComplexity: 1,
+				smoothLandmarks: true,
+				minDetectionConfidence: 0.5,
+				minTrackingConfidence: 0.5,
+			});
+
+			const camera = new Camera(localVideoRef.current!, {
+				onFrame: async () => {
+					await holistic.send({ image: localVideoRef.current! });
+				},
+				width: 640,
+				height: 480,
+			});
+			cameraRef.current = camera;
+			camera.start();
+
+			holistic.onResults((results) => {
+				const allLandmarks = [
+					...(results.poseLandmarks ?? []),
+					...(results.leftHandLandmarks ?? []),
+					...(results.rightHandLandmarks ?? []),
+				];
+
+				const frame = [];
+
+				for (let i = 0; i < 75; i++) {
+					const lm = allLandmarks[i];
+					if (lm) {
+						frame.push({
+							x: parseFloat(lm.x.toFixed(4)),
+							y: parseFloat(lm.y.toFixed(4)),
+							z: parseFloat(lm.z.toFixed(4)),
+						});
+					} else {
+						frame.push({ x: 0.0, y: 0.0, z: 0.0 });
+					}
+				}
+
+				const buffer = landmarkBufferRef.current;
+				buffer.push(frame);
+
+				if (buffer.length >= 30) {
+					const payload = {
+						type: 'land_mark',
+						data: {
+							pose: buffer.slice(0, 30),
+						},
+					};
+					wsRef.current?.send(JSON.stringify(payload));
+
+					landmarkBufferRef.current = buffer.slice(5);
+				}
+			});
 		} catch (err) {
-			console.error('Failed to start streaming:', err);
+			console.error('웹캠 접근 에러:', err);
 		}
 	};
 
-	// Removed camera and mic state tracking effects
+	useEffect(() => {
+		const sendCameraState = () => {
+			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+				wsRef.current.send(
+					JSON.stringify({
+						type: 'camera_state',
+						data: { isCameraActive },
+					}),
+				);
+			}
+		};
+
+		const setupCamera = async () => {
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: true,
+				audio: true,
+			});
+			streamRef.current = stream;
+
+			if (localVideoRef.current) {
+				localVideoRef.current.srcObject = stream;
+			}
+
+			const videoTrack = stream.getVideoTracks()[0];
+			const sender = peerConnectionRef.current
+				?.getSenders()
+				.find((s) => s.track?.kind === 'video');
+			if (sender && videoTrack) {
+				sender.replaceTrack(videoTrack);
+			}
+
+			const holistic = new Holistic({
+				locateFile: (file) =>
+					`https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+			});
+
+			holistic.setOptions({
+				modelComplexity: 1,
+				smoothLandmarks: true,
+				minDetectionConfidence: 0.5,
+				minTrackingConfidence: 0.5,
+			});
+			holisticRef.current = holistic;
+
+			const camera = new Camera(localVideoRef.current!, {
+				onFrame: async () => {
+					await holistic.send({ image: localVideoRef.current! });
+				},
+				width: 640,
+				height: 480,
+			});
+
+			cameraRef.current = camera;
+			camera.start();
+		};
+
+		const stopCamera = () => {
+			console.log('🛑 카메라 stop() 호출');
+
+			cameraRef.current?.stop();
+			cameraRef.current = null;
+
+			if (streamRef.current) {
+				streamRef.current.getTracks().forEach((track) => {
+					track.stop();
+				});
+				streamRef.current = null;
+			}
+
+			if (localVideoRef.current) {
+				localVideoRef.current.pause();
+				localVideoRef.current.srcObject = null;
+				localVideoRef.current.load();
+			}
+		};
+
+		if (isCameraActive) {
+			setupCamera();
+		} else {
+			stopCamera();
+		}
+
+		sendCameraState();
+
+		return () => {
+			stopCamera(); // unmount 시에도 정리
+		};
+	}, [isCameraActive]);
+	console.log(peerStatus);
 
 	useEffect(() => {
-		// ✅ Unity 인스턴스 로드
+		if (streamRef.current) {
+			streamRef.current.getAudioTracks().forEach((track) => {
+				track.enabled = isMicActive;
+			});
+		}
+
+		if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+			wsRef.current.send(
+				JSON.stringify({
+					type: 'mic_state',
+					data: { isMicActive },
+				}),
+			);
+		}
+	}, [isMicActive]);
+
+	useEffect(() => {
 		const script = document.createElement('script');
 		script.src = '/unity-build/Build/unity-build.loader.js';
+
 		script.onload = () => {
-			setTimeout(() => {
+			let retryCount = 0;
+			const maxRetries = 10;
+			const retryDelay = 500;
+
+			const tryCreateUnityInstance = () => {
 				const canvas = document.querySelector('#unity-canvas');
 				if (!canvas) {
-					console.error('❌ unity-canvas를 찾을 수 없습니다.');
+					if (retryCount < maxRetries) {
+						retryCount++;
+						console.warn(
+							`⚠️ unity-canvas를 찾을 수 없습니다. 재시도 (${retryCount})`,
+						);
+						setTimeout(tryCreateUnityInstance, retryDelay);
+					} else {
+						console.error('❌ unity-canvas를 찾을 수 없습니다. 재시도 실패');
+					}
 					return;
 				}
+
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
@@ -312,14 +456,17 @@ export default function DeafVideo(props: VideoProps) {
 						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
 						(window as any).unityInstance = unityInstance;
 						unityInstance.SendMessage('ReceiverObject', 'SetRoomId', code);
-					}, 5000)
+					})
 					.catch((err: any) => {
 						console.error('❌ Unity 인스턴스 로드 실패', err);
 					});
-			}, 100);
+			};
+
+			setTimeout(tryCreateUnityInstance, 100);
 		};
+
 		document.body.appendChild(script);
-	}, []);
+	}, [peerStatus]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -350,21 +497,30 @@ export default function DeafVideo(props: VideoProps) {
 					})}
 				>
 					{peerStatus ? (
-						<video
+						<canvas
+							id="unity-canvas"
+							ref={unityCanvasRef}
+							style={{ display: isCanvasVisible ? 'block' : 'none' }}
 							className={cn({
 								[styles['video-container__main-video']]: peerStatus,
 								[styles['video-container--hidden']]:
 									callType === 'general' && !peerStatus,
 							})}
-							ref={remoteVideoRef}
-							autoPlay
-							playsInline
-						/>
+							tabIndex={-1}
+						></canvas>
 					) : (
 						<Lottie
 							animationData={videoLoading}
 							style={{ width: '40px', height: '40px' }}
 						/>
+					)}
+					{!isCanvasVisible && (
+						<div className={styles['video-loading-overlay']}>
+							<Lottie
+								animationData={videoLoading}
+								style={{ width: 40, height: 40 }}
+							/>
+						</div>
 					)}
 					{peerStatus && !isPeerCameraActive && (
 						<div className={styles['video-wrapper__overlay']}>
@@ -384,26 +540,15 @@ export default function DeafVideo(props: VideoProps) {
 						[styles['video-wrapper__main']]: !peerStatus,
 					})}
 				>
-					<canvas
-						id="unity-canvas"
-						ref={unityCanvasRef}
-						style={{ display: isCanvasVisible ? 'block' : 'none' }}
+					<video
 						className={cn({
 							[styles['video-container__sub-video']]: peerStatus,
-							[styles['video-container__sub-video--canvas']]: peerStatus,
 							[styles['video-container__main-video']]: !peerStatus,
-							[styles['video-container__main-video--canvas']]: !peerStatus,
 						})}
-						tabIndex={-1}
+						ref={localVideoRef}
+						autoPlay
+						playsInline
 					/>
-					{!isCanvasVisible && (
-						<div className={styles['video-loading-overlay']}>
-							<Lottie
-								animationData={videoLoading}
-								style={{ width: 40, height: 40 }}
-							/>
-						</div>
-					)}
 					{!isCameraActive && (
 						<div className={styles['video-wrapper__overlay']}>
 							<span>{userInfo!.nickname}</span>

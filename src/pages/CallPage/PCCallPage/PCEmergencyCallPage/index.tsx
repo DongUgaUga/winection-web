@@ -10,14 +10,17 @@ import MicIcon from 'src/assets/mic.svg';
 import videoLoading from 'src/assets/video-loading.json';
 import { formatTime } from '../../../../utils/functions/formatTime';
 import EmergencyReportModal from '../../components/EmergencyReportModal';
+import DeafVideo from '../components/DeafVideo';
 import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
 import useTokenState from '@/hooks/useTokenState';
+import useUserInfo from '@/hooks/useUserInfo';
 import { useDeafInfoStore } from '@/utils/zustand/deafInfo';
 
 export default function PCEmergencyCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();
+	const { data: userInfo } = useUserInfo();
 	const { setDeafPhoneNumber } = useDeafInfoStore();
 
 	const [isMicActive, setIsMicActive] = useState(true);
@@ -40,6 +43,8 @@ export default function PCEmergencyCallPage() {
 	const emergencySocketRef = useRef<WebSocket | null>(null);
 
 	const token = useTokenState();
+
+	const isDeaf = userInfo?.user_type === '농인';
 
 	useEffect(() => {
 		const ws = new WebSocket(
@@ -160,11 +165,11 @@ export default function PCEmergencyCallPage() {
 								<CallEndIcon />
 							</button>
 						</div>
-						{params.code ? (
-							<Video
+						{isDeaf ? (
+							<DeafVideo
 								peerStatus={peerStatus}
 								setPeerStatus={setPeerStatus}
-								code={params.code}
+								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								onLeave={() => {
@@ -180,7 +185,24 @@ export default function PCEmergencyCallPage() {
 								callType="emergency"
 							/>
 						) : (
-							<div>올바르지 않은 경로입니다.</div>
+							<Video
+								peerStatus={peerStatus}
+								setPeerStatus={setPeerStatus}
+								code={params.code!}
+								isCameraActive={isCameraActive}
+								isMicActive={isMicActive}
+								onLeave={() => {
+									console.log('📦 leave 수신 → readyCall 다시 보냄');
+									if (
+										emergencySocketRef.current?.readyState === WebSocket.OPEN
+									) {
+										emergencySocketRef.current.send(
+											JSON.stringify({ type: 'readyCall' }),
+										);
+									}
+								}}
+								callType="emergency"
+							/>
 						)}
 					</div>
 				</div>
