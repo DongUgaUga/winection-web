@@ -95,7 +95,7 @@ const StyleSelect = () => {
 	);
 };
 
-// 농인과 일반인만 사용하는 페이지
+// 농인과 청인만 사용하는 페이지
 export default function PCGeneralCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();

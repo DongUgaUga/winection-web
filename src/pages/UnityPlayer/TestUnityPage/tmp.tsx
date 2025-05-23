@@ -44,7 +44,7 @@ const TestUnityPage = () => {
 	useEffect(() => {
 		// ✅ WebSocket 연결
 		const socket = new WebSocket(
-			`wss://api.winection.kro.kr/ws/slts/${roomId}`,
+			`wss://api.winection.kro.kr/ws/video/${roomId}`,
 		);
 		setWs(socket);
 

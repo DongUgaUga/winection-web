@@ -1,4 +1,4 @@
-export type UserClassification = '농인' | '일반인' | '응급기관';
+export type UserClassification = '농인' | '청인' | '응급기관';
 
 export type EmergencyOrganization = '병원' | '경찰서' | '소방서';
 

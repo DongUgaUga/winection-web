@@ -13,7 +13,7 @@ export default function LoginView() {
 	const userClassification = userInfo!.user_type;
 
 	const startCall = () => {
-		if (userClassification === '일반인') {
+		if (userClassification === '청인') {
 			navigate('/general-call');
 		} else {
 			navigate(`/emergency-call/${userInfo?.emergency_code}`);
@@ -64,7 +64,7 @@ export default function LoginView() {
 							})}
 							onClick={startCall}
 						>
-							{userClassification === '일반인'
+							{userClassification === '청인'
 								? '영상통화 시작하기'
 								: '신고 접수 대기'}
 						</button>

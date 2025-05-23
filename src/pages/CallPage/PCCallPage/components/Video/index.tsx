@@ -48,7 +48,7 @@ export default function Video(props: VideoProps) {
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
 	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [peerType, setPeerType] = useState<string>('일반인');
+	const [peerType, setPeerType] = useState<string>('청인');
 	const landmarkBufferRef = useRef<any[][]>([]);
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
@@ -60,7 +60,7 @@ export default function Video(props: VideoProps) {
 		const token = useTokenState();
 
 		const ws = new WebSocket(
-			`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${code}?token=${token}`,
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/video/${code}?token=${token}`,
 		);
 		wsRef.current = ws;
 
