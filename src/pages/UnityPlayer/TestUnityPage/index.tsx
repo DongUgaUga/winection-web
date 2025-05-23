@@ -4,10 +4,10 @@ import { Camera } from '@mediapipe/camera_utils'; // 원래 유니티 코드
 import { Hands } from '@mediapipe/hands'; // 원래 유니티 코드
 import Lottie from 'lottie-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import avatar1 from 'src/assets/avatar1.png';
-import avatar2 from 'src/assets/avatar2.png';
-import avatar3 from 'src/assets/avatar3.png';
-import avatar4 from 'src/assets/avatar4.png';
+import avatar1 from 'src/assets/avatar/1_김성준.png';
+import avatar2 from 'src/assets/avatar/2_하유리.png';
+import avatar3 from 'src/assets/avatar/3_최필랍.png';
+import avatar4 from 'src/assets/avatar/4_이서현.png';
 import CameraBlockIcon from 'src/assets/block-camera.svg';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import CameraIcon from 'src/assets/camera.svg';
@@ -25,19 +25,19 @@ const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여�
 const AVATARS = [
 	{
 		src: avatar1,
-		name: '지민',
+		name: '김성준',
 	},
 	{
 		src: avatar2,
-		name: '시안',
+		name: '하유리',
 	},
 	{
 		src: avatar3,
-		name: '영현',
+		name: '최필랍',
 	},
 	{
 		src: avatar4,
-		name: '유나',
+		name: '이서현',
 	},
 ];
 
@@ -249,7 +249,10 @@ export default function PCGeneralCallPage() {
 		});
 
 		const initCamera = async () => {
-			const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: true,
+				audio: true,
+			});
 			if (videoRef.current) {
 				videoRef.current.srcObject = stream;
 			}
@@ -345,17 +348,6 @@ export default function PCGeneralCallPage() {
 									className={styles.show}
 									tabIndex={-1}
 								></canvas>
-								<video
-									ref={videoRef}
-									autoPlay
-									playsInline
-									style={{
-										width: 1,
-										height: 1,
-										opacity: 0,
-										position: 'absolute',
-									}}
-								></video>
 							</div>
 						) : (
 							<div>올바르지 않은 경로입니다.</div>

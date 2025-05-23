@@ -143,6 +143,9 @@
     gap: 8px;
     justify-content: center;
     align-items: center;
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
   
     &--image {
       width: 170px;
@@ -158,6 +161,11 @@
       letter-spacing: 0%;
       text-align: center;
       color: #777777;
+
+      &--selected {
+        color: #000;
+        font-weight: 700;
+      }
     }
   }
 }

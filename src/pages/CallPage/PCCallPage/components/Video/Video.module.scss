@@ -1,11 +1,11 @@
 .video-container {
   display: grid;
   grid-template-columns: 950px 322px;
-  grid-template-rows: 194px 406px;
+  grid-template-rows: 203px 406px;
 
   &--emergency {
     grid-template-columns: 950px 464px;
-    grid-template-rows: 278px 322px;
+    grid-template-rows: 293px 322px;
   }
 
   &--not-connected {
@@ -90,4 +90,12 @@
     top: 24px;
     z-index: 6;
   }
+}
+
+.opponent-said {
+  font-family: Pretendard;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 100%;
+  letter-spacing: 0%;
 }
