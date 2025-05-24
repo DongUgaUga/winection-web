@@ -189,6 +189,31 @@ export default function DeafVideo(props: VideoProps) {
 						setPeerStatus(true);
 					}
 				}
+				if (data.type === 'motions') {
+					const motions = data.data; // ex: [{ word: '안녕하세요', index: 12 }, ...]
+
+					if (Array.isArray(motions)) {
+						const motionIndices = motions.map((m) => m.index);
+
+						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
+
+						// Unity로 수어 인덱스 배열 전송
+						if ((window as any).unityInstance) {
+							(window as any).unityInstance.SendMessage(
+								'WebAvatarReceiver',
+								'ReceiveAvatarName',
+								'김성준',
+							);
+							(window as any).unityInstance.SendMessage(
+								'AnimatorQueue', // <- Unity에서 해당 오브젝트 이름으로 받을 것
+								'EnqueueAnimationsFromJson', // <- Unity에서 실행할 메서드
+								JSON.stringify(motionIndices), // 문자열 배열로 보내야 Unity에서 파싱 가능
+							);
+						} else {
+							console.warn('⚠️ Unity 인스턴스가 아직 준비되지 않았습니다.');
+						}
+					}
+				}
 			} catch (error) {
 				console.error('WebSocket 메시지 처리 중 오류 발생:', error);
 			}

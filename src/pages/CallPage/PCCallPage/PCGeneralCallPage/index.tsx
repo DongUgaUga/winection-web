@@ -18,6 +18,7 @@ import { formatTime } from '../../../../utils/functions/formatTime';
 import DeafVideo from '../components/DeafVideo';
 import Video from '../components/Video';
 import styles from './PCGeneralCallPage.module.scss';
+import useTokenState from '@/hooks/useTokenState';
 
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
@@ -44,9 +45,9 @@ const StyleSelect = () => {
 
 	const [voice, setVoice] = useState(VOICES[0]);
 	const [avatar, setAvatar] = useState(AVATARS[0].name);
+	const [act, setAct] = useState(1);
 
 	useEffect(() => {
-		console.log('hihi');
 		if ((window as any).unityInstance && avatar) {
 			console.log('[React] 보내는 아바타:', avatar);
 			(window as any).unityInstance.SendMessage(
@@ -56,6 +57,22 @@ const StyleSelect = () => {
 			);
 		}
 	}, [avatar]);
+
+	useEffect(() => {
+		const unity = (window as any).unityInstance;
+		if (!unity) return;
+
+		unity.SendMessage('WebAvatarReceiver', 'ReceiveAvatarName', avatar);
+		unity.SendMessage(
+			'WebAvatarReceiver',
+			'ReceiveIndexJson',
+			JSON.stringify([1, 3, 4, 21]),
+		);
+	}, [act]);
+
+	const handleClick = () => {
+		setAct((state) => state + 1);
+	};
 
 	return (
 		<>
@@ -80,6 +97,7 @@ const StyleSelect = () => {
 			) : (
 				<div className={styles.style}>
 					<div className={styles.style__select}>아바타 선택</div>
+					<button onClick={handleClick}>클릭클릭</button>
 					<div className={styles.avatars}>
 						{AVATARS.map((ava) => (
 							<button
@@ -115,6 +133,7 @@ export default function PCGeneralCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();
 	const { data: userInfo } = useUserInfo();
+	const token = useTokenState();
 
 	const [copyToast, setCopyToast] = useState(false);
 
@@ -123,8 +142,14 @@ export default function PCGeneralCallPage() {
 
 	const [peerStatus, setPeerStatus] = useState(false);
 	const [callTime, setCallTime] = useState(0);
+
+	const [recognition, setRecognition] = useState<any>(null);
+	const [isListening, setIsListening] = useState(false);
+
 	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
+
+	const wsRef = useRef<WebSocket | null>(null);
 
 	const copyRoomCode = () => {
 		navigator.clipboard
@@ -175,6 +200,75 @@ export default function PCGeneralCallPage() {
 			}
 		};
 	}, [peerStatus]);
+
+	useEffect(() => {
+		if (isDeaf) return;
+
+		const ws = new WebSocket(
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/video/${params.code}?token=${token}`,
+		);
+		wsRef.current = ws;
+
+		return () => {
+			ws.close();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (isDeaf) return;
+
+		if (!('webkitSpeechRecognition' in window)) {
+			alert('이 브라우저는 음성 인식을 지원하지 않습니다. 크롬을 사용하세요.');
+			return;
+		}
+
+		const recognitionInstance = new (window as any).webkitSpeechRecognition();
+		recognitionInstance.continuous = true;
+		recognitionInstance.interimResults = true;
+		recognitionInstance.lang = 'ko-KR';
+
+		recognitionInstance.onstart = () => {
+			setIsListening(true);
+			console.log('음성 인식 시작됨');
+		};
+
+		recognitionInstance.onresult = (event: any) => {
+			let newFinalTranscript = '';
+			for (let i = event.resultIndex; i < event.results.length; i++) {
+				if (event.results[i].isFinal) {
+					newFinalTranscript = event.results[i][0].transcript.trim();
+				}
+			}
+
+			if (newFinalTranscript) {
+				console.log('📤 음성 → 텍스트:', newFinalTranscript);
+				wsRef.current?.send(
+					JSON.stringify({ type: 'text', data: { text: newFinalTranscript } }),
+				);
+			}
+		};
+
+		recognitionInstance.onerror = (event: any) => {
+			console.error('음성 인식 오류:', event.error);
+		};
+
+		recognitionInstance.onend = () => {
+			setIsListening(false);
+			console.log('음성 인식 종료됨');
+		};
+
+		setRecognition(recognitionInstance);
+	}, [isDeaf]);
+
+	useEffect(() => {
+		if (!recognition) return;
+
+		if (isMicActive && !isListening) {
+			recognition.start();
+		} else if (!isMicActive && isListening) {
+			recognition.stop();
+		}
+	}, [recognition, isMicActive]);
 
 	return (
 		<div className={styles.container}>
