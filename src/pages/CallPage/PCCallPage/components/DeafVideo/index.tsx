@@ -11,7 +11,7 @@ import styles from './DeafVideo.module.scss';
 import useTokenState from '@/hooks/useTokenState';
 import { useStartTimeStore } from '@/utils/zustand/callTime';
 
-interface VideoProps {
+interface DeafVideoProps {
 	peerStatus: boolean;
 	setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>;
 	code: string;
@@ -21,7 +21,7 @@ interface VideoProps {
 	callType: 'general' | 'emergency';
 }
 
-export default function DeafVideo(props: VideoProps) {
+export default function DeafVideo(props: DeafVideoProps) {
 	const {
 		peerStatus,
 		setPeerStatus,
@@ -47,8 +47,8 @@ export default function DeafVideo(props: VideoProps) {
 	const streamRef = useRef<MediaStream | null>(null);
 	const cameraRef = useRef<Camera | null>(null);
 	const holisticRef = useRef<Holistic | null>(null);
-	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [peerType, setPeerType] = useState<string>('청인');
+	const [peerNickname, setPeerNickname] = useState<string>('');
+	const [peerType, setPeerType] = useState<string>('');
 	const landmarkBufferRef = useRef<any[][]>([]);
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
@@ -402,7 +402,6 @@ export default function DeafVideo(props: VideoProps) {
 			stopCamera(); // unmount 시에도 정리
 		};
 	}, [isCameraActive]);
-	console.log(peerStatus);
 
 	useEffect(() => {
 		if (streamRef.current) {

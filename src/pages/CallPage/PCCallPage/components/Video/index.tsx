@@ -13,17 +13,19 @@ interface VideoProps {
 	peerStatus: boolean;
 	setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>;
 	code: string;
+	avatar: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
 	onLeave?: () => void;
 	callType: 'general' | 'emergency';
 }
 
-export default function DeafVideo(props: VideoProps) {
+export default function Video(props: VideoProps) {
 	const {
 		peerStatus,
 		setPeerStatus,
 		code,
+		avatar,
 		isCameraActive,
 		isMicActive,
 		onLeave,
@@ -42,8 +44,8 @@ export default function DeafVideo(props: VideoProps) {
 	const unityCanvasRef = useRef<HTMLCanvasElement>(null);
 	const wsRef = useRef<WebSocket | null>(null);
 	const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-	const [peerNickname, setPeerNickname] = useState<string>('상대방');
-	const [peerType, setPeerType] = useState<string>('청인');
+	const [peerNickname, setPeerNickname] = useState<string>('');
+	const [peerType, setPeerType] = useState<string>('');
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
 	const isRemoteDescSetRef = useRef(false);
@@ -200,9 +202,11 @@ export default function DeafVideo(props: VideoProps) {
 						// Unity로 수어 인덱스 배열 전송
 						if ((window as any).unityInstance) {
 							(window as any).unityInstance.SendMessage(
-								'WebAvatarReceiver',
+								userInfo?.user_type === '청인'
+									? 'WebAvatarReceiver'
+									: 'WebAvatarReceiverEmergency',
 								'ReceiveAvatarName',
-								'김성준',
+								avatar,
 							);
 							(window as any).unityInstance.SendMessage(
 								'AnimatorQueue', // <- Unity에서 해당 오브젝트 이름으로 받을 것

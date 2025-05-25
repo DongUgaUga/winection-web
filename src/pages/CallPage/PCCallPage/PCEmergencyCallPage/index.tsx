@@ -189,6 +189,7 @@ export default function PCEmergencyCallPage() {
 								peerStatus={peerStatus}
 								setPeerStatus={setPeerStatus}
 								code={params.code!}
+								avatar={userInfo!.emergency_type!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								onLeave={() => {

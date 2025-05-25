@@ -40,12 +40,17 @@ const AVATARS = [
 	},
 ];
 
-const StyleSelect = () => {
+const StyleSelect = ({
+	avatar,
+	setAvatar,
+}: {
+	avatar: string;
+	setAvatar: React.Dispatch<React.SetStateAction<string>>;
+}) => {
 	const { data: userInfo } = useUserInfo();
 
 	const [voice, setVoice] = useState(VOICES[0]);
-	const [avatar, setAvatar] = useState(AVATARS[0].name);
-	const [act, setAct] = useState(1);
+	const [act, setAct] = useState(1); // 삭제 예정
 
 	useEffect(() => {
 		if ((window as any).unityInstance && avatar) {
@@ -58,6 +63,7 @@ const StyleSelect = () => {
 		}
 	}, [avatar]);
 
+	// 삭제 예정
 	useEffect(() => {
 		const unity = (window as any).unityInstance;
 		if (!unity) return;
@@ -69,7 +75,6 @@ const StyleSelect = () => {
 			JSON.stringify([1, 3, 4, 21]),
 		);
 	}, [act]);
-
 	const handleClick = () => {
 		setAct((state) => state + 1);
 	};
@@ -97,7 +102,7 @@ const StyleSelect = () => {
 			) : (
 				<div className={styles.style}>
 					<div className={styles.style__select}>아바타 선택</div>
-					<button onClick={handleClick}>클릭클릭</button>
+					<button onClick={handleClick}>클릭클릭</button> {/* 삭제 예정 */}
 					<div className={styles.avatars}>
 						{AVATARS.map((ava) => (
 							<button
@@ -137,6 +142,7 @@ export default function PCGeneralCallPage() {
 
 	const [copyToast, setCopyToast] = useState(false);
 
+	const [avatar, setAvatar] = useState(AVATARS[0].name);
 	const [isMicActive, setIsMicActive] = useState(true);
 	const [isCameraActive, setIsCameraActive] = useState(true);
 
@@ -252,11 +258,6 @@ export default function PCGeneralCallPage() {
 			console.error('음성 인식 오류:', event.error);
 		};
 
-		recognitionInstance.onend = () => {
-			setIsListening(false);
-			console.log('음성 인식 종료됨');
-		};
-
 		setRecognition(recognitionInstance);
 	}, [isDeaf]);
 
@@ -294,7 +295,7 @@ export default function PCGeneralCallPage() {
 					[styles['content__success-connect']]: peerStatus,
 				})}
 			>
-				<StyleSelect />
+				<StyleSelect avatar={avatar} setAvatar={setAvatar} />
 				<div>
 					<div className={styles['video-chat__box']}>
 						<div className={styles['video-chat__controls']}>
@@ -352,6 +353,7 @@ export default function PCGeneralCallPage() {
 								peerStatus={peerStatus}
 								setPeerStatus={setPeerStatus}
 								code={params.code!}
+								avatar={avatar}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="general"
