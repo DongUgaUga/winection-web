@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import Lottie from 'lottie-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,6 +19,7 @@ import DeafVideo from '../components/DeafVideo';
 import Video from '../components/Video';
 import styles from './PCGeneralCallPage.module.scss';
 import useTokenState from '@/hooks/useTokenState';
+import { useAvatarStore } from '@/utils/zustand/avatar';
 
 const VOICES = ['성인 남자', '성인 여자', '어린 남자', '어린 여자'];
 const AVATARS = [
@@ -40,17 +41,16 @@ const AVATARS = [
 	},
 ];
 
-const StyleSelect = ({
-	avatar,
-	setAvatar,
-}: {
-	avatar: string;
-	setAvatar: React.Dispatch<React.SetStateAction<string>>;
-}) => {
+const StyleSelect = () => {
 	const { data: userInfo } = useUserInfo();
+	const { avatar, setAvatar } = useAvatarStore();
 
 	const [voice, setVoice] = useState(VOICES[0]);
 	const [act, setAct] = useState(1); // 삭제 예정
+
+	useEffect(() => {
+		setAvatar(AVATARS[0].name);
+	}, []);
 
 	useEffect(() => {
 		if ((window as any).unityInstance && avatar) {
@@ -142,7 +142,6 @@ export default function PCGeneralCallPage() {
 
 	const [copyToast, setCopyToast] = useState(false);
 
-	const [avatar, setAvatar] = useState(AVATARS[0].name);
 	const [isMicActive, setIsMicActive] = useState(true);
 	const [isCameraActive, setIsCameraActive] = useState(true);
 
@@ -187,15 +186,17 @@ export default function PCGeneralCallPage() {
 
 	const isDeaf = userInfo?.user_type === '농인';
 
+	const updateCallTime = useCallback(() => {
+		setCallTime((prev) => {
+			const newTime = prev + 1;
+			lastCallTimeRef.current = newTime;
+			return newTime;
+		});
+	}, []);
+
 	useEffect(() => {
 		if (peerStatus) {
-			intervalRef.current = window.setInterval(() => {
-				setCallTime((prev) => {
-					const newTime = prev + 1;
-					lastCallTimeRef.current = newTime;
-					return newTime;
-				});
-			}, 1000);
+			intervalRef.current = window.setInterval(updateCallTime, 1000);
 		}
 
 		// cleanup: 나갈 때나 peerStatus가 false일 때 인터벌 제거
@@ -296,7 +297,7 @@ export default function PCGeneralCallPage() {
 					[styles['content__success-connect']]: peerStatus,
 				})}
 			>
-				<StyleSelect avatar={avatar} setAvatar={setAvatar} />
+				<StyleSelect />
 				<div>
 					<div className={styles['video-chat__box']}>
 						<div className={styles['video-chat__controls']}>
@@ -325,7 +326,7 @@ export default function PCGeneralCallPage() {
 								<div className={styles['connect-wait']}>
 									<Lottie
 										animationData={videoLoading}
-										style={{ width: '17px', height: '17px' }}
+										className={styles['loading-spinner']}
 									/>
 									<div className={styles['connect-wait__text']}>
 										상대방의 접속을 기다리고 있습니다.
@@ -354,7 +355,6 @@ export default function PCGeneralCallPage() {
 								peerStatus={peerStatus}
 								setPeerStatus={setPeerStatus}
 								code={params.code!}
-								avatar={avatar}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="general"

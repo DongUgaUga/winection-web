@@ -7,13 +7,13 @@ import useUserInfo from '../../../../../hooks/useUserInfo';
 import OpponentInformation from '../OpponentInformation';
 import styles from './Video.module.scss';
 import useTokenState from '@/hooks/useTokenState';
+import { useAvatarStore } from '@/utils/zustand/avatar';
 import { useStartTimeStore } from '@/utils/zustand/callTime';
 
 interface VideoProps {
 	peerStatus: boolean;
 	setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>;
 	code: string;
-	avatar: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
 	onLeave?: () => void;
@@ -25,7 +25,6 @@ export default function Video(props: VideoProps) {
 		peerStatus,
 		setPeerStatus,
 		code,
-		avatar,
 		isCameraActive,
 		isMicActive,
 		onLeave,
@@ -33,6 +32,7 @@ export default function Video(props: VideoProps) {
 	} = props;
 	const { data: userInfo } = useUserInfo();
 	const { startTime, setStartTime } = useStartTimeStore();
+	const { avatar } = useAvatarStore();
 
 	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
@@ -196,19 +196,20 @@ export default function Video(props: VideoProps) {
 
 					if (Array.isArray(motions)) {
 						const motionIndices = motions.map((m) => m.index);
+						const unity = (window as any).unityInstance;
 
 						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
 
 						// Unity로 수어 인덱스 배열 전송
-						if ((window as any).unityInstance) {
-							(window as any).unityInstance.SendMessage(
+						if (unity) {
+							unity.SendMessage(
 								userInfo?.user_type === '청인'
 									? 'WebAvatarReceiver'
 									: 'WebAvatarReceiverEmergency',
 								'ReceiveAvatarName',
 								avatar,
 							);
-							(window as any).unityInstance.SendMessage(
+							unity.SendMessage(
 								'AnimatorQueue', // <- Unity에서 해당 오브젝트 이름으로 받을 것
 								'EnqueueAnimationsFromJson', // <- Unity에서 실행할 메서드
 								JSON.stringify(motionIndices), // 문자열 배열로 보내야 Unity에서 파싱 가능
@@ -392,7 +393,7 @@ export default function Video(props: VideoProps) {
 					) : (
 						<Lottie
 							animationData={videoLoading}
-							style={{ width: '40px', height: '40px' }}
+							className={styles['loading-spinner']}
 						/>
 					)}
 					{peerStatus && !isPeerCameraActive && (
@@ -429,7 +430,7 @@ export default function Video(props: VideoProps) {
 						<div className={styles['video-loading-overlay']}>
 							<Lottie
 								animationData={videoLoading}
-								style={{ width: 40, height: 40 }}
+								className={styles['loading-spinner']}
 							/>
 							<div className={styles['avatar-loading-text']}>
 								아바타를 불러오는 중입니다
