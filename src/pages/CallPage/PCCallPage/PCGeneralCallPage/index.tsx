@@ -182,6 +182,7 @@ export default function PCGeneralCallPage() {
 				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
+		recognition.stop();
 	};
 
 	const isDeaf = userInfo?.user_type === '농인';
