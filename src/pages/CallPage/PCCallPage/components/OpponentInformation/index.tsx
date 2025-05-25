@@ -25,7 +25,8 @@ export default function OpponentInformation({
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const callStartTime = formatKoreanDate(startTime, 'digit');
 	const { deafAddress, deafPhoneNumber } = useDeafInfoStore();
-	const { emergencyName, emergencyAddress } = useEmergencyInfoStore();
+	const { emergencyName, emergencyAddress, emergencyPhoneNumber } =
+		useEmergencyInfoStore();
 
 	const openMap = () => {
 		setIsModalOpen(true);
@@ -90,7 +91,7 @@ export default function OpponentInformation({
 						</div>
 						{peerStatus ? (
 							<div className={styles['opponent__content--text']}>
-								{deafPhoneNumber || '010-5942-6806'}
+								{deafPhoneNumber || emergencyPhoneNumber}
 							</div>
 						) : (
 							<div className={styles['opponent__content--text']}>...</div>
