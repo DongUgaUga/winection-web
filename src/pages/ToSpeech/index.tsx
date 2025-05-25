@@ -24,7 +24,7 @@ const VideoChatFullTracking: React.FC = () => {
 		if (!roomId) return;
 
 		const ws = new WebSocket(
-			`wss://${import.meta.env.VITE_SERVER_URL}/ws/slts/${roomId}`,
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/video/${roomId}`,
 		);
 		wsRef.current = ws;
 
