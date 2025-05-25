@@ -15,6 +15,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['winection.ico', 'winection.png'],
+      workbox: {
+        maximumFileSizeToCacheInBytes: 50 * 1024 * 1024, // 50MB
+      },
       manifest: {
         name: 'Winection',
         short_name: 'Winection',
