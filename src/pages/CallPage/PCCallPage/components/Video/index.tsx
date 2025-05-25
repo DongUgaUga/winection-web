@@ -353,7 +353,7 @@ export default function Video(props: VideoProps) {
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setIsCanvasVisible(true);
-		}, 6000);
+		}, 8000);
 
 		return () => clearTimeout(timer);
 	}, []);
@@ -431,6 +431,12 @@ export default function Video(props: VideoProps) {
 								animationData={videoLoading}
 								style={{ width: 40, height: 40 }}
 							/>
+							<div className={styles['avatar-loading-text']}>
+								아바타를 불러오는 중입니다
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+							</div>
 						</div>
 					)}
 					{!isCameraActive && (
