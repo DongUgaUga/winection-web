@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import DownArrowIcon from 'src/assets/down-arrow.svg';
+import ChevronDownIcon from 'src/assets/chevron-down.svg';
 import Winection from 'src/assets/winection.svg';
 import styles from './AboutPage.module.scss';
 
@@ -66,7 +66,7 @@ export default function AboutPage() {
 
 							{index < 2 && (
 								<div className={styles['about-page__icon']}>
-									<DownArrowIcon />
+									<ChevronDownIcon />
 								</div>
 							)}
 						</section>

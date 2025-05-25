@@ -61,6 +61,11 @@
     animation:circlemove 1.5s infinite linear;
     color: #44444449;
     cursor: pointer;
+
+    & > svg {
+      width: 60px;
+      height: 60px;
+    }
   }
 }
 
