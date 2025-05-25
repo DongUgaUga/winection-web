@@ -4,16 +4,31 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import doctor from 'src/assets/avatar/doctor.png';
+import firefighter from 'src/assets/avatar/firefighter.png';
+import police from 'src/assets/avatar/police.png';
 import ActiveCallIcon from 'src/assets/call-active.svg';
 import CallIcon from 'src/assets/call.svg';
-import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
 import styles from './EmergencyCallWait.module.scss';
 import type { EmergencyLocationRequest } from '@/api/room/entity';
 import { emergencyLocation } from '@/api/room';
 import useTokenState from '@/hooks/useTokenState';
 import { useEmergencyInfoStore } from '@/utils/zustand/emergencyInfo';
 
-const AGENCIES = ['병원', '경찰서', '소방서'];
+const AGENCIES = [
+	{
+		name: '병원',
+		src: doctor,
+	},
+	{
+		name: '경찰서',
+		src: police,
+	},
+	{
+		name: '소방서',
+		src: firefighter,
+	},
+];
 
 function getCurrentLocation(): Promise<{ lat: number; lng: number }> {
 	return new Promise((resolve, reject) => {
@@ -61,7 +76,8 @@ export default function EmergencyCallWait() {
 	const [isChecked, setIsChecked] = useState(false);
 	const [isWaiting, setIsWaiting] = useState(false);
 	const [waitingTime, setWaitingTime] = useState(0);
-	const { setEmergencyName, setEmergencyAddress } = useEmergencyInfoStore();
+	const { setEmergencyName, setEmergencyAddress, setEmergencyPhoneNumber } =
+		useEmergencyInfoStore();
 
 	useEffect(() => {
 		if (!isWaiting) return;
@@ -105,16 +121,24 @@ export default function EmergencyCallWait() {
 			const data = JSON.parse(event.data);
 
 			if (data.type === 'startCall') {
-				const { organization_name, address, latitude, longitude, start_time } =
-					data.data;
+				const {
+					organization_name,
+					address,
+					phone_number,
+					latitude,
+					longitude,
+					start_time,
+				} = data.data;
 				setIsWaiting(false);
 				setEmergencyName(organization_name);
 				setEmergencyAddress(address);
+				setEmergencyPhoneNumber(phone_number);
 
 				navigate(`/emergency-call/${nearAgency.message}`, {
 					state: {
 						organization_name,
 						address,
+						phone_number,
 						latitude,
 						longitude,
 						start_time,
@@ -170,17 +194,17 @@ export default function EmergencyCallWait() {
 						</div>
 						<div className={styles.agencies}>
 							{AGENCIES.map((value) => (
-								<div className={styles.agencies__agency} key={value}>
-									<GrandfatherAvatar />
+								<div className={styles.agencies__agency} key={value.name}>
+									<img src={value.src} alt={`${value.name} avatar`} />
 									<button
 										className={cn({
 											[styles['agencies__agency--button']]: true,
 											[styles['agencies__agency--button--selected']]:
-												value === agency,
+												value.name === agency,
 										})}
-										onClick={() => selectAgency(value)}
+										onClick={() => selectAgency(value.name)}
 									>
-										{value}
+										{value.name}
 									</button>
 								</div>
 							))}
