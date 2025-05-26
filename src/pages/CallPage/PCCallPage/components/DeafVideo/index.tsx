@@ -135,7 +135,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 
 						if (unity) {
 							unity.SendMessage(
-								'WebAvatarReceiverEmergency',
+								`WebAvatarReceiver${type}`,
 								'ReceiveAvatarName',
 								data.avatar,
 							);

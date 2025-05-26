@@ -42,12 +42,12 @@ const AVATARS = [
 
 const StyleSelect = ({
 	avatar,
-	setAvatar,
+	onAvatarSelect,
 	voice,
 	setVoice,
 }: {
 	avatar: string;
-	setAvatar: React.Dispatch<React.SetStateAction<string>>;
+	onAvatarSelect: (name: string) => void;
 	voice: string;
 	setVoice: React.Dispatch<React.SetStateAction<string>>;
 }) => {
@@ -92,7 +92,7 @@ const StyleSelect = ({
 							<button
 								key={ava.name}
 								className={styles.avatars__avatar}
-								onClick={() => setAvatar(ava.name)}
+								onClick={() => onAvatarSelect(ava.name)}
 							>
 								<img
 									src={ava.src}
@@ -124,6 +124,10 @@ export default function PCGeneralCallPage() {
 	const { data: userInfo } = useUserInfo();
 	const token = useTokenState();
 	const [avatar, setAvatar] = useState(AVATARS[0].name);
+	const avatarRef = useRef(avatar);
+	useEffect(() => {
+		avatarRef.current = avatar;
+	}, [avatar]);
 	const [voice, setVoice] = useState(VOICES[0]);
 
 	const [copyToast, setCopyToast] = useState(false);
@@ -140,6 +144,18 @@ export default function PCGeneralCallPage() {
 	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
 	const wsRef = useRef<WebSocket | null>(null);
+
+	const handleAvatar = (name: string) => {
+		setAvatar(name); // 기존 상태 변경
+
+		wsRef.current?.send(
+			JSON.stringify({
+				type: 'text',
+				avatar: name,
+				data: { text: '' },
+			}),
+		);
+	};
 
 	const isDeaf = userInfo?.user_type === '농인';
 
@@ -264,11 +280,11 @@ export default function PCGeneralCallPage() {
 			}
 
 			if (newFinalTranscript) {
-				console.log('📤 음성 → 텍스트:', newFinalTranscript);
+				console.log('📤 음성 → 텍스트:', newFinalTranscript, avatarRef.current);
 				wsRef.current?.send(
 					JSON.stringify({
 						type: 'text',
-						avatar: avatar,
+						avatar: avatarRef.current,
 						data: { text: newFinalTranscript },
 					}),
 				);
@@ -328,7 +344,7 @@ export default function PCGeneralCallPage() {
 			>
 				<StyleSelect
 					avatar={avatar}
-					setAvatar={setAvatar}
+					onAvatarSelect={handleAvatar}
 					voice={voice}
 					setVoice={setVoice}
 				/>
