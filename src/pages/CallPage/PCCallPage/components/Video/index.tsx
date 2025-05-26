@@ -53,18 +53,6 @@ export default function Video(props: VideoProps) {
 		? 'Emergency'
 		: 'General';
 
-	const playBase64Audio = (base64: string) => {
-		try {
-			const audioSrc = `data:audio/wav;base64,${base64}`;
-			const audio = new Audio(audioSrc);
-			audio.play().catch((err) => {
-				console.error('오디오 재생 실패:', err);
-			});
-		} catch (err) {
-			console.error('오디오 재생 오류:', err);
-		}
-	};
-
 	useEffect(() => {
 		if (!code) return;
 
@@ -232,8 +220,20 @@ export default function Video(props: VideoProps) {
 	}, [code]);
 
 	useEffect(() => {
-		if (audioBase) {
-			playBase64Audio(audioBase);
+		if (!audioBase) return;
+
+		try {
+			const audioBlob = new Blob(
+				[Uint8Array.from(atob(audioBase), (c) => c.charCodeAt(0))],
+				{ type: 'audio/mp3' },
+			);
+			const audioUrl = URL.createObjectURL(audioBlob);
+			const audio = new Audio(audioUrl);
+			audio.play().catch((err) => {
+				console.error('오디오 재생 실패:', err);
+			});
+		} catch (err) {
+			console.error('오디오 재생 오류:', err);
 		}
 	}, [audioBase]);
 
