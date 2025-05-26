@@ -23,7 +23,8 @@ export default function PCEmergencyCallPage() {
 	const location = useLocation();
 	const token = useTokenState();
 	const { data: userInfo } = useUserInfo();
-	const { setDeafPhoneNumber } = useDeafInfoStore();
+	const { setDeafPhoneNumber, setDeafLatitude, setDeafLongitude } =
+		useDeafInfoStore();
 	const type = userInfo?.emergency_type || location.state;
 
 	const [isMicActive, setIsMicActive] = useState(true);
@@ -99,6 +100,8 @@ export default function PCEmergencyCallPage() {
 					};
 				});
 				setDeafPhoneNumber(phone_number);
+				setDeafLatitude(location.latitude);
+				setDeafLongitude(location.longitude);
 				setIsModalOpen(true);
 			}
 			if (data.type === 'cancelCall') {

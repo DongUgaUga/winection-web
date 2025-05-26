@@ -5,9 +5,13 @@ import NaverMap from '@/pages/CallPage/components/NaverMap';
 export default function ReporterPositionModal({
 	setIsModalOpen,
 	address,
+	latitude,
+	longitude,
 }: {
 	setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-	address: string;
+	address?: string;
+	latitude?: number;
+	longitude?: number;
 }) {
 	return (
 		<div className={styles.background}>
@@ -17,7 +21,17 @@ export default function ReporterPositionModal({
 					신고자 현재 위치
 				</h1>
 				<div className={styles.container__map}>
-					<NaverMap address={address} />
+					<NaverMap
+						address={address}
+						coordinates={
+							latitude
+								? {
+										lat: latitude,
+										lng: longitude,
+									}
+								: undefined
+						}
+					/>
 				</div>
 				<button
 					className={styles.container__button}
