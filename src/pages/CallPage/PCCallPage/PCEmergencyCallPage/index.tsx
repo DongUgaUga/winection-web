@@ -1,7 +1,7 @@
 // import { useState } from "react";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Lottie from 'lottie-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CameraBlockIcon from 'src/assets/block-camera.svg';
 import MicBlockIcon from 'src/assets/block-mic.svg';
 import CameraIcon from 'src/assets/camera.svg';
@@ -20,9 +20,10 @@ import { useDeafInfoStore } from '@/utils/zustand/deafInfo';
 export default function PCEmergencyCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { data: userInfo } = useUserInfo();
 	const { setDeafPhoneNumber } = useDeafInfoStore();
-	const avatar = '병원';
+	const type = userInfo?.emergency_type || location.state;
 
 	const [isMicActive, setIsMicActive] = useState(true);
 	const isMicActiveRef = useRef(isMicActive);
@@ -140,7 +141,7 @@ export default function PCEmergencyCallPage() {
 							unity.SendMessage(
 								'WebAvatarReceiverEmergency',
 								'ReceiveAvatarName',
-								avatar,
+								type,
 							);
 							unity.SendMessage(
 								'AnimationQueueWithPlayable', // Unity 안의 GameObject 이름
@@ -191,7 +192,11 @@ export default function PCEmergencyCallPage() {
 			if (newFinalTranscript) {
 				console.log('📤 음성 → 텍스트:', newFinalTranscript);
 				wsRef.current?.send(
-					JSON.stringify({ type: 'text', data: { text: newFinalTranscript } }),
+					JSON.stringify({
+						type: 'text',
+						avatar: type,
+						data: { text: newFinalTranscript },
+					}),
 				);
 			}
 		};
@@ -227,7 +232,6 @@ export default function PCEmergencyCallPage() {
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			const unity = (window as any).unityInstance;
-			const type = userInfo?.emergency_type || '소방서';
 
 			if (unity) {
 				console.log('🚀 아바타 전송:', type);

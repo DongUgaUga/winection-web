@@ -127,7 +127,9 @@ export default function EmergencyCallWait() {
 				setEmergencyAddress(address);
 				setEmergencyPhoneNumber(phone_number);
 
-				navigate(`/emergency-call/${nearAgency.message}`);
+				navigate(`/emergency-call/${nearAgency.message}`, {
+					state: agency,
+				});
 			}
 		};
 

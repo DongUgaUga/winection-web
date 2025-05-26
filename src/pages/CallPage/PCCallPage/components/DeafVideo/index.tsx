@@ -122,6 +122,29 @@ export default function DeafVideo(props: DeafVideoProps) {
 						}
 					}
 				}
+				if (data.type === 'motions') {
+					const motions = data.data;
+					if (Array.isArray(motions)) {
+						const motionIndices = motions.map((m: any) => m.index);
+						const unity = (window as any).unityInstance;
+						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
+
+						if (unity) {
+							unity.SendMessage(
+								'WebAvatarReceiverEmergency',
+								'ReceiveAvatarName',
+								data.avatar,
+							);
+							unity.SendMessage(
+								'AnimationQueueWithPlayable',
+								'EnqueueAnimationsFromJson',
+								JSON.stringify(motionIndices),
+							);
+						} else {
+							console.warn('⚠️ Unity 인스턴스가 아직 준비되지 않았습니다.');
+						}
+					}
+				}
 				if (data.type === 'leave') {
 					console.log('상대방이 나갔습니다.');
 

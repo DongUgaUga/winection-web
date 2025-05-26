@@ -7,7 +7,6 @@ import useUserInfo from '../../../../../hooks/useUserInfo';
 import OpponentInformation from '../OpponentInformation';
 import styles from './Video.module.scss';
 import useTokenState from '@/hooks/useTokenState';
-import { useAvatarStore } from '@/utils/zustand/avatar';
 import { useStartTimeStore } from '@/utils/zustand/callTime';
 
 interface VideoProps {
@@ -32,7 +31,6 @@ export default function Video(props: VideoProps) {
 	} = props;
 	const { data: userInfo } = useUserInfo();
 	const { startTime, setStartTime } = useStartTimeStore();
-	const { avatar } = useAvatarStore();
 
 	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
@@ -191,34 +189,6 @@ export default function Video(props: VideoProps) {
 						setPeerStatus(true);
 					}
 				}
-				if (data.type === 'motions') {
-					const motions = data.data; // ex: [{ word: '안녕하세요', index: 12 }, ...]
-
-					if (Array.isArray(motions)) {
-						const motionIndices = motions.map((m) => m.index);
-						const unity = (window as any).unityInstance;
-
-						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
-
-						// Unity로 수어 인덱스 배열 전송
-						if (unity) {
-							unity.SendMessage(
-								userInfo?.user_type === '청인'
-									? 'WebAvatarReceiver'
-									: 'WebAvatarReceiverEmergency',
-								'ReceiveAvatarName',
-								avatar,
-							);
-							unity.SendMessage(
-								'AnimatorQueue', // <- Unity에서 해당 오브젝트 이름으로 받을 것
-								'EnqueueAnimationsFromJson', // <- Unity에서 실행할 메서드
-								JSON.stringify(motionIndices), // 문자열 배열로 보내야 Unity에서 파싱 가능
-							);
-						} else {
-							console.warn('⚠️ Unity 인스턴스가 아직 준비되지 않았습니다.');
-						}
-					}
-				}
 			} catch (error) {
 				console.error('WebSocket 메시지 처리 중 오류 발생:', error);
 			}
@@ -318,7 +288,23 @@ export default function Video(props: VideoProps) {
 		}
 	};
 
-	// Removed camera and mic state tracking effects
+	// mic 상태 전송
+	useEffect(() => {
+		if (wsRef.current?.readyState === WebSocket.OPEN) {
+			wsRef.current.send(
+				JSON.stringify({ type: 'mic_state', data: { isMicActive } }),
+			);
+		}
+	}, [isMicActive]);
+
+	// camera 상태 전송
+	useEffect(() => {
+		if (wsRef.current?.readyState === WebSocket.OPEN) {
+			wsRef.current.send(
+				JSON.stringify({ type: 'camera_state', data: { isCameraActive } }),
+			);
+		}
+	}, [isCameraActive]);
 
 	useEffect(() => {
 		// ✅ Unity 인스턴스 로드
