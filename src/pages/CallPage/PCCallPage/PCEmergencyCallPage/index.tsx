@@ -21,6 +21,7 @@ export default function PCEmergencyCallPage() {
 	const params = useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
+	const token = useTokenState();
 	const { data: userInfo } = useUserInfo();
 	const { setDeafPhoneNumber } = useDeafInfoStore();
 	const type = userInfo?.emergency_type || location.state;
@@ -48,8 +49,6 @@ export default function PCEmergencyCallPage() {
 	} | null>(null);
 
 	const emergencySocketRef = useRef<WebSocket | null>(null);
-
-	const token = useTokenState();
 
 	const isDeaf = userInfo?.user_type === '농인';
 
@@ -209,7 +208,6 @@ export default function PCEmergencyCallPage() {
 			console.log('음성 인식 종료됨');
 			setIsListening(false);
 
-			// 마이크 켜져 있다면 자동 재시작
 			if (isMicActiveRef.current) {
 				console.log('음성 인식 재시작 시도');
 				recognitionInstance.start();
