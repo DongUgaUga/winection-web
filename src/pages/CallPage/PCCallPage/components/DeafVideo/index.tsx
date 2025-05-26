@@ -36,7 +36,6 @@ export default function DeafVideo(props: DeafVideoProps) {
 	const { data: userInfo } = useUserInfo();
 	const { startTime, setStartTime } = useStartTimeStore();
 
-	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
 
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
@@ -175,17 +174,10 @@ export default function DeafVideo(props: DeafVideoProps) {
 						setStartTime(data.started_at);
 					}
 				}
-				if (data.type === 'text' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('단어: ', data.result);
-						setPredictionWord(data.result);
-						setPeerStatus(true);
-					}
-				}
 				if (data.type === 'sentence' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('문장: ', data.result);
-						setPredictionSen(data.result);
+					if (data.sentence) {
+						console.log('문장: ', data.sentence);
+						setPredictionSen(data.sentence);
 						setPeerStatus(true);
 					}
 				}
@@ -608,8 +600,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			{<p>현재 단어: {predictionWord}</p>}
-			{<p>현재 문장: {predictionSen}</p>}
+			<p className={styles.sentence}>1{predictionSen}</p>
 		</div>
 	);
 }

@@ -465,7 +465,7 @@ export default function Video(props: VideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			{<p>현재 문장: {predictionSen}</p>}
+			<p className={styles.sentence}>1 {predictionSen}</p>
 		</div>
 	);
 }

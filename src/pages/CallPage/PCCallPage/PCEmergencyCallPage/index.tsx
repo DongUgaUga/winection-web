@@ -140,11 +140,11 @@ export default function PCEmergencyCallPage() {
 						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
 
 						if (unity) {
-							unity.SendMessage(
-								'WebAvatarReceiverEmergency',
-								'ReceiveAvatarName',
-								type,
-							);
+							// unity.SendMessage(
+							// 	'WebAvatarReceiverEmergency',
+							// 	'ReceiveAvatarName',
+							// 	type,
+							// );
 							unity.SendMessage(
 								'AnimationQueueWithPlayable', // Unity 안의 GameObject 이름
 								'EnqueueAnimationsFromJson', // 함수 이름

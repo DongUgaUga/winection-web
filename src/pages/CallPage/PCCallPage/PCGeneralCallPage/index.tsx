@@ -125,10 +125,6 @@ export default function PCGeneralCallPage() {
 	const token = useTokenState();
 	const [avatar, setAvatar] = useState(AVATARS[0].name);
 	const [voice, setVoice] = useState(VOICES[0]);
-	const avatarRef = useRef(avatar);
-	useEffect(() => {
-		avatarRef.current = avatar;
-	}, [avatar]);
 
 	const [copyToast, setCopyToast] = useState(false);
 
@@ -221,12 +217,6 @@ export default function PCGeneralCallPage() {
 						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
 
 						if (unity) {
-							console.log(avatarRef.current, '보내라라라라');
-							unity.SendMessage(
-								'WebAvatarReceiverGeneral',
-								'ReceiveAvatarName',
-								avatarRef.current,
-							);
 							unity.SendMessage(
 								'AnimationQueueWithPlayable',
 								'EnqueueAnimationsFromJson',
