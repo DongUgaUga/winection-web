@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useTokenState from '../../hooks/useTokenState.ts';
 import styles from './IndexPage.module.scss';
@@ -10,7 +11,13 @@ export default function IndexPage() {
 
 	return (
 		<>
-			{token ? <LoginView /> : <NonLoginView />}
+			{token ? (
+				<Suspense fallback={<div>로딩 중...</div>}>
+					<LoginView />
+				</Suspense>
+			) : (
+				<NonLoginView />
+			)}
 			{/*추후 삭제 예정*/}
 			<div className={styles.buttonsss}>
 				<button onClick={() => navigate('/ts')}>ts</button>

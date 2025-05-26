@@ -15,7 +15,6 @@ import Video from '../components/Video';
 import styles from './PCEmergencyCallPage.module.scss';
 import useTokenState from '@/hooks/useTokenState';
 import useUserInfo from '@/hooks/useUserInfo';
-import { useAvatarStore } from '@/utils/zustand/avatar';
 import { useDeafInfoStore } from '@/utils/zustand/deafInfo';
 
 export default function PCEmergencyCallPage() {
@@ -23,15 +22,20 @@ export default function PCEmergencyCallPage() {
 	const navigate = useNavigate();
 	const { data: userInfo } = useUserInfo();
 	const { setDeafPhoneNumber } = useDeafInfoStore();
-	const { setAvatar } = useAvatarStore();
+	const avatar = '병원';
 
 	const [isMicActive, setIsMicActive] = useState(true);
+	const isMicActiveRef = useRef(isMicActive);
 	const [isCameraActive, setIsCameraActive] = useState(true);
+
+	const [recognition, setRecognition] = useState<any>(null);
+	const [isListening, setIsListening] = useState(false);
 
 	const [peerStatus, setPeerStatus] = useState(false);
 	const [callTime, setCallTime] = useState(0);
 	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
+	const wsRef = useRef<WebSocket | null>(null);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [modalUserDetailInfo, setModalUserDetailInfo] = useState<{
@@ -47,6 +51,10 @@ export default function PCEmergencyCallPage() {
 	const token = useTokenState();
 
 	const isDeaf = userInfo?.user_type === '농인';
+
+	useEffect(() => {
+		isMicActiveRef.current = isMicActive;
+	}, [isMicActive]);
 
 	const updateCallTime = useCallback(() => {
 		setCallTime((prev) => {
@@ -109,6 +117,133 @@ export default function PCEmergencyCallPage() {
 		};
 	}, [params.code]);
 
+	useEffect(() => {
+		if (isDeaf) return;
+
+		const ws = new WebSocket(
+			`wss://${import.meta.env.VITE_SERVER_URL}/ws/video/${params.code}?token=${token}`,
+		);
+		wsRef.current = ws;
+
+		ws.onmessage = (event) => {
+			try {
+				const data = JSON.parse(event.data);
+
+				if (data.type === 'motions') {
+					const motions = data.data;
+					if (Array.isArray(motions)) {
+						const motionIndices = motions.map((m: any) => m.index);
+						const unity = (window as any).unityInstance;
+						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
+
+						if (unity) {
+							unity.SendMessage(
+								'WebAvatarReceiverEmergency',
+								'ReceiveAvatarName',
+								avatar,
+							);
+							unity.SendMessage(
+								'AnimationQueueWithPlayable', // Unity 안의 GameObject 이름
+								'EnqueueAnimationsFromJson', // 함수 이름
+								JSON.stringify(motionIndices),
+							);
+						} else {
+							console.warn('⚠️ Unity 인스턴스가 아직 준비되지 않았습니다.');
+						}
+					}
+				}
+			} catch (error) {
+				console.error('WebSocket 메시지 처리 중 오류 발생:', error);
+			}
+		};
+
+		return () => {
+			ws.close();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (isDeaf) return;
+
+		if (!('webkitSpeechRecognition' in window)) {
+			alert('이 브라우저는 음성 인식을 지원하지 않습니다. 크롬을 사용하세요.');
+			return;
+		}
+
+		const recognitionInstance = new (window as any).webkitSpeechRecognition();
+		recognitionInstance.continuous = true;
+		recognitionInstance.interimResults = true;
+		recognitionInstance.lang = 'ko-KR';
+
+		recognitionInstance.onstart = () => {
+			setIsListening(true);
+			console.log('음성 인식 시작됨');
+		};
+
+		recognitionInstance.onresult = (event: any) => {
+			let newFinalTranscript = '';
+			for (let i = event.resultIndex; i < event.results.length; i++) {
+				if (event.results[i].isFinal) {
+					newFinalTranscript = event.results[i][0].transcript.trim();
+				}
+			}
+
+			if (newFinalTranscript) {
+				console.log('📤 음성 → 텍스트:', newFinalTranscript);
+				wsRef.current?.send(
+					JSON.stringify({ type: 'text', data: { text: newFinalTranscript } }),
+				);
+			}
+		};
+
+		recognitionInstance.onerror = (event: any) => {
+			console.error('음성 인식 오류:', event.error);
+		};
+
+		recognitionInstance.onend = () => {
+			console.log('음성 인식 종료됨');
+			setIsListening(false);
+
+			// 마이크 켜져 있다면 자동 재시작
+			if (isMicActiveRef.current) {
+				console.log('음성 인식 재시작 시도');
+				recognitionInstance.start();
+			}
+		};
+
+		setRecognition(recognitionInstance);
+	}, [isDeaf]);
+
+	useEffect(() => {
+		if (!recognition) return;
+
+		if (isMicActive && !isListening) {
+			recognition.start();
+		} else if (!isMicActive && isListening) {
+			recognition.stop();
+		}
+	}, [recognition, isMicActive]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			const unity = (window as any).unityInstance;
+			const type = userInfo?.emergency_type || '소방서';
+
+			if (unity) {
+				console.log('🚀 아바타 전송:', type);
+				unity.SendMessage(
+					'WebAvatarReceiverEmergency',
+					'ReceiveAvatarName',
+					type,
+				);
+			} else {
+				console.warn('😢 unityInstance 아직 없음');
+			}
+		}, 8000);
+
+		return () => clearTimeout(timer);
+	}, [userInfo?.emergency_type]);
+
 	const handleMic = () => {
 		setIsMicActive((state) => !state);
 	};
@@ -123,6 +258,7 @@ export default function PCEmergencyCallPage() {
 				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
+		recognition.stop();
 	};
 
 	useEffect(() => {
@@ -139,12 +275,6 @@ export default function PCEmergencyCallPage() {
 			}
 		};
 	}, [peerStatus]);
-
-	useEffect(() => {
-		if (userInfo?.emergency_type) {
-			setAvatar(userInfo.emergency_type);
-		}
-	}, [userInfo]);
 
 	return (
 		<div className={styles.container}>
