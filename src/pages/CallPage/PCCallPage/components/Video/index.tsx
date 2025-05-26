@@ -433,7 +433,12 @@ export default function Video(props: VideoProps) {
 								animationData={videoLoading}
 								className={styles['loading-spinner']}
 							/>
-							<div className={styles['avatar-loading-text']}>
+							<div
+								className={cn({
+									[styles['avatar-loading-text']]: true,
+									[styles['avatar-loading-text__sub']]: peerStatus,
+								})}
+							>
 								아바타를 불러오는 중입니다
 								<span className={styles['dot']}>.</span>
 								<span className={styles['dot']}>.</span>

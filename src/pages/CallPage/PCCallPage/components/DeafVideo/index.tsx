@@ -531,6 +531,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 							style={{ display: isCanvasVisible ? 'block' : 'none' }}
 							className={cn({
 								[styles['video-container__main-video']]: peerStatus,
+								[styles['video-container__main-video--canvas']]: peerStatus,
 								[styles['video-container--hidden']]:
 									callType === 'general' && !peerStatus,
 							})}
@@ -539,15 +540,26 @@ export default function DeafVideo(props: DeafVideoProps) {
 					) : (
 						<Lottie
 							animationData={videoLoading}
-							style={{ width: '40px', height: '40px' }}
+							className={styles['loading-spinner']}
 						/>
 					)}
 					{!isCanvasVisible && (
 						<div className={styles['video-loading-overlay']}>
 							<Lottie
 								animationData={videoLoading}
-								style={{ width: 40, height: 40 }}
+								className={styles['loading-spinner']}
 							/>
+							<div
+								className={cn({
+									[styles['avatar-loading-text']]: true,
+									[styles['avatar-loading-text__sub']]: peerStatus,
+								})}
+							>
+								아바타를 불러오는 중입니다
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+							</div>
 						</div>
 					)}
 					{peerStatus && !isPeerCameraActive && (
