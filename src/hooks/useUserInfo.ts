@@ -7,8 +7,10 @@ export default function useUserInfo() {
 
 	const { data } = useSuspenseQuery({
 		queryKey: ['userInfo', token],
-
 		queryFn: () => (token ? getMe() : null),
+		staleTime: 1000 * 60 * 10, // 10 minutes
+		gcTime: 1000 * 60 * 60, // 1 hour
+		refetchOnWindowFocus: false,
 	});
 
 	return { data };
