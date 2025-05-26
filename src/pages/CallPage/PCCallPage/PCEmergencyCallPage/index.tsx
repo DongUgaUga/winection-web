@@ -334,6 +334,7 @@ export default function PCEmergencyCallPage() {
 								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								voice="성인 남자"
 								onLeave={handleLeave}
 								callType="emergency"
 							/>

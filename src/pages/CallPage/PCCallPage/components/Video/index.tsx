@@ -32,8 +32,8 @@ export default function Video(props: VideoProps) {
 	const { data: userInfo } = useUserInfo();
 	const { startTime, setStartTime } = useStartTimeStore();
 
-	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
+	const [audioBase, setAudioBase] = useState('');
 
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
 	const [isPeerMicActive, setIsPeerMicActive] = useState(true);
@@ -49,6 +49,21 @@ export default function Video(props: VideoProps) {
 	const isRemoteDescSetRef = useRef(false);
 
 	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
+	const type = location.pathname.includes('emergency')
+		? 'Emergency'
+		: 'General';
+
+	const playBase64Audio = (base64: string) => {
+		try {
+			const audioSrc = `data:audio/wav;base64,${base64}`;
+			const audio = new Audio(audioSrc);
+			audio.play().catch((err) => {
+				console.error('오디오 재생 실패:', err);
+			});
+		} catch (err) {
+			console.error('오디오 재생 오류:', err);
+		}
+	};
 
 	useEffect(() => {
 		if (!code) return;
@@ -175,18 +190,12 @@ export default function Video(props: VideoProps) {
 						setStartTime(data.started_at);
 					}
 				}
-				if (data.type === 'text' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('단어: ', data.result);
-						setPredictionWord(data.result);
-						setPeerStatus(true);
-					}
-				}
 				if (data.type === 'sentence' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('문장: ', data.result);
-						setPredictionSen(data.result);
+					if (data.sentence) {
+						console.log('문장: ', data.sentence);
+						setPredictionSen(data.sentence);
 						setPeerStatus(true);
+						setAudioBase(data.audio_base64);
 					}
 				}
 			} catch (error) {
@@ -221,6 +230,12 @@ export default function Video(props: VideoProps) {
 			setPeerStatus(false);
 		};
 	}, [code]);
+
+	useEffect(() => {
+		if (audioBase) {
+			playBase64Audio(audioBase);
+		}
+	}, [audioBase]);
 
 	const startStreaming = async () => {
 		try {
@@ -309,7 +324,7 @@ export default function Video(props: VideoProps) {
 	useEffect(() => {
 		// ✅ Unity 인스턴스 로드
 		const script = document.createElement('script');
-		script.src = '/unity-build/Build/unity-build.loader.js';
+		script.src = `/unity-build/${type}/Build/${type}.loader.js`;
 		script.onload = () => {
 			setTimeout(() => {
 				const canvas = document.querySelector('#unity-canvas');
@@ -320,9 +335,9 @@ export default function Video(props: VideoProps) {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
-					dataUrl: '/unity-build/Build/unity-build.data',
-					frameworkUrl: '/unity-build/Build/unity-build.framework.js',
-					codeUrl: '/unity-build/Build/unity-build.wasm',
+					dataUrl: `/unity-build/${type}/Build/${type}.data`,
+					frameworkUrl: `/unity-build/${type}/Build/${type}.framework.js`,
+					codeUrl: `/unity-build/${type}/Build/${type}.wasm`,
 				})
 					.then((unityInstance: any) => {
 						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
@@ -445,7 +460,6 @@ export default function Video(props: VideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			{<p>현재 단어: {predictionWord}</p>}
 			{<p>현재 문장: {predictionSen}</p>}
 		</div>
 	);

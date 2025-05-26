@@ -43,14 +43,15 @@ const AVATARS = [
 const StyleSelect = ({
 	avatar,
 	setAvatar,
+	voice,
+	setVoice,
 }: {
 	avatar: string;
 	setAvatar: React.Dispatch<React.SetStateAction<string>>;
+	voice: string;
+	setVoice: React.Dispatch<React.SetStateAction<string>>;
 }) => {
 	const { data: userInfo } = useUserInfo();
-
-	const [voice, setVoice] = useState(VOICES[0]);
-	const [act, setAct] = useState(1); // 삭제 예정
 
 	useEffect(() => {
 		if ((window as any).unityInstance && avatar) {
@@ -62,22 +63,6 @@ const StyleSelect = ({
 			);
 		}
 	}, [avatar]);
-
-	// 삭제 예정
-	useEffect(() => {
-		const unity = (window as any).unityInstance;
-		if (!unity) return;
-
-		unity.SendMessage('WebAvatarReceiverGeneral', 'ReceiveAvatarName', avatar);
-		unity.SendMessage(
-			'AnimationQueueWithPlayable',
-			'EnqueueAnimationsFromJson',
-			JSON.stringify([1, 3, 4, 21]),
-		);
-	}, [act]);
-	const handleClick = () => {
-		setAct((state) => state + 1);
-	};
 
 	return (
 		<>
@@ -102,7 +87,6 @@ const StyleSelect = ({
 			) : (
 				<div className={styles.style}>
 					<div className={styles.style__select}>아바타 선택</div>
-					<button onClick={handleClick}>클릭클릭</button> {/* 삭제 예정 */}
 					<div className={styles.avatars}>
 						{AVATARS.map((ava) => (
 							<button
@@ -140,6 +124,7 @@ export default function PCGeneralCallPage() {
 	const { data: userInfo } = useUserInfo();
 	const token = useTokenState();
 	const [avatar, setAvatar] = useState(AVATARS[0].name);
+	const [voice, setVoice] = useState(VOICES[0]);
 	const avatarRef = useRef(avatar);
 	useEffect(() => {
 		avatarRef.current = avatar;
@@ -351,7 +336,12 @@ export default function PCGeneralCallPage() {
 					[styles['content__success-connect']]: peerStatus,
 				})}
 			>
-				<StyleSelect avatar={avatar} setAvatar={setAvatar} />
+				<StyleSelect
+					avatar={avatar}
+					setAvatar={setAvatar}
+					voice={voice}
+					setVoice={setVoice}
+				/>
 				<div>
 					<div className={styles['video-chat__box']}>
 						<div className={styles['video-chat__controls']}>
@@ -402,6 +392,7 @@ export default function PCGeneralCallPage() {
 								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								voice={voice}
 								callType="general"
 							/>
 						) : (

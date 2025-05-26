@@ -17,6 +17,7 @@ interface DeafVideoProps {
 	code: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
+	voice?: string;
 	onLeave?: () => void;
 	callType: 'general' | 'emergency';
 }
@@ -28,6 +29,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 		code,
 		isCameraActive,
 		isMicActive,
+		voice,
 		onLeave,
 		callType,
 	} = props;
@@ -55,6 +57,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 	const isRemoteDescSetRef = useRef(false);
 
 	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
+	const type = location.pathname.includes('emergency')
+		? 'Emergency'
+		: 'General';
 
 	useEffect(() => {
 		if (!code) return;
@@ -323,8 +328,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 				if (buffer.length >= 30) {
 					const payload = {
 						type: 'land_mark',
+						voice: voice,
 						data: {
-							pose: buffer.slice(0, 30),
+							land_mark: buffer.slice(0, 30),
 						},
 					};
 					wsRef.current?.send(JSON.stringify(payload));
@@ -445,7 +451,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 
 	useEffect(() => {
 		const script = document.createElement('script');
-		script.src = '/unity-build/Build/unity-build.loader.js';
+		script.src = `/unity-build/${type}/Build/${type}.loader.js`;
 
 		script.onload = () => {
 			let retryCount = 0;
@@ -470,9 +476,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
-					dataUrl: '/unity-build/Build/unity-build.data',
-					frameworkUrl: '/unity-build/Build/unity-build.framework.js',
-					codeUrl: '/unity-build/Build/unity-build.wasm',
+					dataUrl: `/unity-build/${type}/Build/${type}.data`,
+					frameworkUrl: `/unity-build/${type}/Build/${type}.framework.js`,
+					codeUrl: `/unity-build/${type}/Build/${type}.wasm`,
 				})
 					.then((unityInstance: any) => {
 						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
