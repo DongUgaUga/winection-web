@@ -5,22 +5,19 @@ import styles from './Header.module.scss';
 import useUserInfo from '../../hooks/useUserInfo';
 import useBreakpoint from '../../utils/hooks/useBreakPoint';
 import { cn } from '@bcsdlab/utils';
+import useLogout from '@/hooks/useLogout';
 
 export default function Header() {
 	const { data: userInfo } = useUserInfo();
 	const navigate = useNavigate();
 	const breakPoint = useBreakpoint();
 	const params = useLocation();
+	const logout = useLogout();
 	const isMainPage = params.pathname === '/';
 	const isAuthPage =
 		params.pathname === '/auth/signup' ||
 		params.pathname === '/auth' ||
 		params.pathname === '/auth/find-pw';
-
-	const logout = () => {
-		localStorage.removeItem('accessToken');
-		navigate('/');
-	};
 
 	const login = () => {
 		navigate('/auth');

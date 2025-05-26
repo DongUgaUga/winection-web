@@ -121,28 +121,14 @@ export default function EmergencyCallWait() {
 			const data = JSON.parse(event.data);
 
 			if (data.type === 'startCall') {
-				const {
-					organization_name,
-					address,
-					phone_number,
-					latitude,
-					longitude,
-					start_time,
-				} = data.data;
+				const { organization_name, address, phone_number } = data.data;
 				setIsWaiting(false);
 				setEmergencyName(organization_name);
 				setEmergencyAddress(address);
 				setEmergencyPhoneNumber(phone_number);
 
 				navigate(`/emergency-call/${nearAgency.message}`, {
-					state: {
-						organization_name,
-						address,
-						phone_number,
-						latitude,
-						longitude,
-						start_time,
-					},
+					state: agency,
 				});
 			}
 		};
@@ -195,7 +181,11 @@ export default function EmergencyCallWait() {
 						<div className={styles.agencies}>
 							{AGENCIES.map((value) => (
 								<div className={styles.agencies__agency} key={value.name}>
-									<img src={value.src} alt={`${value.name} avatar`} />
+									<img
+										src={value.src}
+										alt={`${value.name} avatar`}
+										style={{ width: '120px', height: '120px' }}
+									/>
 									<button
 										className={cn({
 											[styles['agencies__agency--button']]: true,
@@ -234,7 +224,7 @@ export default function EmergencyCallWait() {
 								[styles.connect__button]: true,
 								[styles['connect__button--able']]: !!agency && isChecked,
 							})}
-							disabled={!agency && !isChecked}
+							disabled={!agency || !isChecked}
 							onClick={connect}
 						>
 							연결하기

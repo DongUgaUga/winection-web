@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@bcsdlab/utils';
 import Lottie from 'lottie-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -42,42 +42,27 @@ const AVATARS = [
 
 const StyleSelect = ({
 	avatar,
-	setAvatar,
+	onAvatarSelect,
+	voice,
+	setVoice,
 }: {
 	avatar: string;
-	setAvatar: React.Dispatch<React.SetStateAction<string>>;
+	onAvatarSelect: (name: string) => void;
+	voice: string;
+	setVoice: React.Dispatch<React.SetStateAction<string>>;
 }) => {
 	const { data: userInfo } = useUserInfo();
-
-	const [voice, setVoice] = useState(VOICES[0]);
-	const [act, setAct] = useState(1); // 삭제 예정
 
 	useEffect(() => {
 		if ((window as any).unityInstance && avatar) {
 			console.log('[React] 보내는 아바타:', avatar);
 			(window as any).unityInstance.SendMessage(
-				'WebAvatarReceiver',
+				'WebAvatarReceiverGeneral',
 				'ReceiveAvatarName',
 				avatar,
 			);
 		}
 	}, [avatar]);
-
-	// 삭제 예정
-	useEffect(() => {
-		const unity = (window as any).unityInstance;
-		if (!unity) return;
-
-		unity.SendMessage('WebAvatarReceiver', 'ReceiveAvatarName', avatar);
-		unity.SendMessage(
-			'WebAvatarReceiver',
-			'ReceiveIndexJson',
-			JSON.stringify([1, 3, 4, 21]),
-		);
-	}, [act]);
-	const handleClick = () => {
-		setAct((state) => state + 1);
-	};
 
 	return (
 		<>
@@ -102,13 +87,12 @@ const StyleSelect = ({
 			) : (
 				<div className={styles.style}>
 					<div className={styles.style__select}>아바타 선택</div>
-					<button onClick={handleClick}>클릭클릭</button> {/* 삭제 예정 */}
 					<div className={styles.avatars}>
 						{AVATARS.map((ava) => (
 							<button
 								key={ava.name}
 								className={styles.avatars__avatar}
-								onClick={() => setAvatar(ava.name)}
+								onClick={() => onAvatarSelect(ava.name)}
 							>
 								<img
 									src={ava.src}
@@ -139,23 +123,45 @@ export default function PCGeneralCallPage() {
 	const navigate = useNavigate();
 	const { data: userInfo } = useUserInfo();
 	const token = useTokenState();
+	const [avatar, setAvatar] = useState(AVATARS[0].name);
+	const avatarRef = useRef(avatar);
+	useEffect(() => {
+		avatarRef.current = avatar;
+	}, [avatar]);
+	const [voice, setVoice] = useState(VOICES[0]);
 
 	const [copyToast, setCopyToast] = useState(false);
 
-	const [avatar, setAvatar] = useState(AVATARS[0].name);
 	const [isMicActive, setIsMicActive] = useState(true);
+	const isMicActiveRef = useRef(isMicActive);
 	const [isCameraActive, setIsCameraActive] = useState(true);
-
-	const [peerStatus, setPeerStatus] = useState(false);
-	const [callTime, setCallTime] = useState(0);
 
 	const [recognition, setRecognition] = useState<any>(null);
 	const [isListening, setIsListening] = useState(false);
 
+	const [peerStatus, setPeerStatus] = useState(false);
+	const [callTime, setCallTime] = useState(0);
 	const lastCallTimeRef = useRef(0);
 	const intervalRef = useRef<number | null>(null); // setInterval ID 저장
-
 	const wsRef = useRef<WebSocket | null>(null);
+
+	const handleAvatar = (name: string) => {
+		setAvatar(name); // 기존 상태 변경
+
+		wsRef.current?.send(
+			JSON.stringify({
+				type: 'text',
+				avatar: name,
+				data: { text: '' },
+			}),
+		);
+	};
+
+	const isDeaf = userInfo?.user_type === '농인';
+
+	useEffect(() => {
+		isMicActiveRef.current = isMicActive;
+	}, [isMicActive]);
 
 	const copyRoomCode = () => {
 		navigator.clipboard
@@ -182,21 +188,21 @@ export default function PCGeneralCallPage() {
 				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
+		recognition.stop();
 	};
 
-	const isDeaf = userInfo?.user_type === '농인';
+	const updateCallTime = useCallback(() => {
+		setCallTime((prev) => {
+			const newTime = prev + 1;
+			lastCallTimeRef.current = newTime;
+			return newTime;
+		});
+	}, []);
 
 	useEffect(() => {
 		if (peerStatus) {
-			intervalRef.current = window.setInterval(() => {
-				setCallTime((prev) => {
-					const newTime = prev + 1;
-					lastCallTimeRef.current = newTime;
-					return newTime;
-				});
-			}, 1000);
+			intervalRef.current = window.setInterval(updateCallTime, 1000);
 		}
-
 		// cleanup: 나갈 때나 peerStatus가 false일 때 인터벌 제거
 		return () => {
 			if (intervalRef.current) {
@@ -214,6 +220,33 @@ export default function PCGeneralCallPage() {
 			`wss://${import.meta.env.VITE_SERVER_URL}/ws/video/${params.code}?token=${token}`,
 		);
 		wsRef.current = ws;
+
+		ws.onmessage = (event) => {
+			try {
+				const data = JSON.parse(event.data);
+
+				if (data.type === 'motions') {
+					const motions = data.data;
+					if (Array.isArray(motions)) {
+						const motionIndices = motions.map((m: any) => m.index);
+						const unity = (window as any).unityInstance;
+						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
+
+						if (unity) {
+							unity.SendMessage(
+								'AnimationQueueWithPlayable',
+								'EnqueueAnimationsFromJson',
+								JSON.stringify(motionIndices),
+							);
+						} else {
+							console.warn('⚠️ Unity 인스턴스가 아직 준비되지 않았습니다.');
+						}
+					}
+				}
+			} catch (error) {
+				console.error('WebSocket 메시지 처리 중 오류 발생:', error);
+			}
+		};
 
 		return () => {
 			ws.close();
@@ -247,15 +280,29 @@ export default function PCGeneralCallPage() {
 			}
 
 			if (newFinalTranscript) {
-				console.log('📤 음성 → 텍스트:', newFinalTranscript);
+				console.log('📤 음성 → 텍스트:', newFinalTranscript, avatarRef.current);
 				wsRef.current?.send(
-					JSON.stringify({ type: 'text', data: { text: newFinalTranscript } }),
+					JSON.stringify({
+						type: 'text',
+						avatar: avatarRef.current,
+						data: { text: newFinalTranscript },
+					}),
 				);
 			}
 		};
 
 		recognitionInstance.onerror = (event: any) => {
 			console.error('음성 인식 오류:', event.error);
+		};
+
+		recognitionInstance.onend = () => {
+			setIsListening(false);
+			console.log('음성 인식 종료됨');
+
+			if (isMicActiveRef.current) {
+				console.log('음성 인식 재시작 시도');
+				recognitionInstance.start();
+			}
 		};
 
 		setRecognition(recognitionInstance);
@@ -295,7 +342,12 @@ export default function PCGeneralCallPage() {
 					[styles['content__success-connect']]: peerStatus,
 				})}
 			>
-				<StyleSelect avatar={avatar} setAvatar={setAvatar} />
+				<StyleSelect
+					avatar={avatar}
+					onAvatarSelect={handleAvatar}
+					voice={voice}
+					setVoice={setVoice}
+				/>
 				<div>
 					<div className={styles['video-chat__box']}>
 						<div className={styles['video-chat__controls']}>
@@ -324,7 +376,7 @@ export default function PCGeneralCallPage() {
 								<div className={styles['connect-wait']}>
 									<Lottie
 										animationData={videoLoading}
-										style={{ width: '17px', height: '17px' }}
+										className={styles['loading-spinner']}
 									/>
 									<div className={styles['connect-wait__text']}>
 										상대방의 접속을 기다리고 있습니다.
@@ -346,6 +398,7 @@ export default function PCGeneralCallPage() {
 								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								voice={voice}
 								callType="general"
 							/>
 						) : (
@@ -353,7 +406,6 @@ export default function PCGeneralCallPage() {
 								peerStatus={peerStatus}
 								setPeerStatus={setPeerStatus}
 								code={params.code!}
-								avatar={avatar}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
 								callType="general"

@@ -13,7 +13,6 @@ interface VideoProps {
 	peerStatus: boolean;
 	setPeerStatus: React.Dispatch<React.SetStateAction<boolean>>;
 	code: string;
-	avatar: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
 	onLeave?: () => void;
@@ -25,7 +24,6 @@ export default function Video(props: VideoProps) {
 		peerStatus,
 		setPeerStatus,
 		code,
-		avatar,
 		isCameraActive,
 		isMicActive,
 		onLeave,
@@ -34,8 +32,8 @@ export default function Video(props: VideoProps) {
 	const { data: userInfo } = useUserInfo();
 	const { startTime, setStartTime } = useStartTimeStore();
 
-	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
+	const [audioBase, setAudioBase] = useState('');
 
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
 	const [isPeerMicActive, setIsPeerMicActive] = useState(true);
@@ -51,6 +49,9 @@ export default function Video(props: VideoProps) {
 	const isRemoteDescSetRef = useRef(false);
 
 	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
+	const type = location.pathname.includes('emergency')
+		? 'Emergency'
+		: 'General';
 
 	useEffect(() => {
 		if (!code) return;
@@ -177,45 +178,12 @@ export default function Video(props: VideoProps) {
 						setStartTime(data.started_at);
 					}
 				}
-				if (data.type === 'text' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('단어: ', data.result);
-						setPredictionWord(data.result);
-						setPeerStatus(true);
-					}
-				}
 				if (data.type === 'sentence' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('문장: ', data.result);
-						setPredictionSen(data.result);
+					if (data.sentence) {
+						console.log('문장: ', data.sentence);
+						setPredictionSen(data.sentence);
 						setPeerStatus(true);
-					}
-				}
-				if (data.type === 'motions') {
-					const motions = data.data; // ex: [{ word: '안녕하세요', index: 12 }, ...]
-
-					if (Array.isArray(motions)) {
-						const motionIndices = motions.map((m) => m.index);
-
-						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
-
-						// Unity로 수어 인덱스 배열 전송
-						if ((window as any).unityInstance) {
-							(window as any).unityInstance.SendMessage(
-								userInfo?.user_type === '청인'
-									? 'WebAvatarReceiver'
-									: 'WebAvatarReceiverEmergency',
-								'ReceiveAvatarName',
-								avatar,
-							);
-							(window as any).unityInstance.SendMessage(
-								'AnimatorQueue', // <- Unity에서 해당 오브젝트 이름으로 받을 것
-								'EnqueueAnimationsFromJson', // <- Unity에서 실행할 메서드
-								JSON.stringify(motionIndices), // 문자열 배열로 보내야 Unity에서 파싱 가능
-							);
-						} else {
-							console.warn('⚠️ Unity 인스턴스가 아직 준비되지 않았습니다.');
-						}
+						setAudioBase(data.audio_base64);
 					}
 				}
 			} catch (error) {
@@ -250,6 +218,24 @@ export default function Video(props: VideoProps) {
 			setPeerStatus(false);
 		};
 	}, [code]);
+
+	useEffect(() => {
+		if (!audioBase) return;
+
+		try {
+			const audioBlob = new Blob(
+				[Uint8Array.from(atob(audioBase), (c) => c.charCodeAt(0))],
+				{ type: 'audio/mp3' },
+			);
+			const audioUrl = URL.createObjectURL(audioBlob);
+			const audio = new Audio(audioUrl);
+			audio.play().catch((err) => {
+				console.error('오디오 재생 실패:', err);
+			});
+		} catch (err) {
+			console.error('오디오 재생 오류:', err);
+		}
+	}, [audioBase]);
 
 	const startStreaming = async () => {
 		try {
@@ -317,12 +303,28 @@ export default function Video(props: VideoProps) {
 		}
 	};
 
-	// Removed camera and mic state tracking effects
+	// mic 상태 전송
+	useEffect(() => {
+		if (wsRef.current?.readyState === WebSocket.OPEN) {
+			wsRef.current.send(
+				JSON.stringify({ type: 'mic_state', data: { isMicActive } }),
+			);
+		}
+	}, [isMicActive]);
+
+	// camera 상태 전송
+	useEffect(() => {
+		if (wsRef.current?.readyState === WebSocket.OPEN) {
+			wsRef.current.send(
+				JSON.stringify({ type: 'camera_state', data: { isCameraActive } }),
+			);
+		}
+	}, [isCameraActive]);
 
 	useEffect(() => {
 		// ✅ Unity 인스턴스 로드
 		const script = document.createElement('script');
-		script.src = '/unity-build/Build/unity-build.loader.js';
+		script.src = `/unity-build/${type}/Build/${type}.loader.js`;
 		script.onload = () => {
 			setTimeout(() => {
 				const canvas = document.querySelector('#unity-canvas');
@@ -333,9 +335,9 @@ export default function Video(props: VideoProps) {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
-					dataUrl: '/unity-build/Build/unity-build.data',
-					frameworkUrl: '/unity-build/Build/unity-build.framework.js',
-					codeUrl: '/unity-build/Build/unity-build.wasm',
+					dataUrl: `/unity-build/${type}/Build/${type}.data`,
+					frameworkUrl: `/unity-build/${type}/Build/${type}.framework.js`,
+					codeUrl: `/unity-build/${type}/Build/${type}.wasm`,
 				})
 					.then((unityInstance: any) => {
 						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
@@ -353,7 +355,7 @@ export default function Video(props: VideoProps) {
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setIsCanvasVisible(true);
-		}, 6000);
+		}, 8000);
 
 		return () => clearTimeout(timer);
 	}, []);
@@ -392,7 +394,7 @@ export default function Video(props: VideoProps) {
 					) : (
 						<Lottie
 							animationData={videoLoading}
-							style={{ width: '40px', height: '40px' }}
+							className={styles['loading-spinner']}
 						/>
 					)}
 					{peerStatus && !isPeerCameraActive && (
@@ -429,8 +431,19 @@ export default function Video(props: VideoProps) {
 						<div className={styles['video-loading-overlay']}>
 							<Lottie
 								animationData={videoLoading}
-								style={{ width: 40, height: 40 }}
+								className={styles['loading-spinner']}
 							/>
+							<div
+								className={cn({
+									[styles['avatar-loading-text']]: true,
+									[styles['avatar-loading-text__sub']]: peerStatus,
+								})}
+							>
+								아바타를 불러오는 중입니다
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+							</div>
 						</div>
 					)}
 					{!isCameraActive && (
@@ -452,8 +465,7 @@ export default function Video(props: VideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			{<p>현재 단어: {predictionWord}</p>}
-			{<p>현재 문장: {predictionSen}</p>}
+			<p className={styles.sentence}>1 {predictionSen}</p>
 		</div>
 	);
 }

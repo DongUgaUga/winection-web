@@ -17,6 +17,7 @@ interface DeafVideoProps {
 	code: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
+	voice?: string;
 	onLeave?: () => void;
 	callType: 'general' | 'emergency';
 }
@@ -28,13 +29,13 @@ export default function DeafVideo(props: DeafVideoProps) {
 		code,
 		isCameraActive,
 		isMicActive,
+		voice,
 		onLeave,
 		callType,
 	} = props;
 	const { data: userInfo } = useUserInfo();
 	const { startTime, setStartTime } = useStartTimeStore();
 
-	const [predictionWord, setPredictionWord] = useState<string>('');
 	const [predictionSen, setPredictionSen] = useState<string>('');
 
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
@@ -55,6 +56,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 	const isRemoteDescSetRef = useRef(false);
 
 	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
+	const type = location.pathname.includes('emergency')
+		? 'Emergency'
+		: 'General';
 
 	useEffect(() => {
 		if (!code) return;
@@ -122,6 +126,29 @@ export default function DeafVideo(props: DeafVideoProps) {
 						}
 					}
 				}
+				if (data.type === 'motions') {
+					const motions = data.data;
+					if (Array.isArray(motions)) {
+						const motionIndices = motions.map((m: any) => m.index);
+						const unity = (window as any).unityInstance;
+						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
+
+						if (unity) {
+							unity.SendMessage(
+								`WebAvatarReceiver${type}`,
+								'ReceiveAvatarName',
+								data.avatar,
+							);
+							unity.SendMessage(
+								'AnimationQueueWithPlayable',
+								'EnqueueAnimationsFromJson',
+								JSON.stringify(motionIndices),
+							);
+						} else {
+							console.warn('⚠️ Unity 인스턴스가 아직 준비되지 않았습니다.');
+						}
+					}
+				}
 				if (data.type === 'leave') {
 					console.log('상대방이 나갔습니다.');
 
@@ -147,17 +174,10 @@ export default function DeafVideo(props: DeafVideoProps) {
 						setStartTime(data.started_at);
 					}
 				}
-				if (data.type === 'text' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('단어: ', data.result);
-						setPredictionWord(data.result);
-						setPeerStatus(true);
-					}
-				}
 				if (data.type === 'sentence' && data.client_id === 'peer') {
-					if (data.result) {
-						console.log('문장: ', data.result);
-						setPredictionSen(data.result);
+					if (data.sentence) {
+						console.log('문장: ', data.sentence);
+						setPredictionSen(data.sentence);
 						setPeerStatus(true);
 					}
 				}
@@ -300,8 +320,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 				if (buffer.length >= 30) {
 					const payload = {
 						type: 'land_mark',
+						voice: voice,
 						data: {
-							pose: buffer.slice(0, 30),
+							land_mark: buffer.slice(0, 30),
 						},
 					};
 					wsRef.current?.send(JSON.stringify(payload));
@@ -422,7 +443,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 
 	useEffect(() => {
 		const script = document.createElement('script');
-		script.src = '/unity-build/Build/unity-build.loader.js';
+		script.src = `/unity-build/${type}/Build/${type}.loader.js`;
 
 		script.onload = () => {
 			let retryCount = 0;
@@ -447,9 +468,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
-					dataUrl: '/unity-build/Build/unity-build.data',
-					frameworkUrl: '/unity-build/Build/unity-build.framework.js',
-					codeUrl: '/unity-build/Build/unity-build.wasm',
+					dataUrl: `/unity-build/${type}/Build/${type}.data`,
+					frameworkUrl: `/unity-build/${type}/Build/${type}.framework.js`,
+					codeUrl: `/unity-build/${type}/Build/${type}.wasm`,
 				})
 					.then((unityInstance: any) => {
 						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
@@ -502,6 +523,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 							style={{ display: isCanvasVisible ? 'block' : 'none' }}
 							className={cn({
 								[styles['video-container__main-video']]: peerStatus,
+								[styles['video-container__main-video--canvas']]: peerStatus,
 								[styles['video-container--hidden']]:
 									callType === 'general' && !peerStatus,
 							})}
@@ -510,15 +532,26 @@ export default function DeafVideo(props: DeafVideoProps) {
 					) : (
 						<Lottie
 							animationData={videoLoading}
-							style={{ width: '40px', height: '40px' }}
+							className={styles['loading-spinner']}
 						/>
 					)}
 					{!isCanvasVisible && (
 						<div className={styles['video-loading-overlay']}>
 							<Lottie
 								animationData={videoLoading}
-								style={{ width: 40, height: 40 }}
+								className={styles['loading-spinner']}
 							/>
+							<div
+								className={cn({
+									[styles['avatar-loading-text']]: true,
+									[styles['avatar-loading-text__sub']]: peerStatus,
+								})}
+							>
+								아바타를 불러오는 중입니다
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+								<span className={styles['dot']}>.</span>
+							</div>
 						</div>
 					)}
 					{peerStatus && !isPeerCameraActive && (
@@ -567,8 +600,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			{<p>현재 단어: {predictionWord}</p>}
-			{<p>현재 문장: {predictionSen}</p>}
+			<p className={styles.sentence}>1{predictionSen}</p>
 		</div>
 	);
 }

@@ -13,7 +13,7 @@ interface NaverMapProps {
 		roadAddress: string;
 		jibunAddress: string;
 	}) => void;
-	coordinates?: { lat: number; lng: number };
+	coordinates?: { lat?: number; lng?: number };
 	address?: string;
 }
 
@@ -89,8 +89,8 @@ export default function NaverMap({
 							if (status === window.naver.maps.Service.Status.OK) {
 								const result = response.v2.address;
 								onLocationUpdate?.({
-									lat: coordinates.lat,
-									lng: coordinates.lng,
+									lat: coordinates.lat!,
+									lng: coordinates.lng!,
 									roadAddress: result.roadAddress || '',
 									jibunAddress: result.jibunAddress || '',
 								});
