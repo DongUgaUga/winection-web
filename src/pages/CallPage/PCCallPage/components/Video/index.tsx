@@ -15,6 +15,7 @@ interface VideoProps {
 	code: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
+	isUnityReady: boolean;
 	onLeave?: () => void;
 	callType: 'general' | 'emergency';
 }
@@ -26,6 +27,7 @@ export default function Video(props: VideoProps) {
 		code,
 		isCameraActive,
 		isMicActive,
+		isUnityReady,
 		onLeave,
 		callType,
 	} = props;
@@ -47,8 +49,6 @@ export default function Video(props: VideoProps) {
 
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
 	const isRemoteDescSetRef = useRef(false);
-
-	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
 
 	useEffect(() => {
 		if (!code) return;
@@ -177,7 +177,6 @@ export default function Video(props: VideoProps) {
 				}
 				if (data.type === 'sentence' && data.client_id === 'peer') {
 					if (data.sentence) {
-						console.log('문장: ', data.sentence);
 						setPredictionSen(data.sentence);
 						setPeerStatus(true);
 						setAudioBase(data.audio_base64);
@@ -349,14 +348,6 @@ export default function Video(props: VideoProps) {
 		document.body.appendChild(script);
 	}, []);
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setIsCanvasVisible(true);
-		}, 8000);
-
-		return () => clearTimeout(timer);
-	}, []);
-
 	return (
 		<div>
 			<div
@@ -415,7 +406,7 @@ export default function Video(props: VideoProps) {
 					<canvas
 						id="unity-canvas"
 						ref={unityCanvasRef}
-						style={{ display: isCanvasVisible ? 'block' : 'none' }}
+						style={{ display: isUnityReady ? 'block' : 'none' }}
 						className={cn({
 							[styles['video-container__sub-video']]: peerStatus,
 							[styles['video-container__sub-video--canvas']]: peerStatus,
@@ -424,7 +415,7 @@ export default function Video(props: VideoProps) {
 						})}
 						tabIndex={-1}
 					/>
-					{!isCanvasVisible && (
+					{!isUnityReady && (
 						<div className={styles['video-loading-overlay']}>
 							<Lottie
 								animationData={videoLoading}
@@ -462,7 +453,7 @@ export default function Video(props: VideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			<p className={styles.sentence}>1 {predictionSen}</p>
+			<p className={styles.sentence}>{predictionSen}</p>
 		</div>
 	);
 }

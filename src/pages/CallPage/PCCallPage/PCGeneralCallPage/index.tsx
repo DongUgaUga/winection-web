@@ -163,6 +163,24 @@ export default function PCGeneralCallPage() {
 		isMicActiveRef.current = isMicActive;
 	}, [isMicActive]);
 
+	const [isUnityReady, setIsUnityReady] = useState(false);
+
+	(window as any).onUnityReady = () => {
+		console.log('✅ Unity 로딩 완료됨!');
+
+		(window as any).unityInstance?.SendMessage(
+			'WebAvatarReceiverMerged', // Unity GameObject 이름
+			'ReceiveUserType', // Unity 함수 이름
+			'general', // 전달할 값 ("general" 또는 "emergency")
+		);
+
+		const timer = setTimeout(() => {
+			setIsUnityReady(true);
+		}, 2000);
+
+		return () => clearTimeout(timer);
+	};
+
 	const copyRoomCode = () => {
 		navigator.clipboard
 			.writeText(params.code!)
@@ -398,6 +416,7 @@ export default function PCGeneralCallPage() {
 								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								isUnityReady={isUnityReady}
 								voice={voice}
 								callType="general"
 							/>
@@ -408,6 +427,7 @@ export default function PCGeneralCallPage() {
 								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								isUnityReady={isUnityReady}
 								callType="general"
 							/>
 						)}
