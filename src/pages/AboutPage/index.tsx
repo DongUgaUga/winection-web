@@ -8,7 +8,7 @@ import styles from './AboutPage.module.scss';
 const sections = [
 	{
 		id: 'intro',
-		title: 'We-connent:',
+		title: 'With-Connection:',
 		subtitle: '변화를 두려워하지 않는 사람들이',
 		description: '서로 연결되어 세상을 바꾸는 힘을 만듭니다.',
 	},

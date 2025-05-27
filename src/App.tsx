@@ -10,11 +10,6 @@ import CallEndPage from './pages/CallEndPage';
 import CallPage from './pages/CallPage';
 import CallWaitPage from './pages/CallWaitPage';
 import IndexPage from './pages/IndexPage';
-import STTWebSocket from './pages/ToSign';
-import VideoChatHandTracking from './pages/ToSpeech';
-import TranslatePage from './pages/ts';
-import TestUnityCallWait from './pages/UnityPlayer/TestUnityCallWait';
-import UnityPage from './pages/UnityPlayer/TestUnityPage';
 
 function App() {
 	return (
@@ -26,9 +21,6 @@ function App() {
 						<Route path="/:calltype" element={<CallWaitPage />} />
 						<Route path="/:calltype/:code" element={<CallPage />} />
 						<Route path="/call-end" element={<CallEndPage />} />
-						<Route path="/ts" element={<TranslatePage />} />
-						<Route path="/stsl" element={<STTWebSocket />} />
-						<Route path="/slts" element={<VideoChatHandTracking />} />
 					</Route>
 					<Route path="/auth" element={<Auth />}>
 						<Route index element={<LoginPage />} />
@@ -36,8 +28,6 @@ function App() {
 						<Route path="/auth/find-pw" element={<FindPasswordPage />} />
 					</Route>
 					<Route path="/about" element={<AboutPage />} />
-					<Route path="/unity" element={<TestUnityCallWait />} />
-					<Route path="/:unity/:code" element={<UnityPage />} />
 				</Routes>
 				<ToastContainer />
 			</BrowserRouter>

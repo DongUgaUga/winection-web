@@ -8,7 +8,11 @@ export default function useLogout() {
 	const logout = () => {
 		localStorage.removeItem('accessToken');
 		queryClient.removeQueries({ queryKey: ['userInfo'] });
-		navigate('/');
+		if (window.location.pathname === '/') {
+			navigate(0); // 현재 경로에서 새로고침
+		} else {
+			navigate('/');
+		}
 	};
 
 	return logout;

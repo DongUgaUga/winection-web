@@ -1,6 +1,5 @@
 import { cn } from '@bcsdlab/utils';
 import { useNavigate } from 'react-router-dom';
-import GrandfatherAvatar from 'src/assets/grandfather-avatar.svg';
 import useUserInfo from '../../../hooks/useUserInfo';
 import WinectionLogo from '/src/assets/winection.svg';
 import useBreakpoint from '../../../utils/hooks/useBreakPoint';
@@ -37,7 +36,6 @@ export default function LoginView() {
 				{userClassification === '농인' ? (
 					<div className={styles.call}>
 						<div className={styles['call__type']}>
-							<GrandfatherAvatar />
 							<button
 								className={styles.call__button}
 								onClick={() => navigate('/general-call')}
@@ -46,7 +44,6 @@ export default function LoginView() {
 							</button>
 						</div>
 						<div className={styles['call__type']}>
-							<GrandfatherAvatar />
 							<button
 								className={styles.call__button}
 								onClick={() => navigate('/emergency-call')}
