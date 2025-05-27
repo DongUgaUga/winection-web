@@ -64,6 +64,8 @@ export default function DeafVideo(props: DeafVideoProps) {
 
 	// 관리자 모드 코드
 	const inputRef = useRef<HTMLInputElement>(null);
+	const [adminMode, setAdminMode] = useState(false);
+	console.log('관리자 모드', adminMode);
 
 	useEffect(() => {
 		if (!code) return;
@@ -315,6 +317,22 @@ export default function DeafVideo(props: DeafVideoProps) {
 
 				const buffer = landmarkBufferRef.current;
 				buffer.push(frame);
+
+				if (!adminMode) {
+					if (buffer.length >= 30) {
+						const payload = {
+							type: 'land_mark',
+							voice: voiceRef.current,
+							data: {
+								pose: buffer.slice(0, 30),
+							},
+						};
+
+						wsRef.current?.send(JSON.stringify(payload));
+
+						landmarkBufferRef.current = buffer.slice(5);
+					}
+				}
 			});
 		} catch (err) {
 			console.error('웹캠 접근 에러:', err);
@@ -608,6 +626,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 				className={styles.sentence}
 				onClick={() => {
 					inputRef.current?.focus();
+					setAdminMode(true);
 					console.log('클릭');
 				}}
 				onKeyDown={(e) => {
