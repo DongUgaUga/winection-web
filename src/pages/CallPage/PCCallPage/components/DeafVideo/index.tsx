@@ -60,6 +60,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 	const isRemoteDescSetRef = useRef(false);
 
 	const [saidSentence, setSaidSentence] = useState('');
+	const [manualInput, setManualInput] = useState('');
 
 	useEffect(() => {
 		if (!code) return;
@@ -311,20 +312,6 @@ export default function DeafVideo(props: DeafVideoProps) {
 
 				const buffer = landmarkBufferRef.current;
 				buffer.push(frame);
-
-				if (buffer.length >= 30) {
-					const payload = {
-						type: 'land_mark',
-						voice: voiceRef.current,
-						data: {
-							pose: buffer.slice(0, 30),
-						},
-					};
-
-					wsRef.current?.send(JSON.stringify(payload));
-
-					landmarkBufferRef.current = buffer.slice(5);
-				}
 			});
 		} catch (err) {
 			console.error('웹캠 접근 에러:', err);
@@ -589,6 +576,35 @@ export default function DeafVideo(props: DeafVideoProps) {
 				/>
 			</div>
 			<p className={styles.sentence}>{saidSentence}</p>
+
+			<div className={styles.manualInputContainer}>
+				<input
+					type="text"
+					placeholder="예: 배 아프다 병원"
+					value={manualInput}
+					onChange={(e) => setManualInput(e.target.value)}
+					className={styles.manualInput}
+				/>
+				<button
+					onClick={() => {
+						if (manualInput.trim()) {
+							wsRef.current?.send(
+								JSON.stringify({
+									type: 'words',
+									data: {
+										text: manualInput,
+									},
+									voice: voiceRef.current,
+								}),
+							);
+							setManualInput('');
+						}
+					}}
+					className={styles.manualSendButton}
+				>
+					보내기
+				</button>
+			</div>
 		</div>
 	);
 }

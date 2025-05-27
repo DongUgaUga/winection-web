@@ -186,3 +186,23 @@
   letter-spacing: 0%;
   width: 950px;
 }
+
+.manualInputContainer {
+  display: flex;
+  gap: 8px;
+  margin: 10px;
+}
+
+.manualInput {
+  flex: 1;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.manualSendButton {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
