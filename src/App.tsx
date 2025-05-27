@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import AboutPage from './pages/AboutPage';
@@ -12,6 +13,35 @@ import CallWaitPage from './pages/CallWaitPage';
 import IndexPage from './pages/IndexPage';
 
 function App() {
+	// Unity preload 및 초기화 (App에서 preload)
+	useEffect(() => {
+		const canvas = document.createElement('canvas');
+		canvas.id = 'unity-canvas';
+		canvas.style.display = 'none'; // 숨김 처리
+		document.body.appendChild(canvas);
+
+		const script = document.createElement('script');
+		script.src = '/unity-build/Build/unity-build.loader.js';
+		script.onload = () => {
+			// loader가 로드되면 createUnityInstance 호출
+			if ((window as any).createUnityInstance) {
+				(window as any)
+					.createUnityInstance(canvas, {
+						dataUrl: '/unity-build/Build/unity-build.data',
+						frameworkUrl: '/unity-build/Build/unity-build.framework.js',
+						codeUrl: '/unity-build/Build/unity-build.wasm',
+					})
+					.then((instance: any) => {
+						(window as any).unityInstance = instance;
+						console.log('✅ Unity 초기화 완료 (App에서 preload)');
+					})
+					.catch((err: any) => {
+						console.error('❌ Unity 초기화 실패:', err);
+					});
+			}
+		};
+		document.body.appendChild(script);
+	}, []);
 	return (
 		<>
 			<BrowserRouter>
