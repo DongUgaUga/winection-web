@@ -55,6 +55,8 @@ export default function PCEmergencyCallPage() {
 
 	const [isUnityReady, setIsUnityReady] = useState(false);
 
+	const isCallEndedRef = useRef(false);
+
 	useEffect(() => {
 		isMicActiveRef.current = isMicActive;
 	}, [isMicActive]);
@@ -232,7 +234,7 @@ export default function PCEmergencyCallPage() {
 			console.log('음성 인식 종료됨');
 			setIsListening(false);
 
-			if (isMicActiveRef.current) {
+			if (!isCallEndedRef.current && isMicActiveRef.current) {
 				console.log('음성 인식 재시작 시도');
 				recognitionInstance.start();
 			}
@@ -242,7 +244,7 @@ export default function PCEmergencyCallPage() {
 	}, [isDeaf]);
 
 	useEffect(() => {
-		if (!recognition) return;
+		if (!recognition || isCallEndedRef.current) return;
 
 		if (isMicActive && !isListening) {
 			recognition.start();
@@ -260,12 +262,13 @@ export default function PCEmergencyCallPage() {
 	};
 
 	const endCall = () => {
+		isCallEndedRef.current = true;
+		recognition.stop();
 		navigate('/call-end', {
 			state: {
 				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
-		recognition.stop();
 	};
 
 	useEffect(() => {

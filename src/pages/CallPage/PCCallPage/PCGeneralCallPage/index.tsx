@@ -165,6 +165,8 @@ export default function PCGeneralCallPage() {
 
 	const [isUnityReady, setIsUnityReady] = useState(false);
 
+	const isCallEndedRef = useRef(false);
+
 	(window as any).onUnityReady = () => {
 		console.log('✅ Unity 로딩 완료됨!');
 
@@ -201,12 +203,13 @@ export default function PCGeneralCallPage() {
 	};
 
 	const endCall = () => {
+		isCallEndedRef.current = true;
+		recognition.stop();
 		navigate('/call-end', {
 			state: {
 				callTime: formatTime(lastCallTimeRef.current, 'korean'),
 			},
 		});
-		recognition.stop();
 	};
 
 	const updateCallTime = useCallback(() => {
@@ -317,7 +320,7 @@ export default function PCGeneralCallPage() {
 			setIsListening(false);
 			console.log('음성 인식 종료됨');
 
-			if (isMicActiveRef.current) {
+			if (!isCallEndedRef.current && isMicActiveRef.current) {
 				console.log('음성 인식 재시작 시도');
 				recognitionInstance.start();
 			}
@@ -327,7 +330,7 @@ export default function PCGeneralCallPage() {
 	}, [isDeaf]);
 
 	useEffect(() => {
-		if (!recognition) return;
+		if (!recognition || isCallEndedRef.current) return;
 
 		if (isMicActive && !isListening) {
 			recognition.start();
