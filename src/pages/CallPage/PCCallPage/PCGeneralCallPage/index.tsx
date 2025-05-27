@@ -57,7 +57,7 @@ const StyleSelect = ({
 		if ((window as any).unityInstance && avatar) {
 			console.log('[React] 보내는 아바타:', avatar);
 			(window as any).unityInstance.SendMessage(
-				'WebAvatarReceiverGeneral',
+				'WebAvatarReceiverMerged',
 				'ReceiveAvatarName',
 				avatar,
 			);

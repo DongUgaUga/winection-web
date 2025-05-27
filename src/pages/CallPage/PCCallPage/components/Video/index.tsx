@@ -49,9 +49,6 @@ export default function Video(props: VideoProps) {
 	const isRemoteDescSetRef = useRef(false);
 
 	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
-	const type = location.pathname.includes('emergency')
-		? 'Emergency'
-		: 'General';
 
 	useEffect(() => {
 		if (!code) return;
@@ -324,7 +321,7 @@ export default function Video(props: VideoProps) {
 	useEffect(() => {
 		// ✅ Unity 인스턴스 로드
 		const script = document.createElement('script');
-		script.src = `/unity-build/${type}/Build/${type}.loader.js`;
+		script.src = `/unity-build/Build/unity-build.loader.js`;
 		script.onload = () => {
 			setTimeout(() => {
 				const canvas = document.querySelector('#unity-canvas');
@@ -335,9 +332,9 @@ export default function Video(props: VideoProps) {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				createUnityInstance(canvas, {
-					dataUrl: `/unity-build/${type}/Build/${type}.data`,
-					frameworkUrl: `/unity-build/${type}/Build/${type}.framework.js`,
-					codeUrl: `/unity-build/${type}/Build/${type}.wasm`,
+					dataUrl: `/unity-build/Build/unity-build.data`,
+					frameworkUrl: `/unity-build/Build/unity-build.framework.js`,
+					codeUrl: `/unity-build/Build/unity-build.wasm`,
 				})
 					.then((unityInstance: any) => {
 						console.log('✅ Unity 인스턴스 로드 완료', unityInstance);
