@@ -231,11 +231,7 @@ export default function PCEmergencyCallPage() {
 
 			if (unity) {
 				console.log('🚀 아바타 전송:', type);
-				unity.SendMessage(
-					'WebAvatarReceiverEmergency',
-					'ReceiveAvatarName',
-					type,
-				);
+				unity.SendMessage('WebAvatarReceiverMerged', 'ReceiveAvatarName', type);
 			} else {
 				console.warn('😢 unityInstance 아직 없음');
 			}
