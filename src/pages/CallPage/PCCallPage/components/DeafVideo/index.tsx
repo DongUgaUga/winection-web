@@ -62,6 +62,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 	const [saidSentence, setSaidSentence] = useState('');
 	const [manualInput, setManualInput] = useState('');
 
+	// 관리자 모드 코드
+	const inputRef = useRef<HTMLInputElement>(null);
+
 	useEffect(() => {
 		if (!code) return;
 
@@ -471,6 +474,27 @@ export default function DeafVideo(props: DeafVideoProps) {
 		document.body.appendChild(script);
 	}, [peerStatus]);
 
+	// Prevent Unity from interfering with input fields
+	useEffect(() => {
+		const stopKeyPropagation = (e: KeyboardEvent) => {
+			const activeEl = document.activeElement;
+			if (
+				activeEl &&
+				(activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')
+			) {
+				e.stopPropagation();
+			}
+		};
+
+		window.addEventListener('keydown', stopKeyPropagation, true);
+		window.addEventListener('keypress', stopKeyPropagation, true);
+
+		return () => {
+			window.removeEventListener('keydown', stopKeyPropagation, true);
+			window.removeEventListener('keypress', stopKeyPropagation, true);
+		};
+	}, []);
+
 	return (
 		<div>
 			<div
@@ -495,7 +519,10 @@ export default function DeafVideo(props: DeafVideoProps) {
 						<canvas
 							id="unity-canvas"
 							ref={unityCanvasRef}
-							style={{ display: isUnityReady ? 'block' : 'none' }}
+							style={{
+								display: isUnityReady ? 'block' : 'none',
+								pointerEvents: 'none',
+							}}
 							className={cn({
 								[styles['video-container__main-video']]: peerStatus,
 								[styles['video-container__main-video--canvas']]: peerStatus,
@@ -575,35 +602,48 @@ export default function DeafVideo(props: DeafVideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			<p className={styles.sentence}>{saidSentence}</p>
-
+			<p
+				role="button"
+				tabIndex={0}
+				className={styles.sentence}
+				onClick={() => {
+					inputRef.current?.focus();
+					console.log('클릭');
+				}}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						inputRef.current?.focus();
+					}
+				}}
+			>
+				{saidSentence}
+			</p>
 			<div className={styles.manualInputContainer}>
 				<input
 					type="text"
+					ref={inputRef}
 					placeholder="예: 배 아프다 병원"
 					value={manualInput}
-					onChange={(e) => setManualInput(e.target.value)}
+					autoFocus
+					onChange={(e) => {
+						setManualInput(e.target.value);
+						console.log(e.target.value);
+					}}
 					className={styles.manualInput}
-				/>
-				<button
-					onClick={() => {
-						if (manualInput.trim()) {
+					onKeyUp={(e) => {
+						if (e.key === 'Enter' && manualInput.trim()) {
+							e.preventDefault();
 							wsRef.current?.send(
 								JSON.stringify({
 									type: 'words',
-									data: {
-										text: manualInput,
-									},
+									data: { text: manualInput },
 									voice: voiceRef.current,
 								}),
 							);
 							setManualInput('');
 						}
 					}}
-					className={styles.manualSendButton}
-				>
-					보내기
-				</button>
+				/>
 			</div>
 		</div>
 	);
