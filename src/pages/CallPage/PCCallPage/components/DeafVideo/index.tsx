@@ -33,10 +33,12 @@ export default function DeafVideo(props: DeafVideoProps) {
 		onLeave,
 		callType,
 	} = props;
+	const voiceRef = useRef(voice);
+	useEffect(() => {
+		voiceRef.current = voice;
+	}, [voice]);
 	const { data: userInfo } = useUserInfo();
 	const { startTime, setStartTime } = useStartTimeStore();
-
-	const [predictionSen, setPredictionSen] = useState<string>('');
 
 	const [isPeerCameraActive, setIsPeerCameraActive] = useState(true);
 	const [isPeerMicActive, setIsPeerMicActive] = useState(true);
@@ -56,6 +58,8 @@ export default function DeafVideo(props: DeafVideoProps) {
 	const isRemoteDescSetRef = useRef(false);
 
 	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
+
+	const [saidSentence, setSaidSentence] = useState('초기 문장');
 
 	useEffect(() => {
 		if (!code) return;
@@ -128,6 +132,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 					if (Array.isArray(motions)) {
 						const motionIndices = motions.map((m: any) => m.index);
 						const unity = (window as any).unityInstance;
+						setSaidSentence(data.sentence);
 						console.log('👐 수신된 수어 인덱스 배열:', motionIndices);
 
 						if (unity) {
@@ -169,13 +174,6 @@ export default function DeafVideo(props: DeafVideoProps) {
 						setPeerNickname(data.nickname);
 						setPeerType(data.user_type);
 						setStartTime(data.started_at);
-					}
-				}
-				if (data.type === 'sentence' && data.client_id === 'peer') {
-					if (data.sentence) {
-						console.log('문장: ', data.sentence);
-						setPredictionSen(data.sentence);
-						setPeerStatus(true);
 					}
 				}
 			} catch (error) {
@@ -317,11 +315,12 @@ export default function DeafVideo(props: DeafVideoProps) {
 				if (buffer.length >= 30) {
 					const payload = {
 						type: 'land_mark',
-						voice: voice,
+						voice: voiceRef.current,
 						data: {
-							land_mark: buffer.slice(0, 30),
+							pose: buffer.slice(0, 30),
 						},
 					};
+
 					wsRef.current?.send(JSON.stringify(payload));
 
 					landmarkBufferRef.current = buffer.slice(5);
@@ -597,7 +596,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			<p className={styles.sentence}>1{predictionSen}</p>
+			<p className={styles.sentence}>{saidSentence}</p>
 		</div>
 	);
 }

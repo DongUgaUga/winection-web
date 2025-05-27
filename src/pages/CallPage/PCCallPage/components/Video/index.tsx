@@ -177,7 +177,6 @@ export default function Video(props: VideoProps) {
 				}
 				if (data.type === 'sentence' && data.client_id === 'peer') {
 					if (data.sentence) {
-						console.log('문장: ', data.sentence);
 						setPredictionSen(data.sentence);
 						setPeerStatus(true);
 						setAudioBase(data.audio_base64);
@@ -462,7 +461,7 @@ export default function Video(props: VideoProps) {
 					startTime={startTime}
 				/>
 			</div>
-			<p className={styles.sentence}>1 {predictionSen}</p>
+			<p className={styles.sentence}>{predictionSen}</p>
 		</div>
 	);
 }
