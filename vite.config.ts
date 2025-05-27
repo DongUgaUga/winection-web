@@ -6,12 +6,29 @@ import react from '@vitejs/plugin-react-swc'
 import svgr from 'vite-plugin-svgr';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
+const unityCacheControlPlugin = () => ({
+  name: 'unity-cache-control',
+  configureServer(server: { middlewares: { use: (arg0: (req: any, res: any, next: any) => void) => void; }; }) {
+    server.middlewares.use((req, res, next) => {
+      if (
+        req.url?.endsWith('.data') ||
+        req.url?.endsWith('.wasm') ||
+        req.url?.endsWith('.framework.js')
+      ) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+      next();
+    });
+  },
+});
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     svgr({ include: '**/*.svg' }),
     tsconfigPaths(),
+    unityCacheControlPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['winection.ico', 'winection.png'],
