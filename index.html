@@ -17,10 +17,6 @@
     <meta property="og:url" content="https://winection.kro.kr/" />
     <meta property="og:type" content="website" />
     <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=%VITE_NAVERMAP_CLIENT_ID%&callback=CALLBACK_FUNCTION"></script>
-    <link rel="preload" href="/public/unity-build/Build/unity-build.loader.js" as="script">
-    <link rel="preload" href="/public/unity-build/Build/unity-build.data" as="fetch" crossorigin="anonymous">
-    <link rel="preload" href="/public/unity-build/Build/unity-build.framework.js" as="script">
-    <link rel="preload" href="/public/unity-build/Build/unity-build.wasm" as="fetch" crossorigin="anonymous">
   </head>
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8VH93B6P8"></script>
@@ -35,6 +31,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- index.html or _document.tsx 에 preload 태그 추가 -->
   </body>
 </html>
