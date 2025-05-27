@@ -17,6 +17,7 @@ interface DeafVideoProps {
 	code: string;
 	isCameraActive: boolean;
 	isMicActive: boolean;
+	isUnityReady: boolean;
 	voice?: string;
 	onLeave?: () => void;
 	callType: 'general' | 'emergency';
@@ -29,6 +30,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 		code,
 		isCameraActive,
 		isMicActive,
+		isUnityReady,
 		voice,
 		onLeave,
 		callType,
@@ -57,9 +59,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 	const candidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
 	const isRemoteDescSetRef = useRef(false);
 
-	const [isCanvasVisible, setIsCanvasVisible] = useState(false);
-
-	const [saidSentence, setSaidSentence] = useState('초기 문장');
+	const [saidSentence, setSaidSentence] = useState('');
 
 	useEffect(() => {
 		if (!code) return;
@@ -484,14 +484,6 @@ export default function DeafVideo(props: DeafVideoProps) {
 		document.body.appendChild(script);
 	}, [peerStatus]);
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setIsCanvasVisible(true);
-		}, 6000);
-
-		return () => clearTimeout(timer);
-	}, []);
-
 	return (
 		<div>
 			<div
@@ -516,7 +508,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 						<canvas
 							id="unity-canvas"
 							ref={unityCanvasRef}
-							style={{ display: isCanvasVisible ? 'block' : 'none' }}
+							style={{ display: isUnityReady ? 'block' : 'none' }}
 							className={cn({
 								[styles['video-container__main-video']]: peerStatus,
 								[styles['video-container__main-video--canvas']]: peerStatus,
@@ -531,7 +523,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 							className={styles['loading-spinner']}
 						/>
 					)}
-					{!isCanvasVisible && (
+					{!isUnityReady && (
 						<div className={styles['video-loading-overlay']}>
 							<Lottie
 								animationData={videoLoading}

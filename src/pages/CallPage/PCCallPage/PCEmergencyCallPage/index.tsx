@@ -53,9 +53,35 @@ export default function PCEmergencyCallPage() {
 
 	const isDeaf = userInfo?.user_type === '농인';
 
+	const [isUnityReady, setIsUnityReady] = useState(false);
+
 	useEffect(() => {
 		isMicActiveRef.current = isMicActive;
 	}, [isMicActive]);
+
+	(window as any).onUnityReady = () => {
+		console.log('✅ Unity 로딩 완료됨!');
+
+		(window as any).unityInstance?.SendMessage(
+			'WebAvatarReceiverMerged', // Unity GameObject 이름
+			'ReceiveUserType', // Unity 함수 이름
+			'emergency', // 전달할 값 ("general" 또는 "emergency")
+		);
+
+		const timer = setTimeout(() => {
+			const unity = (window as any).unityInstance;
+
+			if (unity) {
+				console.log('🚀 아바타 전송:', type);
+				unity.SendMessage('WebAvatarReceiverMerged', 'ReceiveAvatarName', type);
+			} else {
+				console.warn('😢 unityInstance 아직 없음');
+			}
+			setIsUnityReady(true);
+		}, 2000);
+
+		return () => clearTimeout(timer);
+	};
 
 	const updateCallTime = useCallback(() => {
 		setCallTime((prev) => {
@@ -225,21 +251,6 @@ export default function PCEmergencyCallPage() {
 		}
 	}, [recognition, isMicActive]);
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			const unity = (window as any).unityInstance;
-
-			if (unity) {
-				console.log('🚀 아바타 전송:', type);
-				unity.SendMessage('WebAvatarReceiverMerged', 'ReceiveAvatarName', type);
-			} else {
-				console.warn('😢 unityInstance 아직 없음');
-			}
-		}, 8000);
-
-		return () => clearTimeout(timer);
-	}, [userInfo?.emergency_type]);
-
 	const handleMic = () => {
 		setIsMicActive((state) => !state);
 	};
@@ -325,6 +336,7 @@ export default function PCEmergencyCallPage() {
 								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								isUnityReady={isUnityReady}
 								voice="성인 남자"
 								onLeave={handleLeave}
 								callType="emergency"
@@ -336,6 +348,7 @@ export default function PCEmergencyCallPage() {
 								code={params.code!}
 								isCameraActive={isCameraActive}
 								isMicActive={isMicActive}
+								isUnityReady={isUnityReady}
 								onLeave={handleLeave}
 								callType="emergency"
 							/>
