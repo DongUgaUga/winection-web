@@ -262,8 +262,8 @@ export default function PCEmergencyCallPage() {
 	};
 
 	const endCall = () => {
+		if (!isDeaf) recognition.stop();
 		isCallEndedRef.current = true;
-		recognition.stop();
 		navigate('/call-end', {
 			state: {
 				callTime: formatTime(lastCallTimeRef.current, 'korean'),
