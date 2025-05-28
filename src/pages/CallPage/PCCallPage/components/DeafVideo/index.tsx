@@ -318,7 +318,7 @@ export default function DeafVideo(props: DeafVideoProps) {
 				const buffer = landmarkBufferRef.current;
 				buffer.push(frame);
 
-				if (!adminMode) {
+				if (!adminMode && peerType === '농인') {
 					if (buffer.length >= 30) {
 						const payload = {
 							type: 'land_mark',
