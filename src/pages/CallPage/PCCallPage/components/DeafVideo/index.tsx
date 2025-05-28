@@ -327,11 +327,9 @@ export default function DeafVideo(props: DeafVideoProps) {
 								pose: buffer.slice(0, 30),
 							},
 						};
-
 						wsRef.current?.send(JSON.stringify(payload));
-
-						landmarkBufferRef.current = buffer.slice(5);
 					}
+					landmarkBufferRef.current = buffer.slice(5);
 				}
 			});
 		} catch (err) {
